@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Home, Search, MessageCircle, Plus, X, MapPin, Send, User,
-  Trash2, ChevronLeft, SlidersHorizontal, Loader2, Pencil, Inbox
+  Trash2, ChevronLeft, SlidersHorizontal, Loader2, Pencil, Inbox, LogOut
 } from 'lucide-react';
+import { supabase } from './lib/supabase';
+import { formatPrice, timeAgo, validateForm } from './lib/utils';
+import Auth from './components/Auth';
+import { fetchListings, createListing, deleteListing, fetchMyListings } from './api/listings';
+import { fetchChats, openOrCreateChat, fetchThread, sendMessage as apiSendMessage, subscribeToChat } from './api/chats';
 
 const FONT_IMPORT =
   "@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');";
@@ -42,57 +47,40 @@ function fontMono(weight = 600) {
   return { fontFamily: "'IBM Plex Mono', monospace", fontWeight: weight };
 }
 
-async function storageGet(key, shared = false) {
-  try {
-    const res = await window.storage.get(key, shared);
-    return res ? res.value : null;
-  } catch (e) {
-    return null;
-  }
-}
-async function storageSet(key, value, shared = false) {
-  try {
-    await window.storage.set(key, value, shared);
-    return true;
-  } catch (e) {
-    console.error('storage set failed', e);
-    return false;
-  }
-}
-async function storageList(prefix, shared = false) {
-  try {
-    const res = await window.storage.list(prefix, shared);
-    return (res && res.keys) || [];
-  } catch (e) {
-    return [];
-  }
-}
-async function storageDelete(key, shared = false) {
-  try {
-    await window.storage.delete(key, shared);
-    return true;
-  } catch (e) {
-    return false;
-  }
+function Skeleton({ width = '100%', height = 16, borderRadius = 6, style = {} }) {
+  return (
+    <div
+      style={{
+        width, height, borderRadius,
+        background: `linear-gradient(90deg, ${COLORS.paperSoft} 25%, ${COLORS.border} 50%, ${COLORS.paperSoft} 75%)`,
+        backgroundSize: '200% 100%',
+        animation: 'shimmer 1.5s infinite',
+        ...style,
+      }}
+    />
+  );
 }
 
-function genId(prefix) {
-  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+function ListingSkeleton() {
+  return (
+    <div style={{ background: COLORS.white, border: `1px solid ${COLORS.border}`, borderLeft: `4px solid ${COLORS.border}`, borderRadius: 10, padding: '16px 18px' }} className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <Skeleton width={80} height={22} borderRadius={999} />
+        <Skeleton width={100} height={18} />
+      </div>
+      <div className="flex items-center gap-2">
+        <Skeleton width={120} height={14} />
+        <Skeleton width={60} height={14} />
+      </div>
+      <Skeleton width="80%" height={14} />
+      <div className="flex items-center justify-between pt-2" style={{ borderTop: `1px solid ${COLORS.border}` }}>
+        <Skeleton width={140} height={12} />
+        <Skeleton width={80} height={12} />
+      </div>
+    </div>
+  );
 }
-function formatPrice(n) {
-  return `${Number(n).toLocaleString('ru-RU')} ₽/мес`;
-}
-function timeAgo(ts) {
-  const diff = Date.now() - ts;
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'только что';
-  if (min < 60) return `${min} мин назад`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr} ч назад`;
-  const day = Math.floor(hr / 24);
-  if (day < 7) return `${day} дн назад`;
-  return new Date(ts).toLocaleDateString('ru-RU');
-}
+
 
 function DirectionTag({ type, size = 'md' }) {
   const isOffer = type === 'offer';
@@ -197,10 +185,8 @@ function NavButton({ active, icon: Icon, label, onClick }) {
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [onboardName, setOnboardName] = useState('');
-  const [onboardCity, setOnboardCity] = useState('');
-  const [onboardBusy, setOnboardBusy] = useState(false);
 
   const [view, setView] = useState('feed');
   const [editingProfile, setEditingProfile] = useState(false);
@@ -217,122 +203,186 @@ export default function App() {
   const [form, setForm] = useState({
     type: 'offer', city: '', rooms: '1 комната', price: '', area: '', description: '',
   });
+  const [formErrors, setFormErrors] = useState({});
   const [posting, setPosting] = useState(false);
+
+  const [myListings, setMyListings] = useState([]);
+  const [toast, setToast] = useState(null);
 
   const [chats, setChats] = useState([]);
   const [chatsLoading, setChatsLoading] = useState(false);
   const [activeConv, setActiveConv] = useState(null);
   const [msgInput, setMsgInput] = useState('');
   const [sending, setSending] = useState(false);
-  const pollRef = useRef(null);
+  const unsubRef = useRef(null);
   const threadEndRef = useRef(null);
 
   useEffect(() => {
-    (async () => {
-      const raw = await storageGet('profile', false);
-      if (raw) {
-        try { setProfile(JSON.parse(raw)); } catch (e) {}
-      }
-      setLoading(false);
-    })();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) loadProfile(session.user.id);
+      else setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) loadProfile(session.user.id);
+      else { setProfile(null); setLoading(false); }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  async function completeOnboarding() {
-    if (!onboardName.trim()) return;
-    setOnboardBusy(true);
-    const p = { userId: genId('user'), name: onboardName.trim(), city: onboardCity.trim() };
-    await storageSet('profile', JSON.stringify(p), false);
-    setProfile(p);
-    setOnboardBusy(false);
+  async function loadProfile(userId) {
+    try {
+      const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
+      if (error || !data) {
+        console.error('Failed to load profile:', error);
+        setProfile(null);
+      } else {
+        setProfile({ userId: data.id, name: data.name, city: data.city });
+      }
+    } catch (e) {
+      console.error('Failed to load profile:', e);
+      setProfile(null);
+    }
+    setLoading(false);
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setProfile(null);
+    setSession(null);
   }
 
   async function saveProfileEdits() {
-    const p = { ...profile, name: editName.trim() || profile.name, city: editCity.trim() };
-    await storageSet('profile', JSON.stringify(p), false);
-    setProfile(p);
-    setEditingProfile(false);
+    const newName = editName.trim() || profile.name;
+    const newCity = editCity.trim();
+    try {
+      const { error } = await supabase.from('users').update({ name: newName, city: newCity }).eq('id', profile.userId);
+      if (error) {
+        console.error('Failed to save profile:', error);
+        showToast('Не удалось сохранить профиль');
+        return;
+      }
+      setProfile({ ...profile, name: newName, city: newCity });
+      setEditingProfile(false);
+    } catch (e) {
+      console.error('Failed to save profile:', e);
+      showToast('Не удалось сохранить профиль');
+    }
   }
 
   const loadListings = useCallback(async () => {
     setListingsLoading(true);
-    const keys = await storageList('listing:', true);
-    const raws = await Promise.all(keys.map((k) => storageGet(k, true)));
-    const items = raws
-      .filter(Boolean)
-      .map((r) => { try { return JSON.parse(r); } catch (e) { return null; } })
-      .filter(Boolean);
-    items.sort((a, b) => b.createdAt - a.createdAt);
-    setListings(items);
+    try {
+      const items = await fetchListings({
+        type: filterType,
+        city: filterCity,
+        rooms: filterRooms,
+        maxPrice: filterMaxPrice,
+      });
+      setListings(items);
+    } catch (e) {
+      console.error('Failed to load listings:', e);
+      showToast('Не удалось загрузить объявления');
+    }
     setListingsLoading(false);
-  }, []);
+  }, [filterType, filterCity, filterRooms, filterMaxPrice]);
+
+  const loadMyListings = useCallback(async () => {
+    if (!profile) return;
+    setListingsLoading(true);
+    try {
+      const items = await fetchMyListings(profile.userId);
+      setMyListings(items);
+    } catch (e) {
+      console.error('Failed to load my listings:', e);
+      showToast('Не удалось загрузить ваши объявления');
+    }
+    setListingsLoading(false);
+  }, [profile]);
 
   useEffect(() => {
-    if (profile && (view === 'feed' || view === 'mine')) loadListings();
-  }, [profile, view, loadListings]);
+    if (profile && view === 'feed') loadListings();
+    if (profile && view === 'mine') loadMyListings();
+  }, [profile, view, loadListings, loadMyListings]);
+
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  function validateFormLocal() {
+    const errors = validateForm(form);
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
 
   async function submitListing(e) {
     e.preventDefault();
-    if (!form.city.trim() || !form.price) return;
+    if (!validateFormLocal()) return;
     setPosting(true);
-    const id = genId('listing');
-    const item = {
-      id, authorId: profile.userId, authorName: profile.name,
-      type: form.type, city: form.city.trim(), rooms: form.rooms,
-      price: Number(form.price), area: form.area ? Number(form.area) : null,
-      description: form.description.trim(), createdAt: Date.now(),
-    };
-    await storageSet(`listing:${id}`, JSON.stringify(item), true);
-    setForm({ type: form.type, city: '', rooms: '1 комната', price: '', area: '', description: '' });
+    try {
+      await createListing({
+        userId: profile.userId,
+        type: form.type,
+        city: form.city,
+        rooms: form.rooms,
+        price: form.price,
+        area: form.area,
+        description: form.description,
+      });
+      setForm({ type: form.type, city: '', rooms: '1 комната', price: '', area: '', description: '' });
+      setFormErrors({});
+      showToast('Объявление опубликовано');
+      setView('mine');
+    } catch (e) {
+      console.error('Failed to create listing:', e);
+      showToast('Не удалось создать объявление');
+    }
     setPosting(false);
-    setView('mine');
   }
 
   async function removeListing(id) {
-    await storageDelete(`listing:${id}`, true);
-    setListings((prev) => prev.filter((l) => l.id !== id));
-  }
-
-  function convKeyFor(listing) {
-    const ids = [profile.userId, listing.authorId].sort();
-    return `chat:${listing.id}:${ids.join('_')}`;
+    try {
+      await deleteListing(id);
+      setListings((prev) => prev.filter((l) => l.id !== id));
+      setMyListings((prev) => prev.filter((l) => l.id !== id));
+      showToast('Объявление удалено');
+    } catch (e) {
+      console.error('Failed to delete listing:', e);
+      showToast('Не удалось удалить объявление');
+    }
   }
 
   async function openChatWithListing(listing) {
-    const key = convKeyFor(listing);
-    const raw = await storageGet(key, true);
-    let thread;
-    if (raw) {
-      try { thread = JSON.parse(raw); } catch (e) { thread = null; }
-    }
-    if (!thread) {
-      thread = {
+    try {
+      const chatId = await openOrCreateChat({
         listingId: listing.id,
         listingSummary: `${listing.type === 'offer' ? 'Сдаётся' : 'Ищут'} · ${listing.rooms} · ${listing.city} · ${formatPrice(listing.price)}`,
-        participants: { [profile.userId]: profile.name, [listing.authorId]: listing.authorName },
-        messages: [],
-      };
+        userId: profile.userId,
+        otherUserId: listing.authorId,
+      });
+      const thread = await fetchThread(chatId);
+      setActiveConv({ chatId, thread });
+      setView('thread');
+    } catch (e) {
+      console.error('Failed to open chat:', e);
+      showToast('Не удалось открыть чат');
     }
-    setActiveConv({ key, thread });
-    setView('thread');
   }
 
   const loadChats = useCallback(async () => {
     if (!profile) return;
     setChatsLoading(true);
-    const keys = await storageList('chat:', true);
-    const mine = keys.filter((k) => k.includes(profile.userId));
-    const raws = await Promise.all(mine.map((k) => storageGet(k, true)));
-    const items = mine
-      .map((k, i) => {
-        try { return { key: k, thread: JSON.parse(raws[i]) }; } catch (e) { return null; }
-      })
-      .filter((x) => x && x.thread && x.thread.messages && x.thread.messages.length > 0);
-    items.sort((a, b) => {
-      const at = a.thread.messages[a.thread.messages.length - 1]?.ts || 0;
-      const bt = b.thread.messages[b.thread.messages.length - 1]?.ts || 0;
-      return bt - at;
-    });
-    setChats(items);
+    try {
+      const items = await fetchChats(profile.userId);
+      setChats(items);
+    } catch (e) {
+      console.error('Failed to load chats:', e);
+      showToast('Не удалось загрузить сообщения');
+    }
     setChatsLoading(false);
   }, [profile]);
 
@@ -340,20 +390,23 @@ export default function App() {
     if (profile && view === 'chats') loadChats();
   }, [profile, view, loadChats]);
 
+  const activeChatIdRef = useRef(null);
   useEffect(() => {
-    if (view === 'thread' && activeConv) {
-      pollRef.current = setInterval(async () => {
-        const raw = await storageGet(activeConv.key, true);
-        if (raw) {
-          try {
-            const thread = JSON.parse(raw);
-            setActiveConv((prev) => (prev && prev.key === activeConv.key ? { ...prev, thread } : prev));
-          } catch (e) {}
-        }
-      }, 4000);
-      return () => clearInterval(pollRef.current);
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
     }
-  }, [view, activeConv?.key]);
+    if (view === 'thread' && activeConv) {
+      activeChatIdRef.current = activeConv.chatId;
+      unsubRef.current = subscribeToChat(activeConv.chatId, (msg) => {
+        setActiveConv((prev) => {
+          if (!prev || prev.chatId !== activeChatIdRef.current) return prev;
+          return { ...prev, thread: { ...prev.thread, messages: [...prev.thread.messages, msg] } };
+        });
+      });
+      return () => { if (unsubRef.current) unsubRef.current(); };
+    }
+  }, [view, activeConv?.chatId]);
 
   useEffect(() => {
     if (view === 'thread') threadEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -362,26 +415,17 @@ export default function App() {
   async function sendMessage() {
     if (!msgInput.trim() || !activeConv) return;
     setSending(true);
-    const raw = await storageGet(activeConv.key, true);
-    let thread = raw ? JSON.parse(raw) : activeConv.thread;
-    thread.messages = [
-      ...thread.messages,
-      { senderId: profile.userId, senderName: profile.name, text: msgInput.trim(), ts: Date.now() },
-    ];
-    await storageSet(activeConv.key, JSON.stringify(thread), true);
-    setActiveConv({ ...activeConv, thread });
-    setMsgInput('');
+    try {
+      await apiSendMessage({ chatId: activeConv.chatId, senderId: profile.userId, text: msgInput.trim() });
+      setMsgInput('');
+    } catch (e) {
+      console.error('Failed to send message:', e);
+      showToast('Не удалось отправить сообщение');
+    }
     setSending(false);
   }
 
-  const filteredListings = listings.filter((l) => {
-    if (filterType !== 'all' && l.type !== filterType) return false;
-    if (filterCity && !l.city.toLowerCase().includes(filterCity.toLowerCase())) return false;
-    if (filterRooms !== 'any' && l.rooms !== filterRooms) return false;
-    if (filterMaxPrice && l.price > Number(filterMaxPrice)) return false;
-    return true;
-  });
-  const myListings = listings.filter((l) => profile && l.authorId === profile.userId);
+  const filteredListings = listings;
 
   const inputStyle = {
     ...fontBody(500), fontSize: 14, background: COLORS.white,
@@ -400,55 +444,25 @@ export default function App() {
   }
 
   if (!profile) {
-    return (
-      <div style={{ background: COLORS.deep, minHeight: 560 }} className="w-full flex items-center justify-center p-6">
-        <style>{FONT_IMPORT}</style>
-        <div style={{ background: COLORS.paper, borderRadius: 16, maxWidth: 400, width: '100%', padding: '32px 28px' }}>
-          <div style={{ ...fontDisplay(700), fontSize: 30, color: COLORS.ink, letterSpacing: '-0.01em' }}>
-            напрямую
-          </div>
-          <p style={{ ...fontBody(400), fontSize: 14, color: COLORS.muted, marginTop: 6, lineHeight: 1.5 }}>
-            Аренда жилья без агентств. Собственники и арендаторы находят друг друга напрямую — и публикуют объявления в обе стороны.
-          </p>
-          <div style={{ marginTop: 22 }}>
-            <label style={labelStyle}>Как вас зовут?</label>
-            <input
-              style={inputStyle} value={onboardName} onChange={(e) => setOnboardName(e.target.value)}
-              placeholder="Имя" onKeyDown={(e) => e.key === 'Enter' && completeOnboarding()}
-            />
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <label style={labelStyle}>Ваш город (необязательно)</label>
-            <input
-              style={inputStyle} value={onboardCity} onChange={(e) => setOnboardCity(e.target.value)}
-              placeholder="Москва" list="cities-list" onKeyDown={(e) => e.key === 'Enter' && completeOnboarding()}
-            />
-            <datalist id="cities-list">
-              {CITIES.map((c) => <option key={c} value={c} />)}
-            </datalist>
-          </div>
-          <button
-            onClick={completeOnboarding} disabled={!onboardName.trim() || onboardBusy}
-            style={{
-              ...fontBody(600), fontSize: 14, marginTop: 20, width: '100%', padding: '11px 0',
-              borderRadius: 8, background: onboardName.trim() ? COLORS.deep : COLORS.border,
-              color: onboardName.trim() ? COLORS.white : COLORS.muted,
-            }}
-            className="flex items-center justify-center gap-2"
-          >
-            {onboardBusy ? <Loader2 className="animate-spin" size={15} /> : 'Начать'}
-          </button>
-          <p style={{ ...fontBody(400), fontSize: 11.5, color: COLORS.muted, marginTop: 14, lineHeight: 1.5 }}>
-            Это демо-прототип: объявления и сообщения хранятся в общем хранилище и видны всем, кто открывает этот MVP.
-          </p>
-        </div>
-      </div>
-    );
+    return <Auth />;
   }
 
   return (
-    <div style={{ background: COLORS.paper, minHeight: 640, ...fontBody(400) }} className="w-full flex flex-col">
+    <div style={{ background: COLORS.paper, minHeight: 640, ...fontBody(400) }} className="w-full flex flex-col relative">
       <style>{FONT_IMPORT}</style>
+
+      {toast && (
+        <div
+          style={{
+            position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+            background: COLORS.deep, color: COLORS.white, padding: '10px 20px',
+            borderRadius: 8, ...fontBody(600), fontSize: 13.5, zIndex: 999,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          }}
+        >
+          {toast}
+        </div>
+      )}
 
       <div style={{ background: COLORS.deep }} className="w-full">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
@@ -462,17 +476,27 @@ export default function App() {
             <NavButton active={view === 'chats' || view === 'thread'} icon={MessageCircle} label="Сообщения" onClick={() => setView('chats')} />
           </div>
           {!editingProfile ? (
-            <button
-              onClick={() => { setEditingProfile(true); setEditName(profile.name); setEditCity(profile.city || ''); }}
-              style={{ ...fontBody(500), fontSize: 12.5, color: 'rgba(255,255,255,0.75)' }}
-              className="flex items-center gap-1.5"
-            >
-              <span style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 999, width: 22, height: 22 }} className="flex items-center justify-center">
-                <User size={12} color={COLORS.white} />
-              </span>
-              {profile.name}{profile.city ? ` · ${profile.city}` : ''}
-              <Pencil size={11} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setEditingProfile(true); setEditName(profile.name); setEditCity(profile.city || ''); }}
+                style={{ ...fontBody(500), fontSize: 12.5, color: 'rgba(255,255,255,0.75)' }}
+                className="flex items-center gap-1.5"
+              >
+                <span style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 999, width: 22, height: 22 }} className="flex items-center justify-center">
+                  <User size={12} color={COLORS.white} />
+                </span>
+                {profile.name}{profile.city ? ` · ${profile.city}` : ''}
+                <Pencil size={11} />
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{ ...fontBody(500), fontSize: 12.5, color: 'rgba(255,255,255,0.5)' }}
+                className="flex items-center gap-1 hover:opacity-70"
+                title="Выйти"
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
           ) : (
             <div className="flex items-center gap-1.5">
               <input style={{ ...inputStyle, width: 100, padding: '5px 8px', fontSize: 12.5 }} value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Имя" />
@@ -518,7 +542,11 @@ export default function App() {
             </div>
 
             {listingsLoading ? (
-              <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin" size={22} color={COLORS.muted} /></div>
+              <div className="flex flex-col gap-3">
+                <ListingSkeleton />
+                <ListingSkeleton />
+                <ListingSkeleton />
+              </div>
             ) : filteredListings.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 20px' }}>
                 <p style={{ ...fontBody(500), color: COLORS.muted, fontSize: 14 }}>
@@ -557,7 +585,12 @@ export default function App() {
             </div>
             <div>
               <label style={labelStyle}>Город</label>
-              <input style={inputStyle} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Москва" list="cities-list" required />
+              <input
+                style={{ ...inputStyle, borderColor: formErrors.city ? '#A84B3A' : COLORS.border }}
+                value={form.city} onChange={(e) => { setForm({ ...form, city: e.target.value }); setFormErrors((p) => ({ ...p, city: '' })); }}
+                placeholder="Москва" list="cities-list"
+              />
+              {formErrors.city && <p style={{ ...fontBody(500), fontSize: 12, color: '#A84B3A', marginTop: 4 }}>{formErrors.city}</p>}
             </div>
             <div className="flex gap-3">
               <div style={{ flex: 1 }}>
@@ -568,12 +601,24 @@ export default function App() {
               </div>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Площадь, м² (необязательно)</label>
-                <input style={inputStyle} type="number" value={form.area} onChange={(e) => setForm({ ...form, area: e.target.value })} placeholder="45" />
+                <input
+                  style={{ ...inputStyle, borderColor: formErrors.area ? '#A84B3A' : COLORS.border }}
+                  type="number" value={form.area}
+                  onChange={(e) => { setForm({ ...form, area: e.target.value }); setFormErrors((p) => ({ ...p, area: '' })); }}
+                  placeholder="45"
+                />
+                {formErrors.area && <p style={{ ...fontBody(500), fontSize: 12, color: '#A84B3A', marginTop: 4 }}>{formErrors.area}</p>}
               </div>
             </div>
             <div>
               <label style={labelStyle}>{form.type === 'offer' ? 'Цена, ₽/мес' : 'Готовы платить до, ₽/мес'}</label>
-              <input style={inputStyle} type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="45000" required />
+              <input
+                style={{ ...inputStyle, borderColor: formErrors.price ? '#A84B3A' : COLORS.border }}
+                type="number" value={form.price}
+                onChange={(e) => { setForm({ ...form, price: e.target.value }); setFormErrors((p) => ({ ...p, price: '' })); }}
+                placeholder="45000"
+              />
+              {formErrors.price && <p style={{ ...fontBody(500), fontSize: 12, color: '#A84B3A', marginTop: 4 }}>{formErrors.price}</p>}
             </div>
             <div>
               <label style={labelStyle}>Описание</label>
@@ -597,7 +642,10 @@ export default function App() {
           <div className="flex flex-col gap-3">
             <div style={{ ...fontDisplay(600), fontSize: 19, color: COLORS.ink }}>Мои объявления</div>
             {listingsLoading ? (
-              <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin" size={22} color={COLORS.muted} /></div>
+              <div className="flex flex-col gap-3">
+                <ListingSkeleton />
+                <ListingSkeleton />
+              </div>
             ) : myListings.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 20px' }}>
                 <p style={{ ...fontBody(500), color: COLORS.muted, fontSize: 14 }}>
@@ -621,7 +669,18 @@ export default function App() {
           <div className="flex flex-col gap-3">
             <div style={{ ...fontDisplay(600), fontSize: 19, color: COLORS.ink }}>Сообщения</div>
             {chatsLoading ? (
-              <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin" size={22} color={COLORS.muted} /></div>
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} style={{ background: COLORS.white, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '13px 16px' }} className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <Skeleton width={120} height={14} />
+                      <Skeleton width={60} height={12} />
+                    </div>
+                    <Skeleton width="70%" height={12} />
+                    <Skeleton width="90%" height={13} />
+                  </div>
+                ))}
+              </div>
             ) : chats.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 20px' }}>
                 <Inbox size={26} color={COLORS.muted} style={{ margin: '0 auto 10px' }} />
@@ -634,13 +693,17 @@ export default function App() {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                {chats.map(({ key, thread }) => {
-                  const otherId = Object.keys(thread.participants).find((id) => id !== profile.userId);
-                  const otherName = thread.participants[otherId] || 'Собеседник';
-                  const last = thread.messages[thread.messages.length - 1];
+                {chats.map((chat) => {
+                  const otherId = Object.keys(chat.participants).find((id) => id !== profile.userId);
+                  const otherName = chat.participants[otherId] || 'Собеседник';
+                  const last = chat.messages[chat.messages.length - 1];
                   return (
                     <button
-                      key={key} onClick={() => { setActiveConv({ key, thread }); setView('thread'); }}
+                      key={chat.chatId} onClick={async () => {
+                        const thread = await fetchThread(chat.chatId);
+                        setActiveConv({ chatId: chat.chatId, thread });
+                        setView('thread');
+                      }}
                       style={{ background: COLORS.white, border: `1px solid ${COLORS.border}`, borderRadius: 10, padding: '13px 16px', textAlign: 'left' }}
                       className="flex flex-col gap-1"
                     >
@@ -648,7 +711,7 @@ export default function App() {
                         <span style={{ ...fontBody(700), fontSize: 14, color: COLORS.ink }}>{otherName}</span>
                         <span style={{ ...fontBody(400), fontSize: 11.5, color: COLORS.muted }}>{timeAgo(last.ts)}</span>
                       </div>
-                      <span style={{ ...fontBody(500), fontSize: 12, color: COLORS.muted }}>{thread.listingSummary}</span>
+                      <span style={{ ...fontBody(500), fontSize: 12, color: COLORS.muted }}>{chat.listingSummary}</span>
                       <span style={{ ...fontBody(400), fontSize: 13, color: COLORS.ink, opacity: 0.75 }}>
                         {last.senderId === profile.userId ? 'Вы: ' : ''}{last.text}
                       </span>
