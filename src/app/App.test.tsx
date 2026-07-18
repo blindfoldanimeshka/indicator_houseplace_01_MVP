@@ -12,6 +12,20 @@ describe('App', () => {
   })
 
   it('shows the product name when a session is present', async () => {
+    const chain = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      ilike: vi.fn().mockReturnThis(),
+      lte: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      range: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+    }
+
     vi.doMock('@/lib/supabase', () => ({
       getSupabaseClient: () => ({
         auth: {
@@ -22,7 +36,7 @@ describe('App', () => {
           signOut: vi.fn(),
           getUser: vi.fn(),
         },
-        from: vi.fn(),
+        from: vi.fn(() => chain),
       }),
     }))
 
@@ -31,7 +45,7 @@ describe('App', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole('heading', { name: 'Аренда жилья напрямую.' }),
+        screen.getByRole('heading', { name: 'Объявления' }),
       ).toBeInTheDocument(),
     )
   })

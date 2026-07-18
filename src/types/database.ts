@@ -10,7 +10,7 @@ export interface Database {
         Relationships: []
       }
       listings: {
-        Row: {
+         Row: {
           id: string
           author_id: string
           type: 'offer' | 'request'
@@ -19,7 +19,9 @@ export interface Database {
           price: number
           area: number | null
           description: string
+          status: 'active' | 'archived' | 'rejected'
           created_at: string
+          updated_at: string
           deleted_at: string | null
         }
         Insert: {
@@ -30,14 +32,17 @@ export interface Database {
           price: number
           area?: number | null
           description?: string
+          status?: 'active' | 'archived' | 'rejected'
         }
         Update: {
+          type?: 'offer' | 'request'
           city?: string
           rooms?: string
           price?: number
           area?: number | null
           description?: string
           deleted_at?: string | null
+          status?: 'active' | 'archived' | 'rejected'
         }
         Relationships: []
       }
