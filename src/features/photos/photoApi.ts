@@ -61,6 +61,7 @@ export async function uploadPhoto(
     .single()
 
   if (insertError) {
+    await supabase.storage.from('listing-photos').remove([path])
     return { data: null, error: insertError.message }
   }
 
@@ -98,16 +99,22 @@ export async function removePhoto(
 ): Promise<PhotoApiResult<true>> {
   const supabase = getSupabaseClient()
 
-  const { error: removeError } = await supabase.storage
-    .from('listing-photos')
-    .remove([path])
-
   const { error: deleteError } = await supabase
     .from('listing_images')
     .delete()
     .eq('id', imageId)
 
-  const error = removeError?.message ?? deleteError?.message ?? null
+  if (deleteError) {
+    return { data: null, error: deleteError.message }
+  }
 
-  return { data: error ? null : true, error }
+  const { error: removeError } = await supabase.storage
+    .from('listing-photos')
+    .remove([path])
+
+  if (removeError) {
+    return { data: null, error: removeError.message }
+  }
+
+  return { data: true, error: null }
 }

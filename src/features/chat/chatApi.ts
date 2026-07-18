@@ -92,22 +92,27 @@ type MessageInsert = Database['public']['Tables']['messages']['Row']
 export function subscribeMessages(
   chatId: string,
   onInsert: (message: MessageInsert) => void,
+  onModeChange?: (mode: 'realtime' | 'polling') => void,
 ): () => void {
   const supabase = getSupabaseClient()
 
   let pollTimer: ReturnType<typeof setInterval> | undefined
-  let lastSeen: string | null = null
+  const seenIds = new Set<string>()
+
+  const emit = (message: MessageInsert) => {
+    if (seenIds.has(message.id)) return
+    seenIds.add(message.id)
+    onInsert(message)
+  }
 
   const startPolling = () => {
     if (pollTimer) return
+    onModeChange?.('polling')
     const poll = async () => {
       const result = await listMessages(chatId)
       if (result.error || !result.data) return
       for (const message of result.data) {
-        if (!lastSeen || message.created_at > lastSeen) {
-          if (lastSeen) onInsert(message)
-          lastSeen = lastSeen ? (message.created_at > lastSeen ? message.created_at : lastSeen) : message.created_at
-        }
+        emit(message)
       }
     }
     pollTimer = setInterval(poll, 4000)
@@ -126,15 +131,12 @@ export function subscribeMessages(
       },
       (payload) => {
         const message = payload.new as MessageInsert
-        if (!lastSeen || message.created_at > lastSeen) {
-          lastSeen = message.created_at
-        }
-        onInsert(message)
+        emit(message)
       },
     )
     .subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        // realtime active
+        onModeChange?.('realtime')
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
         startPolling()
       }

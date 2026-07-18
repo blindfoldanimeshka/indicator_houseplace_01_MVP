@@ -76,6 +76,11 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
       return
     }
 
+    if (!user.email_confirmed_at) {
+      setFormError('Подтвердите email, чтобы опубликовать объявление.')
+      return
+    }
+
     const values: ListingFormValues = parsed.data
     setStatus('saving')
 
@@ -91,6 +96,8 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
 
     if (!isEditing && result.data) {
       setCreatedId((result.data as { id: string }).id)
+      setStatus('idle')
+      return
     }
 
     onSaved()
@@ -239,6 +246,15 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         {uploaderListingId && (
           <div className="border-t border-stone-200 pt-5">
             <PhotoUploader listingId={uploaderListingId} />
+            {!isEditing && (
+              <button
+                type="button"
+                onClick={onSaved}
+                className="mt-4 rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900"
+              >
+                Готово
+              </button>
+            )}
           </div>
         )}
       </section>

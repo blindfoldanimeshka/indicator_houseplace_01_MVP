@@ -1,3 +1,8 @@
+-- DEPRECATED: this file is historical only. The authoritative schema is
+-- supabase/migrations/*.sql (applied in order). Direct INSERT into chats/
+-- chat_participants is NOT permitted; chat creation is via RPC
+-- open_or_create_chat.
+
 -- =============================================
 -- напрямую — Supabase schema
 -- =============================================

@@ -20,28 +20,55 @@ export function MyListings({ onBack }: MyListingsProps) {
   const [archivingId, setArchivingId] = useState<string | null>(null)
   const [archiveError, setArchiveError] = useState<string | null>(null)
 
-  function load() {
+  useEffect(() => {
+    let active = true
+    setLoading(true)
+    setError(null)
+
+    if (user) {
+      getSupabaseClient()
+        .from('listings')
+        .select('*')
+        .eq('author_id', user.id)
+        .order('created_at', { ascending: false })
+        .then(({ data, error: queryError }) => {
+          if (!active) return
+          if (queryError) {
+            setError(queryError.message)
+            setListings([])
+          } else {
+            setListings((data as ListingRow[]) ?? [])
+          }
+          setLoading(false)
+        })
+    } else {
+      setLoading(false)
+    }
+
+    return () => {
+      active = false
+    }
+  }, [user])
+
+  async function load() {
     if (!user) return
     setLoading(true)
     setError(null)
 
-    getSupabaseClient()
+    const { data, error: queryError } = await getSupabaseClient()
       .from('listings')
       .select('*')
       .eq('author_id', user.id)
       .order('created_at', { ascending: false })
-      .then(({ data, error: queryError }) => {
-        if (queryError) {
-          setError(queryError.message)
-          setListings([])
-        } else {
-          setListings((data as ListingRow[]) ?? [])
-        }
-        setLoading(false)
-      })
-  }
 
-  useEffect(load, [user])
+    if (queryError) {
+      setError(queryError.message)
+      setListings([])
+    } else {
+      setListings((data as ListingRow[]) ?? [])
+    }
+    setLoading(false)
+  }
 
   async function handleArchive(listing: ListingRow) {
     setArchivingId(listing.id)

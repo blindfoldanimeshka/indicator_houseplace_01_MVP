@@ -12,8 +12,8 @@
 |---|---|---|---|---|
 | `users` | 🔓 SELECT (все профили) | 🔓 SELECT · ✅ UPDATE своей (`auth.uid()=id`) · ❌ INSERT/DELETE | ✅ всё | `Users are viewable by everyone`, `Users can update own profile` |
 | `listings` | 🔓 SELECT активных (`deleted_at IS NULL`) | 🔓 SELECT · ✅ INSERT (`auth.uid()=author_id`) · ✅ UPDATE/DELETE своих | ✅ всё | `Listings are viewable by everyone`, `Authenticated users can create listings`, `Authors can update/delete own listings` |
-| `chats` | ❌ | ✅ SELECT участником (`EXISTS chat_participants`) · ✅ INSERT (auth) · ❌ UPDATE/DELETE | ✅ всё | `Chats viewable by participants`, `Authenticated users can create chats` |
-| `chat_participants` | ❌ | ✅ SELECT участником · ✅ INSERT (auth) · ❌ UPDATE/DELETE | ✅ всё | `Participants viewable by chat members`, `Authenticated users can add participants` |
+| `chats` | ❌ | ✅ SELECT участником (`EXISTS chat_participants`) · ❌ INSERT (creation only via RPC `open_or_create_chat`) · ❌ UPDATE/DELETE | ✅ всё | `Chats viewable by participants`, `Chat creation only via RPC open_or_create_chat` |
+| `chat_participants` | ❌ | ✅ SELECT участником · ❌ INSERT (participants added only by RPC) · ❌ UPDATE/DELETE | ✅ всё | `Participants viewable by chat members`, `Participants added only by RPC` |
 | `messages` | ❌ | ✅ SELECT участником · ✅ INSERT (`auth.uid()=sender_id` + участник) · ❌ UPDATE/DELETE | ✅ всё | `Messages viewable by chat participants`, `Participants can send messages` |
 | `reports` | ❌ | ✅ INSERT (своя жалоба) · ✅ SELECT только **своей** (`reporter_id=auth.uid()`) · ❌ UPDATE/DELETE/чужие | ✅ всё (модерация) | `Reports insert own`, `Reports select own` |
 | `listing_images` | 🔓 SELECT активных листингов | 🔓 SELECT · ✅ INSERT/DELETE для своих листингов (`author_id=auth.uid()`) | ✅ всё | `Listing images viewable by everyone`, `Authors manage own listing images` |
@@ -29,8 +29,9 @@
 - **Листинг A** — чтение активного листинга B разрешено **только в публичной ленте**
   (`deleted_at IS NULL`) — это по дизайну. UPDATE/DELETE/INSERT чужого листинга запрещены.
 - **Чат A** — SELECT только участникам (`EXISTS chat_participants`). Прямой INSERT в `chats`/
-  `chat_participants` разрешён аутентифицированным, но создание участников ограничено
-  логикой `open_or_create_chat` (см. раздел 3), а содержимое чата недоступно посторонним.
+  `chat_participants` запрещён аутентифицированным клиентам (RLS Grant только SELECT);
+  создание чата и участников выполняется исключительно через RPC `open_or_create_chat`
+  (см. раздел 3), а содержимое чата недоступно посторонним.
 - **Сообщение A** — SELECT/INSERT только участникам чата (`auth.uid()=sender_id` + membership).
 - **Фото A** — storage: upload разрешён только в собственную папку `user_id/`. Чужие фото
   читаются только как часть публичного активного листинга.
@@ -53,8 +54,9 @@ Supabase linter выдаёт единственное предупреждени
 3. **Все имена объектов квалифицированы** (`public.chats`, `public.chat_participants`) —
    нет зависимости от search_path.
 4. **`EXECUTE` выдан только `authenticated`, НЕ `anon`** — анонимы не могут вызвать функцию.
-5. **Прямой INSERT в `chats`/`chat_participants` заблокирован RLS** для клиента; участники
-   добавляются только через эту функцию, которая сама проверяет права владения листингом.
+5. **Прямой INSERT в `chats`/`chat_participants` заблокирован (Grant только SELECT)** для
+   клиента; участники добавляются только через эту функцию, которая сама проверяет права
+   владения листингом.
 6. Функция не возвращает и не модифицирует данные, принадлежащие другим пользователям, — только
    создаёт чат для текущего пользователя по существующему публичному листингу.
 

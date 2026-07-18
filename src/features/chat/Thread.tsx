@@ -37,12 +37,15 @@ export function Thread({ chatId }: ThreadProps) {
       }
     })
 
-    setMode('realtime')
-    const cleanup = subscribeMessages(chatId, (message) => {
-      setMessages((prev) =>
-        prev.some((m) => m.id === message.id) ? prev : [...prev, message],
-      )
-    })
+    const cleanup = subscribeMessages(
+      chatId,
+      (message) => {
+        setMessages((prev) =>
+          prev.some((m) => m.id === message.id) ? prev : [...prev, message],
+        )
+      },
+      setMode,
+    )
 
     return () => {
       active = false

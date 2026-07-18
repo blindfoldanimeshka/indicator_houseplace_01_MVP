@@ -15,6 +15,15 @@
 | 7. Жалобы и финальная защита | Контролируемая beta | ✅ | UI «Пожаловаться» (объявление+чат), таблица `moderation_audit` (только service role), security-review.md с RLS-матрицей; 83 теста; единственный lint-ворнинг (`open_or_create_chat` SECURITY DEFINER) — намеренный и безопасный |
 | 8. Закрытая beta | Реальная обратная связь | ⬜ | |
 
+## Security hardening (post-review)
+
+- `202607190004_security_hardening.sql` накатана на проект `MVP-House`:
+  - лимит ≤10 фото/объявление принудительно на уровне БД (триггер `listing_images_limit`);
+  - валидация пути `private.listing_id_from_path` через regex (защита от путей-инъекций);
+  - Realtime RLS включён для `messages` и `chats` (`supabase_realtime`).
+- Документация синхронизирована с миграциями: `supabase/schema.sql` помечен DEPRECATED,
+  `docs/security-review.md` отражает RPC-only создание чатов (без прямого INSERT).
+
 ## Решения, зафиксированные в ходе работы
 
 - **Стек — Supabase, без Next.js/NestJS/Prisma.** Согласно roadmap §1; `docs/plan.md`
