@@ -13,10 +13,21 @@ import { MyListings } from '@/features/listings/MyListings'
 import { ListingDetail } from '@/features/listings/ListingDetail'
 import { ChatList } from '@/features/chat/ChatList'
 import { Thread } from '@/features/chat/Thread'
+import { PrivacyPolicy } from '@/features/legal/PrivacyPolicy'
+import { TermsOfService } from '@/features/legal/TermsOfService'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
-type View = 'home' | 'new' | 'mine' | 'detail' | 'profile' | 'chats' | 'thread'
+type View =
+  | 'home'
+  | 'new'
+  | 'mine'
+  | 'detail'
+  | 'profile'
+  | 'chats'
+  | 'thread'
+  | 'privacy'
+  | 'terms'
 
 function NavBar({
   view,
@@ -86,7 +97,15 @@ function AppContent() {
   }
 
   if (!session) {
-    return <AuthScreen />
+    return <AuthScreen onOpenLegal={(legalView) => navigate(legalView)} />
+  }
+
+  if (view === 'privacy') {
+    return <PrivacyPolicy onBack={() => navigate('home')} />
+  }
+
+  if (view === 'terms') {
+    return <TermsOfService onBack={() => navigate('home')} />
   }
 
   if (view === 'new') {

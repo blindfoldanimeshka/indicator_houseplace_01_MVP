@@ -27,6 +27,7 @@ export interface AuthContextValue {
   signIn: (params: { email: string; password: string }) => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
   updateProfile: (input: ProfileInput) => Promise<AuthResult>
+  resetPassword: (email: string) => Promise<AuthResult>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
@@ -112,9 +113,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const resetPassword = useCallback<AuthContextValue['resetPassword']>(
+    async (email) => {
+      const { error } = await getSupabaseClient().auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      })
+
+      if (!error) {
+        return { error: null }
+      }
+
+      if (error.status === 429) {
+        return { error: 'Слишком много попыток, попробуйте позже' }
+      }
+
+      return { error: error.message }
+    },
+    [],
+  )
+
   const value = useMemo<AuthContextValue>(
-    () => ({ session, user, isLoading, signUp, signIn, signOut, updateProfile }),
-    [session, user, isLoading, signUp, signIn, signOut, updateProfile],
+    () => ({
+      session,
+      user,
+      isLoading,
+      signUp,
+      signIn,
+      signOut,
+      updateProfile,
+      resetPassword,
+    }),
+    [
+      session,
+      user,
+      isLoading,
+      signUp,
+      signIn,
+      signOut,
+      updateProfile,
+      resetPassword,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

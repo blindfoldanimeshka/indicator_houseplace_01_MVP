@@ -13,6 +13,12 @@
 | 5. Фото | Безопасные изображения | ✅ | Bucket `listing-photos` (публичный, ≤10MB, JPEG/PNG/WebP), таблица `listing_images`, Storage RLS (только автор), PhotoUploader (≤10 фото, валидация типа/размера, путь `listing/{id}/{uuid}`); 49 тестов |
 | 6. Чат | Связь между пользователями | ✅ | RPC `open_or_create_chat` (атомарно), ChatList, Thread (realtime + polling-fallback), кнопка «Написать» в деталях; `sender_id` из сессии; 68 тестов |
 | 7. Жалобы и финальная защита | Контролируемая beta | ✅ | UI «Пожаловаться» (объявление+чат), таблица `moderation_audit` (только service role), security-review.md с RLS-матрицей; 83 теста; единственный lint-ворнинг (`open_or_create_chat` SECURITY DEFINER) — намеренный и безопасный |
+| 3b. Отложенная ч. фазы 3 | Безопасный вход (юр./reset) | ✅ | Reset password (`resetPasswordForEmail`), legal pages (Privacy/Terms, заглушка 152-ФЗ), чекбокс согласия при регистрации; 90 тестов. **TODO (требует внешних ключей/решения): CAPTCHA (hCaptcha/Turnstile) и собственный SMTP** |
+
+### Решения, требующие участия пользователя (не сделано автономно)
+- **CAPTCHA**: нужен провайдер (hCaptcha или Cloudflare Turnstile) + sitekey/secret. Без ключей не включается. Фронтенд-хук под Turnstile можно добавить, когда будут env-ключи.
+- **Собственный SMTP**: для production по ТЗ §4.1 нужен выделенный SMTP (встроенная отправка Supabase имеет тестовые лимиты). Для закрытой беты допустимо дефолтное. Решение за пользователем.
+- **Юридическая проверка 152-ФЗ**: тексты Privacy/Terms — шаблоны-заглушки, требуют реальной проверки перед публичным РФ-запуском (ТЗ §6).
 | 8. Закрытая beta | Реальная обратная связь | ⬜ | |
 
 ## Security hardening (post-review)
