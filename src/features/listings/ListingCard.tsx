@@ -1,4 +1,5 @@
 import type { Database } from '@/types/database'
+import { getPublicUrl } from '@/features/photos/photoApi'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -17,17 +18,30 @@ function formatPrice(price: number): string {
 interface ListingCardProps {
   listing: ListingRow
   onOpen: (listing: ListingRow) => void
+  coverPath?: string
 }
 
-export function ListingCard({ listing, onOpen }: ListingCardProps) {
+export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
   const isOffer = listing.type === 'offer'
 
   return (
     <button
       type="button"
       onClick={() => onOpen(listing)}
-      className="group flex flex-col rounded-2xl border border-stone-200 bg-white p-5 text-left shadow-sm transition hover:border-teal-300 hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white text-left shadow-sm transition hover:border-teal-300 hover:shadow-md"
     >
+      {coverPath ? (
+        <img
+          src={getPublicUrl(coverPath)}
+          alt={`Фото: ${listing.city}`}
+          loading="lazy"
+          className="aspect-[4/3] w-full object-cover"
+        />
+      ) : (
+        <div className="aspect-[4/3] w-full bg-stone-100" />
+      )}
+
+      <div className="space-y-3 p-5">
       <span
         className={`mb-3 inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-semibold ${
           isOffer
@@ -56,6 +70,7 @@ export function ListingCard({ listing, onOpen }: ListingCardProps) {
           {listing.description}
         </p>
       )}
+      </div>
     </button>
   )
 }

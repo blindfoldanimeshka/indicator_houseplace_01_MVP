@@ -6,6 +6,7 @@ import {
   type ListingFormValues,
 } from './types'
 import { createListing, updateListing } from './api'
+import { PhotoUploader } from '@/features/photos/PhotoUploader'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -39,8 +40,10 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle')
+  const [createdId, setCreatedId] = useState<string | null>(null)
 
   const isEditing = Boolean(initial)
+  const uploaderListingId = initial?.id ?? createdId
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -84,6 +87,10 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
       setStatus('error')
       setFormError(result.error)
       return
+    }
+
+    if (!isEditing && result.data) {
+      setCreatedId((result.data as { id: string }).id)
     }
 
     onSaved()
@@ -220,14 +227,20 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           type="submit"
           disabled={status === 'saving'}
           className="rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
-        >
-          {status === 'saving'
-            ? 'Сохраняем…'
-            : isEditing
-              ? 'Сохранить'
-              : 'Опубликовать'}
-        </button>
-      </form>
-    </section>
+          >
+            {status === 'saving'
+              ? 'Сохраняем…'
+              : isEditing
+                ? 'Сохранить'
+                : 'Опубликовать'}
+          </button>
+        </form>
+
+        {uploaderListingId && (
+          <div className="border-t border-stone-200 pt-5">
+            <PhotoUploader listingId={uploaderListingId} />
+          </div>
+        )}
+      </section>
   )
 }

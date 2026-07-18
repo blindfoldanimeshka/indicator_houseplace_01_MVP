@@ -46,6 +46,32 @@ export interface Database {
         }
         Relationships: []
       }
+      listing_images: {
+        Row: {
+          id: string
+          listing_id: string
+          path: string
+          sort_order: number
+          size_bytes: number | null
+          mime_type: string | null
+          created_at: string
+        }
+        Insert: {
+          listing_id: string
+          path: string
+          sort_order?: number
+          size_bytes?: number | null
+          mime_type?: string | null
+        }
+        Update: {
+          listing_id?: string
+          path?: string
+          sort_order?: number
+          size_bytes?: number | null
+          mime_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getListing } from './api'
+import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -23,6 +24,7 @@ interface ListingDetailProps {
 
 export function ListingDetail({ id, onBack }: ListingDetailProps) {
   const [listing, setListing] = useState<ListingRow | null>(null)
+  const [photos, setPhotos] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,6 +41,21 @@ export function ListingDetail({ id, onBack }: ListingDetailProps) {
       }
       setLoading(false)
     })
+  }, [id])
+
+  useEffect(() => {
+    let cancelled = false
+
+    listPhotos(id).then((result) => {
+      if (cancelled) return
+      if (result.data) {
+        setPhotos(result.data.map((row) => getPublicUrl(row.path)))
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   return (
@@ -67,6 +84,20 @@ export function ListingDetail({ id, onBack }: ListingDetailProps) {
 
       {!loading && !error && listing && (
         <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6">
+          {photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {photos.map((url) => (
+                <img
+                  key={url}
+                  src={url}
+                  alt={`Фото: ${listing.city}`}
+                  loading="lazy"
+                  className="aspect-square w-full rounded-xl border border-stone-100 object-cover"
+                />
+              ))}
+            </div>
+          )}
+
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
               listing.type === 'offer'
