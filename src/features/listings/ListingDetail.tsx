@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getListing } from './api'
 import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
+import { useAuth } from '@/features/auth/useAuth'
+import { openOrCreateChat } from '@/features/chat/chatApi'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -20,13 +22,17 @@ function formatPrice(price: number): string {
 interface ListingDetailProps {
   id: string
   onBack: () => void
+  onStartChat?: (chatId: string) => void
 }
 
-export function ListingDetail({ id, onBack }: ListingDetailProps) {
+export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
+  const { user } = useAuth()
   const [listing, setListing] = useState<ListingRow | null>(null)
   const [photos, setPhotos] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatError, setChatError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -57,6 +63,19 @@ export function ListingDetail({ id, onBack }: ListingDetailProps) {
       cancelled = true
     }
   }, [id])
+
+  async function handleStartChat() {
+    if (!listing || !onStartChat) return
+    setChatLoading(true)
+    setChatError(null)
+    const result = await openOrCreateChat(listing.id)
+    setChatLoading(false)
+    if (result.error || !result.data) {
+      setChatError(result.error ?? 'Не удалось начать диалог.')
+      return
+    }
+    onStartChat(result.data)
+  }
 
   return (
     <section className="max-w-2xl space-y-5">
@@ -141,6 +160,24 @@ export function ListingDetail({ id, onBack }: ListingDetailProps) {
               <p className="mt-1 whitespace-pre-wrap text-stone-800">
                 {listing.description}
               </p>
+            </div>
+          )}
+
+          {user && listing.author_id !== user.id && onStartChat && (
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={handleStartChat}
+                disabled={chatLoading}
+                className="rounded-xl bg-teal-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-50"
+              >
+                {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
+              </button>
+              {chatError && (
+                <p className="mt-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-950">
+                  {chatError}
+                </p>
+              )}
             </div>
           )}
         </div>

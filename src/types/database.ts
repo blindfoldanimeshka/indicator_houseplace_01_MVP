@@ -72,9 +72,38 @@ export interface Database {
         }
         Relationships: []
       }
+      chats: {
+        Row: { id: string; listing_id: string; initiator_id: string; created_at: string }
+        Insert: { listing_id: string; initiator_id: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
+      chat_participants: {
+        Row: { chat_id: string; user_id: string; created_at: string }
+        Insert: { chat_id: string; user_id: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          id: string
+          chat_id: string
+          sender_id: string
+          text: string
+          created_at: string
+        }
+        Insert: { chat_id: string; sender_id: string; text: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      open_or_create_chat: {
+        Args: { p_listing_id: string }
+        Returns: string
+      }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }

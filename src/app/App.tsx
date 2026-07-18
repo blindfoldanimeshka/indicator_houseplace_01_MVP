@@ -11,10 +11,12 @@ import { Feed } from '@/features/listings/Feed'
 import { ListingForm } from '@/features/listings/ListingForm'
 import { MyListings } from '@/features/listings/MyListings'
 import { ListingDetail } from '@/features/listings/ListingDetail'
+import { ChatList } from '@/features/chat/ChatList'
+import { Thread } from '@/features/chat/Thread'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
-type View = 'home' | 'new' | 'mine' | 'detail' | 'profile'
+type View = 'home' | 'new' | 'mine' | 'detail' | 'profile' | 'chats' | 'thread'
 
 function NavBar({
   view,
@@ -27,6 +29,7 @@ function NavBar({
     { view: 'home', label: 'Поиск' },
     { view: 'new', label: '+ Новое' },
     { view: 'mine', label: 'Мои' },
+    { view: 'chats', label: 'Чаты' },
     { view: 'profile', label: 'Профиль' },
   ]
 
@@ -57,6 +60,7 @@ function AppContent() {
   const { session, user, isLoading } = useAuth()
   const [view, setView] = useState<View>('home')
   const [selected, setSelected] = useState<ListingRow | null>(null)
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   function navigate(next: View) {
     setSelected(null)
@@ -66,6 +70,11 @@ function AppContent() {
   function openDetail(listing: ListingRow) {
     setSelected(listing)
     setView('detail')
+  }
+
+  function openChat(chatId: string) {
+    setSelectedChatId(chatId)
+    setView('thread')
   }
 
   if (isLoading) {
@@ -105,7 +114,48 @@ function AppContent() {
     return (
       <AppShell>
         <NavBar view={view} onNavigate={navigate} />
-        <ListingDetail id={selected.id} onBack={() => navigate('home')} />
+        <ListingDetail
+          id={selected.id}
+          onBack={() => navigate('home')}
+          onStartChat={openChat}
+        />
+      </AppShell>
+    )
+  }
+
+  if (view === 'chats') {
+    return (
+      <AppShell>
+        <NavBar view={view} onNavigate={navigate} />
+        <section className="space-y-5">
+          <button
+            type="button"
+            onClick={() => navigate('home')}
+            className="text-sm font-medium text-teal-800 hover:underline"
+          >
+            ← Назад
+          </button>
+          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+            Мои чаты
+          </h1>
+          <ChatList onOpen={openChat} />
+        </section>
+      </AppShell>
+    )
+  }
+
+  if (view === 'thread' && selectedChatId) {
+    return (
+      <AppShell>
+        <NavBar view={view} onNavigate={navigate} />
+        <button
+          type="button"
+          onClick={() => navigate('chats')}
+          className="mb-5 text-sm font-medium text-teal-800 hover:underline"
+        >
+          ← Назад
+        </button>
+        <Thread chatId={selectedChatId} />
       </AppShell>
     )
   }
