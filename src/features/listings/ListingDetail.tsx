@@ -3,6 +3,7 @@ import { getListing } from './api'
 import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
 import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
+import { ReportButton } from '@/features/reports/ReportButton'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -180,6 +181,8 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
               )}
             </div>
           )}
+
+          <ReportButton targetType="listing" targetId={listing.id} />
         </div>
       )}
     </section>

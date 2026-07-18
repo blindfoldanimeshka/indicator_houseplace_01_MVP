@@ -96,6 +96,35 @@ export interface Database {
         Update: Record<string, never>
         Relationships: []
       }
+      reports: {
+        Row: {
+          id: string
+          reporter_id: string
+          target_type: 'listing' | 'chat' | 'message'
+          target_id: string
+          category: string
+          comment: string
+          status: 'new' | 'reviewed' | 'resolved'
+          created_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+        }
+        Insert: {
+          reporter_id: string
+          target_type: 'listing' | 'chat' | 'message'
+          target_id: string
+          category: string
+          comment?: string
+          status?: 'new' | 'reviewed' | 'resolved'
+        }
+        Update: {
+          status?: 'new' | 'reviewed' | 'resolved'
+          comment?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {

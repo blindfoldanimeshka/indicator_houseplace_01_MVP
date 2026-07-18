@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
 import { listMessages, sendMessage, subscribeMessages } from './chatApi'
 import { messageSchema, MAX_MESSAGE_LENGTH } from './chatSchema'
+import { ReportButton } from '@/features/reports/ReportButton'
 import type { MessageRow } from './chatApi'
 
 interface ThreadProps {
@@ -85,6 +86,7 @@ export function Thread({ chatId }: ThreadProps) {
             обновление в реальном времени
           </span>
         )}
+        <ReportButton targetType="chat" targetId={chatId} />
       </div>
 
       {loadError && (
