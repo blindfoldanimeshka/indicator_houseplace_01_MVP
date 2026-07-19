@@ -84,12 +84,12 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       <button
         type="button"
         onClick={onBack}
-        className="text-sm font-medium text-teal-800 hover:underline"
+        className="text-sm font-medium text-primary hover:underline"
       >
         ← Назад
       </button>
 
-      {loading && <p className="text-sm text-stone-600">Загрузка…</p>}
+      {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
@@ -98,13 +98,13 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       )}
 
       {!loading && !error && !listing && (
-        <p className="rounded-xl border border-stone-200 bg-white px-4 py-8 text-center text-sm text-stone-600">
+        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
           Объявление не найдено.
         </p>
       )}
 
       {!loading && !error && listing && (
-        <div className="space-y-4 rounded-2xl border border-stone-200 bg-white p-6">
+        <div className="space-y-4 rounded-2xl border border-border-muted bg-white p-6">
           {photos.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((url) => (
@@ -129,28 +129,28 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
             {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
           </span>
 
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {listing.city}
           </h1>
 
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-stone-500">Комнаты</dt>
-              <dd className="font-medium text-stone-950">
+              <dt className="text-muted-foreground">Комнаты</dt>
+              <dd className="font-medium text-foreground">
                 {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
               </dd>
             </div>
             {listing.area && (
               <div>
-                <dt className="text-stone-500">Площадь</dt>
-                <dd className="font-medium text-stone-950">
+                <dt className="text-muted-foreground">Площадь</dt>
+                <dd className="font-medium text-foreground">
                   {listing.area} м²
                 </dd>
               </div>
             )}
             <div>
-              <dt className="text-stone-500">Цена</dt>
-              <dd className="font-medium text-stone-950">
+              <dt className="text-muted-foreground">Цена</dt>
+              <dd className="font-medium text-foreground">
                 {formatPrice(listing.price)} ₽ / мес.
               </dd>
             </div>
@@ -158,8 +158,8 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
           {listing.description && (
             <div>
-              <h2 className="text-sm font-medium text-stone-500">Описание</h2>
-              <p className="mt-1 whitespace-pre-wrap text-stone-800">
+              <h2 className="text-sm font-medium text-muted-foreground">Описание</h2>
+              <p className="mt-1 whitespace-pre-wrap text-foreground">
                 {listing.description}
               </p>
             </div>
@@ -167,14 +167,14 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
           {listing.address && (
             <div>
-              <h2 className="text-sm font-medium text-stone-500">Адрес</h2>
-              <p className="mt-1 text-stone-800">{listing.address}</p>
+              <h2 className="text-sm font-medium text-muted-foreground">Адрес</h2>
+              <p className="mt-1 text-foreground">{listing.address}</p>
             </div>
           )}
 
           {listing.lat !== null && listing.lng !== null && (
             <div>
-              <h2 className="text-sm font-medium text-stone-500">На карте</h2>
+              <h2 className="text-sm font-medium text-muted-foreground">На карте</h2>
               <div className="mt-2">
                 <MapView
                   lat={listing.lat}
@@ -192,7 +192,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                 type="button"
                 onClick={handleStartChat}
                 disabled={chatLoading}
-                className="rounded-xl bg-teal-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-50"
+                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-50"
               >
                 {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
               </button>

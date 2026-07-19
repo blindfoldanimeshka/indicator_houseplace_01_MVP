@@ -109,21 +109,21 @@ export function MapView({
 
   if (!apiKey) {
     return (
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-muted-foreground">
         Карта отключена (нет ключа Yandex Maps).
       </p>
     )
   }
 
   if (error) {
-    return <p className="text-sm text-stone-500">{error}</p>
+    return <p className="text-sm text-muted-foreground">{error}</p>
   }
 
   return (
     <div
       ref={containerRef}
       style={{ height }}
-      className="w-full overflow-hidden rounded-xl border border-stone-200 bg-stone-100"
+      className="w-full overflow-hidden rounded-xl border border-border-muted bg-muted/50"
       aria-label={address ? `Карта: ${address}` : 'Карта объявления'}
       data-ready={ready}
     />

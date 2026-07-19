@@ -28,7 +28,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
     <button
       type="button"
       onClick={() => onOpen(listing)}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white text-left shadow-sm transition hover:border-teal-300 hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border-muted bg-white text-left shadow-sm transition-all duration-200 hover:border-primary/40 hover:shadow-lg hover:scale-[1.02]"
     >
       {coverPath ? (
         <img
@@ -38,7 +38,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
           className="aspect-[4/3] w-full object-cover"
         />
       ) : (
-        <div className="aspect-[4/3] w-full bg-stone-100" />
+        <div className="aspect-[4/3] w-full bg-muted/50" />
       )}
 
       <div className="space-y-3 p-5">
@@ -52,21 +52,21 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
         {isOffer ? 'Сдаётся' : 'Ищу'}
       </span>
 
-      <h3 className="text-lg font-semibold tracking-tight text-stone-950">
+      <h3 className="text-lg font-semibold tracking-tight text-foreground">
         {listing.city}
       </h3>
-      <p className="mt-1 text-sm text-stone-600">
+      <p className="mt-1 text-sm text-muted-foreground">
         {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
         {listing.area ? `, ${listing.area} м²` : ''}
       </p>
 
-      <p className="mt-3 text-xl font-semibold text-stone-950">
+      <p className="mt-3 text-xl font-semibold text-foreground">
         {formatPrice(listing.price)} ₽
-        <span className="text-sm font-normal text-stone-500"> / мес.</span>
+        <span className="text-sm font-normal text-muted-foreground"> / мес.</span>
       </p>
 
       {listing.description && (
-        <p className="mt-3 line-clamp-2 text-sm text-stone-600">
+        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
           {listing.description}
         </p>
       )}

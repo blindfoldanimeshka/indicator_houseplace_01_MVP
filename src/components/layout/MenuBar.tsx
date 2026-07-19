@@ -10,15 +10,25 @@ export interface MenuBarItem {
   badge?: number
 }
 
-interface MenuBarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
+interface MenuBarProps {
   items: MenuBarItem[]
   onSelect?: (key: string) => void
+  compact?: boolean
+  className?: string
 }
 
 const BASE_ICON_BTN = 52
-const BASE_BAR_HEIGHT = 88
+// Bar height = icon + equal vertical padding (pt-3 + pb-3 = 24px) so the dock
+// grows/shrinks symmetrically top-to-bottom, never lopsided.
+const BAR_PADDING = 12
+const BASE_BAR_HEIGHT = BASE_ICON_BTN + BAR_PADDING * 2
 const MAX_SCALE = 1.35
 const MAGNET_RANGE = 120
+// Compact state is a single proportional scale of the whole dock, so the panel
+// and every icon shrink/grow together and stay symmetric top-to-bottom.
+const COMPACT_SCALE = 0.78
+
+const SPRING = { type: 'spring', stiffness: 320, damping: 26 } as const
 
 function scaleForDistance(dist: number): number {
   if (dist >= MAGNET_RANGE) return 1
@@ -26,12 +36,36 @@ function scaleForDistance(dist: number): number {
   return 1 + (MAX_SCALE - 1) * t * t
 }
 
-export function MenuBar({ items, className, onSelect = () => {}, ...props }: MenuBarProps) {
+export function MenuBar({
+  items,
+  className,
+  onSelect = () => {},
+  compact = false,
+}: MenuBarProps) {
   const [hovered, setHovered] = React.useState<number | null>(null)
   const [cursorX, setCursorX] = React.useState<number | null>(null)
   const [tooltipLeft, setTooltipLeft] = React.useState(0)
   const menuRef = React.useRef<HTMLDivElement>(null)
   const tooltipRef = React.useRef<HTMLDivElement>(null)
+
+  // Per-icon geometry in the menu's local coordinate space (for the liquid dock).
+  const [centers, setCenters] = React.useState<number[]>([])
+
+  const measure = React.useCallback(() => {
+    const menu = menuRef.current
+    if (!menu) return
+    // Use layout coordinates (offsetLeft/Width) so CSS transforms (the compact
+    // scale) don't skew the per-icon centers used for the magnet effect.
+    const next = Array.from(menu.children).map((child) => {
+      const el = child as HTMLElement
+      return el.offsetLeft + el.offsetWidth / 2
+    })
+    setCenters(next)
+  }, [])
+
+  React.useEffect(() => {
+    measure()
+  }, [measure, items.length])
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const menu = menuRef.current
@@ -64,8 +98,34 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
     setTooltipLeft(center - half / 2)
   }, [hovered, cursorX])
 
+  // Single source of truth for the whole-dock scale. The panel and every icon
+  // share this exact value as their base, so expanding/collapsing the dock is
+  // perfectly proportional — no independent snapping between panel and icons.
+  const dockScale = compact && hovered === null ? COMPACT_SCALE : 1
+
+  // Liquid-dock scaling: every icon bulges by distance to the cursor. The result
+  // is the union of the dock factor and the magnet factor, so a single scale
+  // value drives the whole dock proportionally (no per-icon size jumps).
+  function scaleForIndex(index: number): { scale: number; lift: number } {
+    if (cursorX === null || hovered === null || centers.length === 0) {
+      return { scale: dockScale, lift: 0 }
+    }
+    const center = centers[index] ?? 0
+    const dist = Math.abs(cursorX - center)
+    const magnet = scaleForDistance(dist)
+    // Lift is proportional to how much this icon is magnified, so neighbors rise
+    // smoothly instead of the focused icon jumping on its own.
+    const lift = (magnet - 1) * 18
+    return { scale: dockScale * magnet, lift }
+  }
+
   return (
-    <div className={cn('relative', className)} {...props}>
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+      className={cn('relative', className)}
+    >
       <AnimatePresence>
         {hovered !== null && (
           <motion.div
@@ -77,7 +137,7 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
           >
             <motion.div
               ref={tooltipRef}
-              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md border border-stone-200 bg-white/95 px-2.5 text-xs font-medium leading-tight text-stone-800 shadow-sm backdrop-blur"
+              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md border border-border-muted bg-white/95 px-2.5 text-xs font-medium leading-tight text-foreground shadow-sm backdrop-blur"
               animate={{ left: tooltipLeft }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
@@ -87,7 +147,7 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
         )}
       </AnimatePresence>
 
-      <div
+      <motion.div
         ref={menuRef}
         onMouseMove={handleMove}
         onMouseLeave={() => {
@@ -95,24 +155,14 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
           setCursorX(null)
         }}
         className={cn(
-          'flex items-end justify-center gap-2 rounded-[28px] border border-stone-200/80 bg-white/80 px-3 pb-3 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_14px_32px_-8px_rgba(0,0,0,0.25)] backdrop-blur-md',
+          'flex origin-bottom items-center justify-center gap-2 rounded-[28px] border border-border-muted/80 bg-white/80 px-3 pt-3 pb-3 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_14px_32px_-8px_rgba(0,0,0,0.25)] backdrop-blur-md',
         )}
         style={{ height: BASE_BAR_HEIGHT }}
+        animate={{ scale: dockScale }}
+        transition={SPRING}
       >
         {items.map((item, index) => {
-          let scale = 1
-          let lift = 0
-          if (cursorX !== null && hovered !== null) {
-            const el = menuRef.current?.children[index] as HTMLElement | undefined
-            if (el) {
-              const rect = menuRef.current!.getBoundingClientRect()
-              const cr = el.getBoundingClientRect()
-              const center = cr.left - rect.left + cr.width / 2
-              const dist = Math.abs(cursorX - center)
-              scale = scaleForDistance(dist)
-              if (index === hovered) lift = -4
-            }
-          }
+          const { scale, lift } = scaleForIndex(index)
           return (
             <button
               key={item.key}
@@ -120,17 +170,17 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
               aria-label={item.label}
               aria-current={item.active ? 'page' : undefined}
               onClick={() => onSelect(item.key)}
-              className="relative flex items-end justify-center outline-none"
+              className="group relative flex origin-bottom items-end justify-center outline-none"
               style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
             >
               <motion.span
                 animate={{ scale, y: lift }}
-                transition={{ type: 'spring', stiffness: 380, damping: 24 }}
+                transition={SPRING}
                 className={cn(
                   'flex items-center justify-center rounded-[16px] transition-colors',
                   item.active
-                    ? 'bg-teal-800 text-white shadow-sm'
-                    : 'text-stone-600 hover:bg-stone-100',
+                    ? 'bg-primary text-white shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted/50',
                 )}
                 style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
               >
@@ -144,7 +194,7 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
             </button>
           )
         })}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

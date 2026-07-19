@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { motion } from 'framer-motion'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/useAuth'
 import { authSchema } from '@/features/profile/profileSchema'
@@ -149,11 +150,16 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold tracking-tight text-stone-950">
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="w-full max-w-md rounded-2xl border border-border-muted bg-white p-8 shadow-sm"
+      >
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {isReset ? 'Сброс пароля' : isSignUp ? 'Регистрация' : 'Вход'}
         </h1>
-        <p className="mt-1 text-sm text-stone-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Аренда жилья напрямую, без посредников.
         </p>
 
@@ -177,7 +183,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
                 }
               }}
               disabled={isSubmitting}
-              className="font-medium text-teal-800 hover:underline disabled:opacity-60"
+              className="font-medium text-primary hover:underline disabled:opacity-60"
             >
               Отправить повторно
             </button>
@@ -238,12 +244,12 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           )}
 
           {isSignUp && (
-            <label className="flex items-start gap-2 text-sm text-stone-800">
+            <label className="flex items-start gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={consent}
                 onChange={(event) => setConsent(event.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-stone-300 text-teal-800 focus:ring-teal-200"
+                className="mt-0.5 h-4 w-4 rounded border-border-muted text-primary focus:ring-teal-200"
               />
               <span>
                 Я согласен на обработку персональных данных согласно{' '}
@@ -255,7 +261,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
                     event.preventDefault()
                     onOpenLegal('privacy')
                   }}
-                  className="font-medium text-teal-800 hover:underline"
+                  className="font-medium text-primary hover:underline"
                 >
                   Политике конфиденциальности
                 </a>{' '}
@@ -268,7 +274,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
                     event.preventDefault()
                     onOpenLegal('terms')
                   }}
-                  className="font-medium text-teal-800 hover:underline"
+                  className="font-medium text-primary hover:underline"
                 >
                   Условиям
                 </a>
@@ -292,7 +298,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           <button
             type="submit"
             disabled={isSubmitting || (isSignUp && !consent)}
-            className="w-full rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+            className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
           >
             {isSubmitting
               ? 'Подождите…'
@@ -308,7 +314,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => switchMode('reset')}
-            className="mt-4 w-full text-center text-sm font-medium text-teal-800 hover:underline"
+            className="mt-4 w-full text-center text-sm font-medium text-primary hover:underline"
           >
             Забыли пароль?
           </button>
@@ -318,7 +324,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => switchMode('signIn')}
-            className="mt-4 w-full text-center text-sm font-medium text-teal-800 hover:underline"
+            className="mt-4 w-full text-center text-sm font-medium text-primary hover:underline"
           >
             Вернуться ко входу
           </button>
@@ -326,7 +332,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => switchMode(isSignUp ? 'signIn' : 'signUp')}
-            className="mt-4 w-full text-center text-sm font-medium text-teal-800 hover:underline"
+            className="mt-4 w-full text-center text-sm font-medium text-primary hover:underline"
           >
             {isSignUp
               ? 'Уже есть аккаунт? Войти'
@@ -334,23 +340,23 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           </button>
         )}
 
-        <footer className="mt-6 flex justify-center gap-4 border-t border-stone-200 pt-4 text-xs text-stone-500">
+        <footer className="mt-6 flex justify-center gap-4 border-t border-border-muted pt-4 text-xs text-muted-foreground">
           <button
             type="button"
             onClick={() => onOpenLegal('privacy')}
-            className="hover:text-teal-800 hover:underline"
+            className="hover:text-primary hover:underline"
           >
             Политика конфиденциальности
           </button>
           <button
             type="button"
             onClick={() => onOpenLegal('terms')}
-            className="hover:text-teal-800 hover:underline"
+            className="hover:text-primary hover:underline"
           >
             Условия
           </button>
         </footer>
-      </div>
+      </motion.div>
     </AuthLayout>
   )
 }
@@ -384,7 +390,7 @@ function Field({
 }: FieldProps) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-stone-800">
+      <span className="text-sm font-medium text-foreground">
         {label}
         {optional && <span className="text-stone-400"> (необязательно)</span>}
       </span>
@@ -393,7 +399,7 @@ function Field({
         value={value}
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+        className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
       />
       {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
     </label>

@@ -12,7 +12,7 @@ interface ThreadProps {
 type Mode = 'realtime' | 'polling' | 'idle'
 
 const inputClass =
-  'w-full resize-none rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+  'w-full resize-none rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
 
 export function Thread({ chatId }: ThreadProps) {
   const { user } = useAuth()
@@ -78,11 +78,11 @@ export function Thread({ chatId }: ThreadProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight text-stone-950">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Диалог
         </h1>
         {mode === 'polling' && (
-          <span className="text-xs text-stone-500">обновление…</span>
+          <span className="text-xs text-muted-foreground">обновление…</span>
         )}
         {mode === 'realtime' && (
           <span className="text-xs text-emerald-700">
@@ -98,9 +98,9 @@ export function Thread({ chatId }: ThreadProps) {
         </p>
       )}
 
-      <div className="min-h-40 space-y-3 rounded-2xl border border-stone-200 bg-white p-4">
+      <div className="min-h-40 space-y-3 rounded-2xl border border-border-muted bg-white p-4">
         {messages.length === 0 && !loadError && (
-          <p className="py-8 text-center text-sm text-stone-600">
+          <p className="py-8 text-center text-sm text-muted-foreground">
             Сообщений пока нет. Напишите первым.
           </p>
         )}
@@ -115,8 +115,8 @@ export function Thread({ chatId }: ThreadProps) {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
                   own
-                    ? 'bg-teal-800 text-white'
-                    : 'border border-stone-200 bg-stone-50 text-stone-950'
+                    ? 'bg-primary text-white'
+                    : 'border border-border-muted bg-stone-50 text-foreground'
                 }`}
               >
                 {message.text}
@@ -138,7 +138,7 @@ export function Thread({ chatId }: ThreadProps) {
         />
 
         <div className="flex items-center justify-between">
-          <span className="text-xs text-stone-500">
+          <span className="text-xs text-muted-foreground">
             {text.length} / {MAX_MESSAGE_LENGTH}
           </span>
           <div className="flex gap-2">
@@ -155,7 +155,7 @@ export function Thread({ chatId }: ThreadProps) {
               type="button"
               onClick={handleSend}
               disabled={!isValid || state === 'sending'}
-              className="rounded-xl bg-teal-800 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
+              className="rounded-xl bg-primary px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
             >
               {state === 'sending' ? 'Отправка…' : 'Отправить'}
             </button>

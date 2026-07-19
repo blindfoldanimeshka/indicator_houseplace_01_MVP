@@ -88,7 +88,7 @@ export function TelegramConnect({
 
   if (!botUsername) {
     return (
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-muted-foreground">
         Для подключения Telegram задайте VITE_TELEGRAM_BOT_USERNAME.
       </p>
     )

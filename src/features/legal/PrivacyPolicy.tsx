@@ -9,19 +9,19 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 text-sm font-medium text-teal-800 hover:underline"
+          className="mb-6 text-sm font-medium text-primary hover:underline"
         >
           ← Назад
         </button>
         <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Шаблон. Требует юридической проверки перед публичным запуском (152-ФЗ).
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Политика конфиденциальности
         </h1>
-        <div className="mt-6 space-y-6 text-sm leading-7 text-stone-800">
+        <div className="mt-6 space-y-6 text-sm leading-7 text-foreground">
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               1. Какие данные мы собираем
             </h2>
             <p>
@@ -31,7 +31,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               2. Цель обработки
             </h2>
             <p>
@@ -41,7 +41,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               3. Хранение данных
             </h2>
             <p>
@@ -51,7 +51,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               4. Ваши права
             </h2>
             <p>
@@ -61,7 +61,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">5. Контакты</h2>
+            <h2 className="text-lg font-semibold text-foreground">5. Контакты</h2>
             <p>
               По вопросам обработки персональных данных пишите на адрес
               поддержки, указанный в сервисе.

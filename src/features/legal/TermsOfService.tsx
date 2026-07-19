@@ -9,19 +9,19 @@ export function TermsOfService({ onBack }: LegalViewProps) {
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 text-sm font-medium text-teal-800 hover:underline"
+          className="mb-6 text-sm font-medium text-primary hover:underline"
         >
           ← Назад
         </button>
         <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Шаблон. Требует юридической проверки перед публичным запуском (152-ФЗ).
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Условия использования
         </h1>
-        <div className="mt-6 space-y-6 text-sm leading-7 text-stone-800">
+        <div className="mt-6 space-y-6 text-sm leading-7 text-foreground">
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               1. Принятие условий
             </h2>
             <p>
@@ -30,7 +30,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               2. Характер сервиса
             </h2>
             <p>
@@ -39,7 +39,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               3. Обязанности пользователя
             </h2>
             <p>
@@ -48,7 +48,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               4. Ответственность
             </h2>
             <p>
@@ -57,7 +57,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-stone-950">
+            <h2 className="text-lg font-semibold text-foreground">
               5. Изменение условий
             </h2>
             <p>

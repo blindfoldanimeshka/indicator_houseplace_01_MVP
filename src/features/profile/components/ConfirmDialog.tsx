@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 
 interface ConfirmDialogProps {
   isOpen: boolean
@@ -38,43 +39,51 @@ export function ConfirmDialog({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isOpen, onClose])
 
-  if (!isOpen) {
-    return null
-  }
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/50 p-4"
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h2 className="text-lg font-semibold text-stone-950">{title}</h2>
-        <p className="mt-2 text-sm text-stone-600">{message}</p>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={onClose}
+        >
+          <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className="w-full max-w-sm rounded-2xl bg-muted p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{message}</p>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl border border-stone-300 px-4 py-2 text-sm font-semibold text-stone-800 transition hover:bg-stone-100"
-          >
-            Отмена
-          </button>
-          <button
-            ref={confirmRef}
-            type="button"
-            onClick={onConfirm}
-            className="rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
-          >
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-xl border border-border-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-stone-200"
+              >
+                Отмена
+              </button>
+              <button
+                ref={confirmRef}
+                type="button"
+                onClick={onConfirm}
+                className="rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
+              >
+                {confirmLabel}
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

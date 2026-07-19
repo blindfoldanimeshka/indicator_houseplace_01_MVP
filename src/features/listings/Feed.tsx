@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
 import { listListings } from './api'
@@ -80,20 +81,20 @@ export function Feed({ onOpen }: FeedProps) {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const inputClass =
-    'rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+    'rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
 
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Объявления
         </h1>
-        <p className="mt-1 text-sm text-stone-600">
+        <p className="mt-1 text-sm text-muted-foreground">
           Аренда жилья напрямую, без посредников.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border-muted bg-white p-4 sm:grid-cols-3 lg:grid-cols-5">
         <label className="block">
           <span className="text-xs font-medium text-stone-700">Тип</span>
           <select
@@ -177,7 +178,7 @@ export function Feed({ onOpen }: FeedProps) {
         </label>
       </div>
 
-      {loading && <p className="text-sm text-stone-600">Загрузка…</p>}
+      {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
@@ -186,23 +187,39 @@ export function Feed({ onOpen }: FeedProps) {
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className="rounded-xl border border-stone-200 bg-white px-4 py-8 text-center text-sm text-stone-600">
+        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
           Объявлений не найдено. Попробуйте изменить фильтры.
         </p>
       )}
 
       {!loading && !error && listings.length > 0 && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.06 } },
+            }}
+          >
             {listings.map((listing) => (
-              <ListingCard
+              <motion.div
                 key={listing.id}
-                listing={listing}
-                coverPath={covers[listing.id]}
-                onOpen={onOpen}
-              />
+                variants={{
+                  hidden: { opacity: 0, y: 16 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              >
+                <ListingCard
+                  listing={listing}
+                  coverPath={covers[listing.id]}
+                  onOpen={onOpen}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           <div className="flex items-center justify-between text-sm text-stone-700">
             <span>
@@ -213,7 +230,7 @@ export function Feed({ onOpen }: FeedProps) {
                 type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-xl border border-stone-300 px-3 py-1.5 font-medium transition hover:bg-stone-100 disabled:opacity-40"
+                className="rounded-xl border border-border-muted px-3 py-1.5 font-medium transition hover:bg-muted/50 disabled:opacity-40"
               >
                 ← Назад
               </button>
@@ -226,7 +243,7 @@ export function Feed({ onOpen }: FeedProps) {
                   setPage((p) => Math.min(totalPages - 1, p + 1))
                 }
                 disabled={page >= totalPages - 1}
-                className="rounded-xl border border-stone-300 px-3 py-1.5 font-medium transition hover:bg-stone-100 disabled:opacity-40"
+                className="rounded-xl border border-border-muted px-3 py-1.5 font-medium transition hover:bg-muted/50 disabled:opacity-40"
               >
                 Вперёд →
               </button>

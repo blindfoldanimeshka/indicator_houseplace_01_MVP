@@ -6,8 +6,8 @@ import { AvatarUpload } from '@/features/profile/components/AvatarUpload'
 
 export function PersonalInfoTab() {
   const { user, updateProfile } = useAuth()
-  const [name, setName] = useState(user?.user_metadata?.name ?? '')
-  const [city, setCity] = useState(user?.user_metadata?.city ?? '')
+  const [name, setName] = useState('')
+  const [city, setCity] = useState('')
   const [avatarPath, setAvatarPath] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
@@ -15,16 +15,21 @@ export function PersonalInfoTab() {
   )
   const [formError, setFormError] = useState<string | null>(null)
 
+  // Load the profile from the `users` table (the save target), not from
+  // user_metadata — those can diverge and make saves look like they didn't stick.
   useEffect(() => {
     if (!user) return
     let active = true
     getSupabaseClient()
       .from('users')
-      .select('avatar_path')
+      .select('name, city, avatar_path')
       .eq('id', user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (active && data) setAvatarPath(data.avatar_path)
+        if (!active || !data) return
+        setName(data.name ?? '')
+        setCity(data.city ?? '')
+        setAvatarPath(data.avatar_path ?? null)
       })
     return () => {
       active = false
@@ -57,11 +62,25 @@ export function PersonalInfoTab() {
       city: parsed.data.city || '',
       avatarPath,
     })
-    setStatus(result.error ? 'error' : 'saved')
 
     if (result.error) {
       setFormError(result.error)
+      setStatus('error')
+      return
     }
+
+    // Re-read the persisted row so the form reflects what's actually stored.
+    const { data } = await getSupabaseClient()
+      .from('users')
+      .select('name, city, avatar_path')
+      .eq('id', user!.id)
+      .maybeSingle()
+    if (data) {
+      setName(data.name ?? '')
+      setCity(data.city ?? '')
+      setAvatarPath(data.avatar_path ?? null)
+    }
+    setStatus('saved')
   }
 
   return (
@@ -70,7 +89,7 @@ export function PersonalInfoTab() {
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Подтвердите email, чтобы публиковать объявления.
         </p>
-      )}
+          )}
 
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <AvatarUpload
@@ -83,12 +102,12 @@ export function PersonalInfoTab() {
         />
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">Имя</span>
+          <span className="text-sm font-medium text-foreground">Имя</span>
           <input
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
           />
           {errors.name && (
             <span className="mt-1 block text-sm text-red-700">{errors.name}</span>
@@ -96,14 +115,14 @@ export function PersonalInfoTab() {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">
-            Город <span className="text-stone-400">(необязательно)</span>
+          <span className="text-sm font-medium text-foreground">
+            Город <span className="text-muted-foreground">(необязательно)</span>
           </span>
           <input
             type="text"
             value={city}
             onChange={(event) => setCity(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
           />
           {errors.city && (
             <span className="mt-1 block text-sm text-red-700">{errors.city}</span>
@@ -124,7 +143,7 @@ export function PersonalInfoTab() {
         <button
           type="submit"
           disabled={status === 'saving'}
-          className="rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
         >
           {status === 'saving' ? 'Сохраняем…' : 'Сохранить'}
         </button>

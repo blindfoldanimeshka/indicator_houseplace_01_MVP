@@ -64,7 +64,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="text-xs font-medium text-stone-500 underline-offset-2 hover:text-stone-700 hover:underline"
+          className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-stone-700 hover:underline"
         >
           Пожаловаться
         </button>
@@ -73,14 +73,14 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
       {open && (
         <form
           onSubmit={handleSubmit}
-          className="space-y-3 rounded-xl border border-stone-200 bg-stone-50 p-3"
+          className="space-y-3 rounded-xl border border-border-muted bg-stone-50 p-3"
         >
           <label className="block space-y-1">
-            <span className="text-xs font-medium text-stone-600">Причина</span>
+            <span className="text-xs font-medium text-muted-foreground">Причина</span>
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+              className="w-full rounded-lg border border-border-muted bg-white px-2 py-1.5 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
             >
               {CATEGORIES.map((option) => (
                 <option key={option} value={option}>
@@ -91,7 +91,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
           </label>
 
           <label className="block space-y-1">
-            <span className="text-xs font-medium text-stone-600">
+            <span className="text-xs font-medium text-muted-foreground">
               Комментарий
             </span>
             <textarea
@@ -100,7 +100,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
               maxLength={MAX_REPORT_COMMENT}
               rows={3}
               placeholder="Необязательно…"
-              className="w-full resize-none rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+              className="w-full resize-none rounded-lg border border-border-muted bg-white px-2 py-1.5 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
             />
             <span className="block text-right text-[11px] text-stone-400">
               {comment.length} / {MAX_REPORT_COMMENT}
@@ -115,14 +115,14 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
                 setStatus('idle')
                 setMessage(null)
               }}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-stone-600 transition hover:bg-stone-100"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted/50"
             >
               Отмена
             </button>
             <button
               type="submit"
               disabled={!isValid || status === 'sending'}
-              className="rounded-lg bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
             >
               {status === 'sending'
                 ? 'Отправляем…'

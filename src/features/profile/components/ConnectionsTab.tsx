@@ -34,7 +34,7 @@ export function ConnectionsTab() {
 
   return (
     <div data-testid="connections-tab" className="p-4">
-      <h2 className="mb-4 text-lg font-semibold text-teal-800">
+      <h2 className="mb-4 text-lg font-semibold text-primary">
         Подключённые сервисы
       </h2>
 
@@ -48,9 +48,9 @@ export function ConnectionsTab() {
       )}
 
       {loading ? (
-        <p className="text-sm text-stone-600">Загрузка…</p>
+        <p className="text-sm text-muted-foreground">Загрузка…</p>
       ) : (
-        <div className="rounded-lg border border-stone-200 bg-white p-4">
+        <div className="rounded-lg border border-border-muted bg-white p-4">
           {connections
             .filter((service) => service.id !== 'telegram')
             .map((service) => (
@@ -65,7 +65,7 @@ export function ConnectionsTab() {
       )}
 
       <div className="mt-6">
-        <h3 className="mb-2 text-sm font-medium text-stone-800">Telegram</h3>
+        <h3 className="mb-2 text-sm font-medium text-foreground">Telegram</h3>
         {telegramError && (
           <p
             role="alert"
@@ -89,7 +89,7 @@ export function ConnectionsTab() {
       </div>
 
       {connecting && (
-        <p className="mt-4 text-sm text-stone-500" aria-live="polite">
+        <p className="mt-4 text-sm text-muted-foreground" aria-live="polite">
           Перенаправление в {connecting}…
         </p>
       )}

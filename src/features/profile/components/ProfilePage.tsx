@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { PersonalInfoTab } from './PersonalInfoTab'
 import { SettingsTab } from './SettingsTab'
 import { ConnectionsTab } from './ConnectionsTab'
@@ -27,10 +28,10 @@ export function ProfilePage() {
   return (
     <section className="mx-auto max-w-2xl space-y-6">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Профиль
         </h1>
-        <p className="mt-1 text-sm text-stone-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Управляйте личными данными и настройками аккаунта
         </p>
       </header>
@@ -38,7 +39,7 @@ export function ProfilePage() {
       <nav
         role="tablist"
         aria-label="Разделы профиля"
-        className="flex flex-wrap gap-1 border-b border-stone-200"
+        className="flex flex-wrap gap-1 border-b border-border-muted"
       >
         {TABS.map((tab) => {
           const selected = tab.id === activeTab
@@ -56,8 +57,8 @@ export function ProfilePage() {
               className={[
                 'px-3 py-2 text-sm font-medium transition-colors',
                 selected
-                  ? 'border-b-2 border-teal-800 text-teal-800'
-                  : 'text-stone-600 hover:text-stone-800',
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
               ].join(' ')}
             >
               {tab.label}
@@ -66,14 +67,21 @@ export function ProfilePage() {
         })}
       </nav>
 
-      <div
-        role="tabpanel"
-        id={`panel-${activeTab}`}
-        aria-labelledby={`tab-${activeTab}`}
-        tabIndex={0}
-      >
-        <ActiveTab />
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          role="tabpanel"
+          id={`panel-${activeTab}`}
+          aria-labelledby={`tab-${activeTab}`}
+          tabIndex={0}
+        >
+          <ActiveTab />
+        </motion.div>
+      </AnimatePresence>
     </section>
   )
 }

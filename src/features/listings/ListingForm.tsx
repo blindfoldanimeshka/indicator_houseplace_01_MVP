@@ -133,7 +133,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
   }
 
   const fieldClass =
-    'mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+    'mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
 
   return (
     <section className="max-w-xl space-y-5">
@@ -141,19 +141,19 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         <button
           type="button"
           onClick={onCancel}
-          className="text-sm font-medium text-teal-800 hover:underline"
+          className="text-sm font-medium text-primary hover:underline"
         >
           ← Назад
         </button>
       )}
 
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
         {isEditing ? 'Редактировать объявление' : 'Новое объявление'}
       </h1>
 
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">Тип</span>
+          <span className="text-sm font-medium text-foreground">Тип</span>
           <select
             value={type}
             onChange={(event) =>
@@ -167,7 +167,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">Город</span>
+          <span className="text-sm font-medium text-foreground">Город</span>
           <input
             type="text"
             value={city}
@@ -182,7 +182,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">Комнаты</span>
+          <span className="text-sm font-medium text-foreground">Комнаты</span>
           <select
             value={rooms}
             onChange={(event) => setRooms(event.target.value)}
@@ -202,7 +202,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">
+          <span className="text-sm font-medium text-foreground">
             Цена, ₽ / мес.
           </span>
           <input
@@ -219,7 +219,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">
+          <span className="text-sm font-medium text-foreground">
             Площадь, м² <span className="text-stone-400">(необязательно)</span>
           </span>
           <input
@@ -236,7 +236,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <label className="block">
-          <span className="text-sm font-medium text-stone-800">
+          <span className="text-sm font-medium text-foreground">
             Описание{' '}
             <span className="text-stone-400">(необязательно)</span>
           </span>
@@ -255,7 +255,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
 
         <div className="space-y-2">
           <label className="block">
-            <span className="text-sm font-medium text-stone-800">
+            <span className="text-sm font-medium text-foreground">
               Адрес / ориентир{' '}
               <span className="text-stone-400">(необязательно)</span>
             </span>
@@ -278,12 +278,12 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
               type="button"
               onClick={handleGeocode}
               disabled={geoState === 'loading'}
-              className="rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
+              className="rounded-xl border border-border-muted px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted/50 disabled:opacity-60"
             >
               {geoState === 'loading' ? 'Ищем…' : 'Найти на карте'}
             </button>
             {(lat !== null && lng !== null) && (
-              <span className="text-xs text-stone-500">
+              <span className="text-xs text-muted-foreground">
                 Точка: {lat.toFixed(5)}, {lng.toFixed(5)}
               </span>
             )}
@@ -319,7 +319,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         <button
           type="submit"
           disabled={status === 'saving'}
-          className="rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
           >
             {status === 'saving'
               ? 'Сохраняем…'
@@ -330,13 +330,13 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </form>
 
         {uploaderListingId && (
-          <div className="border-t border-stone-200 pt-5">
+          <div className="border-t border-border-muted pt-5">
             <PhotoUploader listingId={uploaderListingId} />
             {!isEditing && (
               <button
                 type="button"
                 onClick={onSaved}
-                className="mt-4 rounded-xl bg-teal-800 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900"
+                className="mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900"
               >
                 Готово
               </button>

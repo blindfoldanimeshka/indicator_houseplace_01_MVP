@@ -85,7 +85,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
   }, [refresh])
 
   if (loading) {
-    return <p className="text-sm text-stone-600">Загрузка…</p>
+    return <p className="text-sm text-muted-foreground">Загрузка…</p>
   }
 
   if (error) {
@@ -98,7 +98,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
 
   if (chats.length === 0) {
     return (
-      <p className="rounded-xl border border-stone-200 bg-white px-4 py-8 text-center text-sm text-stone-600">
+      <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
         У вас пока нет диалогов.
       </p>
     )
@@ -111,10 +111,10 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
           <button
             type="button"
             onClick={() => onOpen(chat.id)}
-            className="flex w-full flex-col gap-1 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-teal-300 hover:shadow-md"
+            className="flex w-full flex-col gap-1 rounded-2xl border border-border-muted bg-white p-4 text-left transition hover:border-teal-300 hover:shadow-md"
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-stone-950">
+              <span className="font-semibold text-foreground">
                 {chat.listings?.city ?? 'Объявление'}
               </span>
               {chat.listings && (
@@ -129,7 +129,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
                 </span>
               )}
             </div>
-              <span className="text-xs text-stone-500">
+              <span className="text-xs text-muted-foreground">
                 {formatDate(chat.created_at)}
               </span>
               {unread && (unread.byChat[chat.id] ?? 0) > 0 && (

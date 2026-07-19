@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Plus, Home, MessageSquare, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 import { AppShell } from '@/components/layout/AppShell'
@@ -19,6 +20,33 @@ import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
 import { NotificationPanel } from '@/features/chat/NotificationPanel'
 import { PrivacyPolicy } from '@/features/legal/PrivacyPolicy'
 import { TermsOfService } from '@/features/legal/TermsOfService'
+
+const pageVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+}
+
+const pageTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 35,
+  mass: 0.8,
+}
+
+function PageTransition({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      transition={pageTransition}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -65,10 +93,33 @@ function MenuNav({
     badge: item.key === 'chats' && unreadTotal > 0 ? unreadTotal : undefined,
   }))
 
+  // Shrink the dock while scrolling down; it restores on scroll up (and on hover
+  // inside MenuBar itself).
+  const [compact, setCompact] = useState(false)
+  useEffect(() => {
+    let lastY = window.scrollY
+    let ticking = false
+    function onScroll() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const y = window.scrollY
+        const goingDown = y > lastY
+        if (goingDown && y > 80) setCompact(true)
+        else if (!goingDown) setCompact(false)
+        lastY = y
+        ticking = false
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2">
       <MenuBar
         items={items}
+        compact={compact}
         onSelect={(key) => {
           if (key === 'chats') onToggleNotifications()
           else onNavigate(topLevel[key])
@@ -111,7 +162,7 @@ function AppContent() {
   if (isLoading) {
     return (
       <AppShell>
-        <p className="text-stone-600">Загрузка…</p>
+        <p className="text-muted-foreground">Загрузка…</p>
       </AppShell>
     )
   }
@@ -120,158 +171,168 @@ function AppContent() {
     return <AuthScreen onOpenLegal={(legalView) => navigate(legalView)} />
   }
 
-  if (view === 'privacy') {
-    return <PrivacyPolicy onBack={() => navigate('home')} />
-  }
-
-  if (view === 'terms') {
-    return <TermsOfService onBack={() => navigate('home')} />
-  }
-
-  if (view === 'new') {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <ListingForm
-          onSaved={() => navigate('mine')}
-          onCancel={() => navigate('home')}
-        />
-      </AppShell>
-    )
-  }
-
-  if (view === 'mine') {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <MyListings onBack={() => navigate('home')} />
-      </AppShell>
-    )
-  }
-
-  if (view === 'detail' && selected) {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <ListingDetail
-          id={selected.id}
-          onBack={() => navigate('home')}
-          onStartChat={openChat}
-        />
-      </AppShell>
-    )
-  }
-
-  if (view === 'chats') {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <section className="space-y-5">
-          <button
-            type="button"
-            onClick={() => navigate('home')}
-            className="text-sm font-medium text-teal-800 hover:underline"
-          >
-            ← Назад
-          </button>
-          <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
-            Мои чаты
-          </h1>
-          <ChatList
-            onOpen={openChat}
-            unread={unread}
-            onChatsResolved={unread.setMyChats}
-          />
-        </section>
-        {showNotifications && (
-          <NotificationPanel
-            notifications={unread.recent}
-            onOpenChat={openChat}
-            onClose={() => setShowNotifications(false)}
-          />
-        )}
-      </AppShell>
-    )
-  }
-
-  if (view === 'thread' && selectedChatId) {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <button
-          type="button"
-          onClick={() => navigate('chats')}
-          className="mb-5 text-sm font-medium text-teal-800 hover:underline"
-        >
-          ← Назад
-        </button>
-        <Thread chatId={selectedChatId} />
-      </AppShell>
-    )
-  }
-
-  if (view === 'profile') {
-    return (
-      <AppShell>
-        <MenuNav
-          view={view}
-          onNavigate={navigate}
-          unreadTotal={unread.total}
-          onToggleNotifications={toggleNotifications}
-        />
-        <ProfilePage />
-      </AppShell>
-    )
-  }
-
   return (
-    <AppShell>
-      <MenuNav
-        view={view}
-        onNavigate={navigate}
-        unreadTotal={unread.total}
-        onToggleNotifications={toggleNotifications}
-      />
-      <Feed onOpen={openDetail} />
-      {!user?.email_confirmed_at && (
-        <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-          Подтвердите email, чтобы публиковать объявления.
-        </p>
+    <AnimatePresence mode="wait">
+      {view === 'privacy' && (
+        <PageTransition key="privacy">
+          <PrivacyPolicy onBack={() => navigate('home')} />
+        </PageTransition>
       )}
-      <EnvironmentNotice configured={isSupabaseConfigured()} />
-      {showNotifications && (
-        <NotificationPanel
-          notifications={unread.recent}
-          onOpenChat={openChat}
-          onClose={() => setShowNotifications(false)}
-        />
+
+      {view === 'terms' && (
+        <PageTransition key="terms">
+          <TermsOfService onBack={() => navigate('home')} />
+        </PageTransition>
       )}
-    </AppShell>
+
+      {view === 'new' && (
+        <PageTransition key="new">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <ListingForm
+              onSaved={() => navigate('mine')}
+              onCancel={() => navigate('home')}
+            />
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'mine' && (
+        <PageTransition key="mine">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <MyListings onBack={() => navigate('home')} />
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'detail' && selected && (
+        <PageTransition key="detail">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <ListingDetail
+              id={selected.id}
+              onBack={() => navigate('home')}
+              onStartChat={openChat}
+            />
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'chats' && (
+        <PageTransition key="chats">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <section className="space-y-5">
+              <button
+                type="button"
+                onClick={() => navigate('home')}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                ← Назад
+              </button>
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                Мои чаты
+              </h1>
+              <ChatList
+                onOpen={openChat}
+                unread={unread}
+                onChatsResolved={unread.setMyChats}
+              />
+            </section>
+            {showNotifications && (
+              <NotificationPanel
+                notifications={unread.recent}
+                onOpenChat={openChat}
+                onClose={() => setShowNotifications(false)}
+              />
+            )}
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'thread' && selectedChatId && (
+        <PageTransition key="thread">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <button
+              type="button"
+              onClick={() => navigate('chats')}
+              className="mb-5 text-sm font-medium text-primary hover:underline"
+            >
+              ← Назад
+            </button>
+            <Thread chatId={selectedChatId} />
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'profile' && (
+        <PageTransition key="profile">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <ProfilePage />
+          </AppShell>
+        </PageTransition>
+      )}
+
+      {view === 'home' && (
+        <PageTransition key="home">
+          <AppShell>
+            <MenuNav
+              view={view}
+              onNavigate={navigate}
+              unreadTotal={unread.total}
+              onToggleNotifications={toggleNotifications}
+            />
+            <Feed onOpen={openDetail} />
+            {!user?.email_confirmed_at && (
+              <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                Подтвердите email, чтобы публиковать объявления.
+              </p>
+            )}
+            <EnvironmentNotice configured={isSupabaseConfigured()} />
+            {showNotifications && (
+              <NotificationPanel
+                notifications={unread.recent}
+                onOpenChat={openChat}
+                onClose={() => setShowNotifications(false)}
+              />
+            )}
+          </AppShell>
+        </PageTransition>
+      )}
+    </AnimatePresence>
   )
 }
 

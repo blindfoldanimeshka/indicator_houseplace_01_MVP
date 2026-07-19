@@ -26,7 +26,7 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 py-3">
-      <span className="text-sm font-medium text-stone-800">{label}</span>
+      <span className="text-sm font-medium text-foreground">{label}</span>
       <button
         type="button"
         role="switch"
@@ -34,7 +34,7 @@ function Toggle({
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-          checked ? 'bg-teal-800' : 'bg-stone-300'
+          checked ? 'bg-primary' : 'bg-stone-300'
         }`}
       >
         <span
@@ -85,8 +85,8 @@ export function SettingsTab() {
             onClick={() => setActive(tab.id)}
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
               active === tab.id
-                ? 'bg-teal-800 text-white'
-                : 'border border-stone-300 text-stone-800 hover:bg-stone-100'
+                ? 'bg-primary text-white'
+                : 'border border-border-muted text-foreground hover:bg-muted/50'
             }`}
           >
             {tab.label}
@@ -103,12 +103,12 @@ export function SettingsTab() {
         </p>
       )}
       {saving && (
-        <p className="text-sm text-stone-500" aria-live="polite">
+        <p className="text-sm text-muted-foreground" aria-live="polite">
           Сохранение…
         </p>
       )}
 
-      <div className="divide-y divide-stone-200 rounded-xl border border-stone-200 bg-white px-4">
+      <div className="divide-y divide-stone-200 rounded-xl border border-border-muted bg-white px-4">
         {active === 'notifications' && (
           <div>
             <Toggle
@@ -146,14 +146,14 @@ export function SettingsTab() {
 
         {active === 'security' && (
           <div className="space-y-3 py-4">
-            <p className="text-sm text-stone-600">
+            <p className="text-sm text-muted-foreground">
               Смена пароля производится через сервис авторизации. Эта функция
               появится в следующих версиях.
             </p>
             <button
               type="button"
               disabled
-              className="rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-400 disabled:cursor-not-allowed"
+              className="rounded-xl border border-border-muted px-4 py-2.5 text-sm font-semibold text-stone-400 disabled:cursor-not-allowed"
             >
               Сменить пароль
             </button>
@@ -163,13 +163,13 @@ export function SettingsTab() {
         {active === 'preferences' && (
           <div className="space-y-4 py-4">
             <label className="block">
-              <span className="text-sm font-medium text-stone-800">Тема</span>
+              <span className="text-sm font-medium text-foreground">Тема</span>
               <select
                 value={settings.preferences.theme}
                 onChange={(e) =>
                   updatePreferences('theme', e.target.value as Theme)
                 }
-                className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+                className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
               >
                 <option value="light">Светлая</option>
                 <option value="dark">Тёмная</option>
@@ -178,13 +178,13 @@ export function SettingsTab() {
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-stone-800">Язык</span>
+              <span className="text-sm font-medium text-foreground">Язык</span>
               <select
                 value={settings.preferences.language}
                 onChange={(e) =>
                   updatePreferences('language', e.target.value as Language)
                 }
-                className="mt-1 w-full rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-950 outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+                className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
               >
                 <option value="ru">Русский</option>
                 <option value="en">English</option>

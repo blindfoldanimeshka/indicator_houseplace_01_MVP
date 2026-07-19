@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { AvatarUpload } from '@/features/profile/components/AvatarUpload'
 
 const uploadMock = vi.fn()
+const removeMock = vi.fn()
 const getPublicUrlMock = vi.fn()
 
 vi.mock('@/lib/supabase', () => ({
@@ -10,6 +11,7 @@ vi.mock('@/lib/supabase', () => ({
     storage: {
       from: () => ({
         upload: uploadMock,
+        remove: removeMock,
         getPublicUrl: getPublicUrlMock,
       }),
     },
@@ -25,6 +27,7 @@ function fakeFile(name = 'pic.png', type = 'image/png', size = 1024) {
 describe('AvatarUpload', () => {
   beforeEach(() => {
     uploadMock.mockReset()
+    removeMock.mockReset()
     getPublicUrlMock.mockReset()
     getPublicUrlMock.mockReturnValue({ data: { publicUrl: 'https://x/avatars/u1' } })
   })
@@ -34,8 +37,9 @@ describe('AvatarUpload', () => {
     expect(screen.getByRole('button', { name: /загрузить фото/i })).toBeInTheDocument()
   })
 
-  it('uploads selected file and reports the path', async () => {
+  it('removes the old avatar, then uploads the new one as the bare id', async () => {
     uploadMock.mockResolvedValue({ error: null })
+    removeMock.mockResolvedValue({ error: null })
     const onUploaded = vi.fn()
 
     render(<AvatarUpload userId="u1" onUploaded={onUploaded} />)
@@ -43,11 +47,16 @@ describe('AvatarUpload', () => {
     const input = document.querySelector('input[type="file"]') as HTMLInputElement
     fireEvent.change(input, { target: { files: [fakeFile()] } })
 
-    await waitFor(() => expect(onUploaded).toHaveBeenCalledWith('avatars/u1'))
+    await waitFor(() => expect(onUploaded).toHaveBeenCalledWith('u1'))
+    // Old avatar is fully removed first (no history kept).
+    expect(removeMock).toHaveBeenCalledWith(['avatars/u1'])
+    // supabase-js prefixes the bucket name (`avatars/`) to the upload path, so
+    // we pass the bare id. The stored object becomes `avatars/u1`, which the
+    // RLS helper user_id_from_avatar_path(name) parses via array_split(name,'/')[2].
     expect(uploadMock).toHaveBeenCalledWith(
-      'avatars/u1',
+      'u1',
       expect.anything(),
-      expect.objectContaining({ upsert: true }),
+      expect.objectContaining({ upsert: false }),
     )
   })
 

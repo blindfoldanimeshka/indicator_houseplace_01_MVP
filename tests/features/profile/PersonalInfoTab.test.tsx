@@ -1,7 +1,21 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { PersonalInfoTab } from '@/features/profile/components/PersonalInfoTab'
 import { AuthContext, type AuthContextValue } from '@/features/auth/AuthProvider'
+
+const STORED_PROFILE = { name: 'Иван', city: 'Москва', avatar_path: null }
+
+const fromMock = vi.fn(() => ({
+  select: vi.fn(() => ({
+    eq: vi.fn(() => ({
+      maybeSingle: vi.fn().mockResolvedValue({ data: STORED_PROFILE, error: null }),
+    })),
+  })),
+}))
+
+vi.mock('@/lib/supabase', () => ({
+  getSupabaseClient: () => ({ from: fromMock }),
+}))
 
 function renderWithAuth(overrides: Partial<AuthContextValue> = {}) {
   const value: AuthContextValue = {
@@ -32,11 +46,16 @@ function renderWithAuth(overrides: Partial<AuthContextValue> = {}) {
 }
 
 describe('PersonalInfoTab', () => {
-  it('renders name and city inputs and a save button', () => {
+  beforeEach(() => {
+    fromMock.mockClear()
+  })
+
+  it('renders name and city inputs and a save button', async () => {
     renderWithAuth()
 
-    expect(screen.getByLabelText(/имя/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/город/i)).toBeInTheDocument()
+    // Values load from the `users` table, so wait for them.
+    expect(await screen.findByDisplayValue('Иван')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Москва')).toBeInTheDocument()
     expect(
       screen.getByRole('button', { name: /сохранить/i }),
     ).toBeInTheDocument()
@@ -45,6 +64,7 @@ describe('PersonalInfoTab', () => {
   it('calls updateProfile with valid data on submit', async () => {
     const value = renderWithAuth()
 
+    await screen.findByDisplayValue('Иван')
     fireEvent.click(
       screen.getByRole('button', { name: /сохранить/i }),
     )
@@ -62,9 +82,8 @@ describe('PersonalInfoTab', () => {
   it('shows a validation error and does not call updateProfile when name is empty', async () => {
     const value = renderWithAuth()
 
-    fireEvent.change(screen.getByLabelText(/имя/i), {
-      target: { value: '' },
-    })
+    const nameInput = await screen.findByDisplayValue('Иван')
+    fireEvent.change(nameInput, { target: { value: '' } })
     fireEvent.click(screen.getByRole('button', { name: /сохранить/i }))
 
     expect(await screen.findByText(/укажите имя/i)).toBeInTheDocument()
@@ -74,6 +93,7 @@ describe('PersonalInfoTab', () => {
   it('shows a success message after saving', async () => {
     renderWithAuth()
 
+    await screen.findByDisplayValue('Иван')
     fireEvent.click(screen.getByRole('button', { name: /сохранить/i }))
 
     await waitFor(() =>
@@ -81,3 +101,4 @@ describe('PersonalInfoTab', () => {
     )
   })
 })
+

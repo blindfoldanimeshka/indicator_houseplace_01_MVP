@@ -100,16 +100,16 @@ export function MyListings({ onBack }: MyListingsProps) {
       <button
         type="button"
         onClick={onBack}
-        className="text-sm font-medium text-teal-800 hover:underline"
+        className="text-sm font-medium text-primary hover:underline"
       >
         ← Назад
       </button>
 
-      <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
         Мои объявления
       </h1>
 
-      {loading && <p className="text-sm text-stone-600">Загрузка…</p>}
+      {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
@@ -124,7 +124,7 @@ export function MyListings({ onBack }: MyListingsProps) {
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className="rounded-xl border border-stone-200 bg-white px-4 py-8 text-center text-sm text-stone-600">
+        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
           У вас пока нет объявлений.
         </p>
       )}
@@ -136,20 +136,20 @@ export function MyListings({ onBack }: MyListingsProps) {
             return (
               <li
                 key={listing.id}
-                className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-2xl border border-border-muted bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-stone-950">
+                    <span className="font-semibold text-foreground">
                       {listing.city}
                     </span>
                     {isArchived && (
-                      <span className="inline-flex items-center rounded-full bg-stone-200 px-2 py-0.5 text-xs font-semibold text-stone-700">
+                      <span className="inline-flex items-center rounded-full bg-muted/80 px-2 py-0.5 text-xs font-semibold text-stone-700">
                         В архиве
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-stone-600">
+                  <p className="text-sm text-muted-foreground">
                     {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}, {listing.price} ₽
                   </p>
                 </div>
@@ -159,7 +159,7 @@ export function MyListings({ onBack }: MyListingsProps) {
                     <button
                       type="button"
                       onClick={() => setEditing(listing)}
-                      className="rounded-xl border border-stone-300 px-3 py-1.5 text-sm font-medium text-stone-800 transition hover:bg-stone-100"
+                      className="rounded-xl border border-border-muted px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted/50"
                     >
                       Редактировать
                     </button>
