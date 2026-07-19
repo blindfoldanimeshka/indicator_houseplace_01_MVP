@@ -14,10 +14,10 @@ interface MenuBarProps extends React.HTMLAttributes<HTMLDivElement> {
   onSelect: (key: string) => void
 }
 
-  const BASE_ICON_BTN = 64
-const BASE_BAR_HEIGHT = 100
-const MAX_SCALE = 1.7
-const MAGNET_RANGE = 160
+  const BASE_ICON_BTN = 56
+const BASE_BAR_HEIGHT = 92
+const MAX_SCALE = 1.35
+const MAGNET_RANGE = 120
 
 function scaleForDistance(dist: number): number {
   if (dist >= MAGNET_RANGE) return 1
@@ -72,11 +72,11 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.15 }}
-            className="pointer-events-none absolute -top-[52px] left-0 z-50 w-full"
+            className="pointer-events-none absolute -top-[46px] left-0 z-50 w-full"
           >
             <motion.div
               ref={tooltipRef}
-              className="absolute top-0 inline-flex h-8 -translate-x-1/2 items-center justify-center rounded-lg border border-stone-200 bg-white/95 px-4 text-sm font-medium leading-tight text-stone-800 shadow-sm backdrop-blur"
+              className="absolute top-0 inline-flex h-7 -translate-x-1/2 items-center justify-center rounded-lg border border-stone-200 bg-white/95 px-3 text-[13px] font-medium leading-tight text-stone-800 shadow-sm backdrop-blur"
               animate={{ left: tooltipLeft }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
@@ -94,7 +94,7 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
           setCursorX(null)
         }}
         className={cn(
-          'flex items-end justify-center gap-5 rounded-[36px] border border-stone-200/80 bg-white/80 px-5 pb-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_20px_40px_-8px_rgba(0,0,0,0.3)] backdrop-blur-md',
+          'flex items-end justify-center gap-3 rounded-[32px] border border-stone-200/80 bg-white/80 px-4 pb-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_20px_40px_-8px_rgba(0,0,0,0.3)] backdrop-blur-md',
         )}
         style={{ height: BASE_BAR_HEIGHT }}
       >
@@ -109,7 +109,7 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
               const center = cr.left - rect.left + cr.width / 2
               const dist = Math.abs(cursorX - center)
               scale = scaleForDistance(dist)
-              if (index === hovered) lift = -12
+              if (index === hovered) lift = -6
             }
           }
           return (
@@ -126,14 +126,14 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
                 animate={{ scale, y: lift }}
                 transition={{ type: 'spring', stiffness: 380, damping: 24 }}
                 className={cn(
-                  'flex items-center justify-center rounded-[20px] transition-colors',
+                  'flex items-center justify-center rounded-[18px] transition-colors',
                   item.active
                     ? 'bg-teal-800 text-white shadow-sm'
                     : 'text-stone-600 hover:bg-stone-100',
                 )}
                 style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
               >
-                <item.icon className="h-[28px] w-[28px]" />
+                <item.icon className="h-[24px] w-[24px]" />
               </motion.span>
             </button>
           )
