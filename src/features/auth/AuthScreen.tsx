@@ -2,7 +2,11 @@ import { useState, type FormEvent } from 'react'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/useAuth'
 import { authSchema } from '@/features/profile/profileSchema'
-import { validateInviteCode, isInviteCodeFormatValid } from '@/features/auth/invite'
+import {
+  checkInviteStatus,
+  inviteErrorMessage,
+  isInviteCodeFormatValid,
+} from '@/features/auth/invite'
 
 type Mode = 'signIn' | 'signUp' | 'reset'
 
@@ -103,10 +107,10 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
         return
       }
 
-      const inviteValid = await validateInviteCode(inviteCode)
-      if (!inviteValid) {
+      const inviteStatus = await checkInviteStatus(inviteCode)
+      if (inviteStatus !== 'valid') {
         setIsSubmitting(false)
-        setFormError('Недействительный инвайт-код')
+        setFormError(inviteErrorMessage(inviteStatus))
         return
       }
 
@@ -125,6 +129,19 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
 
     if (result.error) {
       setFormError(result.error)
+      return
+    }
+
+    if (isSignUp) {
+      setSuccessMessage(
+        `Письмо отправлено на ${parsed.data.email}. Подтвердите email, чтобы войти.`,
+      )
+      setEmail('')
+      setPassword('')
+      setName('')
+      setCity('')
+      setInviteCode('')
+      setConsent(false)
     }
   }
 

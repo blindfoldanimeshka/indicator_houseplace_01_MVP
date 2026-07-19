@@ -22,7 +22,7 @@ function createMockSupabase() {
     }
     return chain
   })
-  const rpc = vi.fn().mockResolvedValue({ data: true, error: null })
+  const rpc = vi.fn().mockResolvedValue({ data: 'valid', error: null })
   return { auth, from, rpc }
 }
 

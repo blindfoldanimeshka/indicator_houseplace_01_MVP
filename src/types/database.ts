@@ -159,6 +159,10 @@ export interface Database {
         Args: { p_code: string }
         Returns: boolean
       }
+      invite_status: {
+        Args: { p_code: string }
+        Returns: string
+      }
       claim_invite: {
         Args: { p_code: string; p_user_id: string }
         Returns: boolean
