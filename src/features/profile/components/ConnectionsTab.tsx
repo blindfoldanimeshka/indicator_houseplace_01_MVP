@@ -5,7 +5,9 @@ import type { ConnectedService as ConnectedServiceType } from '@/features/profil
 const INITIAL_SERVICES: ConnectedServiceType[] = [
   { id: 'google', name: 'Google Account', status: 'connected' },
   { id: 'apple', name: 'Apple ID', status: 'not_connected' },
-  { id: 'github', name: 'GitHub', status: 'not_connected' },
+  { id: 'yandex', name: 'Яндекс', status: 'not_connected' },
+  { id: 'vk', name: 'VK', status: 'not_connected' },
+  { id: 'telegram', name: 'Telegram', status: 'not_connected' },
 ]
 
 export function ConnectionsTab() {

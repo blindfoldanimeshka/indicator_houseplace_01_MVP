@@ -9,6 +9,9 @@ describe('ConnectionsTab', () => {
     expect(screen.getByText(/подключённые сервисы/i)).toBeInTheDocument()
     expect(screen.getByText(/google account/i)).toBeInTheDocument()
     expect(screen.getByText(/apple id/i)).toBeInTheDocument()
+    expect(screen.getByText(/яндекс/i)).toBeInTheDocument()
+    expect(screen.getByText(/vk/i)).toBeInTheDocument()
+    expect(screen.getByText(/telegram/i)).toBeInTheDocument()
   })
 
   it('shows a connect button for not-connected services', () => {
