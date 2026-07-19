@@ -20,14 +20,14 @@ const springConfig = {
 }
 
 export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) {
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null)
+  const [hovered, setHovered] = React.useState<number | null>(null)
+  const [tooltip, setTooltip] = React.useState({ left: 0, width: 0 })
   const menuRef = React.useRef<HTMLDivElement>(null)
   const tooltipRef = React.useRef<HTMLDivElement>(null)
-  const [tooltip, setTooltip] = React.useState({ left: 0, width: 0 })
 
   React.useEffect(() => {
-    if (activeIndex !== null && menuRef.current && tooltipRef.current) {
-      const menuItem = menuRef.current.children[activeIndex] as HTMLElement
+    if (hovered !== null && menuRef.current && tooltipRef.current) {
+      const menuItem = menuRef.current.children[hovered] as HTMLElement
       const menuRect = menuRef.current.getBoundingClientRect()
       const itemRect = menuItem.getBoundingClientRect()
       const tooltipRect = tooltipRef.current.getBoundingClientRect()
@@ -42,18 +42,18 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
         width: tooltipRect.width,
       })
     }
-  }, [activeIndex])
+  }, [hovered])
 
   return (
     <div className={cn('relative', className)} {...props}>
       <AnimatePresence>
-        {activeIndex !== null && (
+        {hovered !== null && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={springConfig}
-            className="pointer-events-none absolute -top-[34px] left-0 right-0 z-50 flex justify-center"
+            className="pointer-events-none absolute -top-[42px] left-0 right-0 z-50 flex justify-center"
           >
             <motion.div
               ref={tooltipRef}
@@ -63,7 +63,7 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
               transition={springConfig}
             >
               <span className="whitespace-nowrap text-[13px] font-medium leading-tight text-stone-800">
-                {items[activeIndex].label}
+                {items[hovered].label}
               </span>
             </motion.div>
           </motion.div>
@@ -73,7 +73,7 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
       <div
         ref={menuRef}
         className={cn(
-          'inline-flex items-center justify-center gap-[3px] overflow-hidden rounded-full border border-stone-200 bg-white/95 px-1.5 py-1 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_8px_16px_-4px_rgba(0,0,0,0.12)] backdrop-blur',
+          'inline-flex items-end justify-center gap-2 overflow-visible rounded-[26px] border border-stone-200/80 bg-white/80 px-3 pb-2 pt-3 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_28px_-6px_rgba(0,0,0,0.22)] backdrop-blur-md',
         )}
       >
         {items.map((item, index) => (
@@ -83,18 +83,28 @@ export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) 
             aria-label={item.label}
             aria-current={item.active ? 'page' : undefined}
             onClick={() => onSelect(item.key)}
-            onMouseEnter={() => setActiveIndex(index)}
-            onMouseLeave={() => setActiveIndex(null)}
-            onFocus={() => setActiveIndex(index)}
-            onBlur={() => setActiveIndex(null)}
-            className={cn(
-              'flex h-9 w-9 items-center justify-center rounded-full transition-colors',
-              item.active
-                ? 'bg-teal-800 text-white'
-                : 'text-stone-600 hover:bg-stone-100',
-            )}
+            onMouseEnter={() => setHovered(index)}
+            onMouseLeave={() => setHovered(null)}
+            onFocus={() => setHovered(index)}
+            onBlur={() => setHovered(null)}
+            className="relative flex items-end justify-center outline-none"
           >
-            <item.icon className="h-[18px] w-[18px]" />
+            <motion.span
+              animate={
+                hovered === index
+                  ? { scale: 1.45, y: -8 }
+                  : { scale: 1, y: 0 }
+              }
+              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+              className={cn(
+                'flex h-11 w-11 items-center justify-center rounded-2xl transition-colors',
+                item.active
+                  ? 'bg-teal-800 text-white shadow-sm'
+                  : 'text-stone-600 hover:bg-stone-100',
+              )}
+            >
+              <item.icon className="h-[22px] w-[22px]" />
+            </motion.span>
           </button>
         ))}
       </div>

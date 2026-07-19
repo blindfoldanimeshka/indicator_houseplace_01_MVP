@@ -53,7 +53,7 @@ function MenuNav({ view, onNavigate }: { view: View; onNavigate: (view: View) =>
   }))
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:right-4 sm:top-4 sm:translate-x-0">
+    <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2">
       <MenuBar items={items} onSelect={(key) => onNavigate(topLevel[key])} />
     </div>
   )
