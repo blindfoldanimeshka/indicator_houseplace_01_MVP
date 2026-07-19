@@ -64,7 +64,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-stone-700 hover:underline"
+          className="text-xs font-medium text-muted-foreground underline-offset-2 transition hover:text-primary hover:underline"
         >
           Пожаловаться
         </button>
@@ -73,14 +73,14 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
       {open && (
         <form
           onSubmit={handleSubmit}
-          className="space-y-3 rounded-xl border border-border-muted bg-stone-50 p-3"
+          className="space-y-3 rounded-xl border border-border-muted bg-surface p-3 shadow-[var(--shadow-surface)]"
         >
           <label className="block space-y-1">
             <span className="text-xs font-medium text-muted-foreground">Причина</span>
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="w-full rounded-lg border border-border-muted bg-white px-2 py-1.5 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+              className="w-full rounded-lg border border-border-muted bg-background px-2 py-1.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-secondary/40"
             >
               {CATEGORIES.map((option) => (
                 <option key={option} value={option}>
@@ -100,9 +100,9 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
               maxLength={MAX_REPORT_COMMENT}
               rows={3}
               placeholder="Необязательно…"
-              className="w-full resize-none rounded-lg border border-border-muted bg-white px-2 py-1.5 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+              className="w-full resize-none rounded-lg border border-border-muted bg-background px-2 py-1.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-secondary/40"
             />
-            <span className="block text-right text-[11px] text-stone-400">
+            <span className="block text-right text-[11px] text-muted-foreground">
               {comment.length} / {MAX_REPORT_COMMENT}
             </span>
           </label>
@@ -115,14 +115,14 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
                 setStatus('idle')
                 setMessage(null)
               }}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted/50"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground"
             >
               Отмена
             </button>
             <button
               type="submit"
               disabled={!isValid || status === 'sending'}
-              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
+              className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition hover:brightness-110 disabled:opacity-40"
             >
               {status === 'sending'
                 ? 'Отправляем…'
@@ -137,7 +137,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
       {message && (
         <p
           className={`text-xs ${
-            status === 'success' ? 'text-emerald-700' : 'text-red-700'
+            status === 'success' ? 'text-green-foreground' : 'text-red-300'
           }`}
         >
           {message}

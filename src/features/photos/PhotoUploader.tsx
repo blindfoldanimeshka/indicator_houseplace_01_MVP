@@ -125,7 +125,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
       </div>
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl border border-red/30 bg-red/10 px-4 py-3 text-sm text-red-300">
           {error}
         </p>
       )}
@@ -139,7 +139,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
           {photos.map((photo) => (
             <li
               key={photo.id}
-              className="group relative overflow-hidden rounded-xl border border-border-muted bg-muted/50"
+              className="group relative overflow-hidden rounded-xl border border-border-muted bg-muted/40 shadow-[var(--shadow-surface)] transition hover:border-primary/40"
             >
               <img
                 src={photo.url}
@@ -150,7 +150,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
               <button
                 type="button"
                 onClick={() => handleRemove(photo.id, photo.path)}
-                className="absolute right-2 top-2 rounded-lg bg-stone-950/70 px-2 py-1 text-xs font-medium text-white transition hover:bg-stone-950"
+                className="absolute right-2 top-2 rounded-lg bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur transition hover:bg-black"
               >
                 Удалить
               </button>
@@ -160,13 +160,13 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
           {uploading.map((file) => (
             <li
               key={file.name}
-              className="flex aspect-square flex-col items-center justify-center rounded-xl border border-border-muted bg-stone-50 p-3 text-center"
+              className="flex aspect-square flex-col items-center justify-center rounded-xl border border-border-muted bg-muted/40 p-3 text-center"
             >
-              <span className="line-clamp-2 text-xs text-stone-700">{file.name}</span>
+              <span className="line-clamp-2 text-xs text-muted-foreground">{file.name}</span>
               {file.status === 'uploading' ? (
                 <span className="mt-2 text-xs text-primary">Загрузка…</span>
               ) : (
-                <span className="mt-2 text-xs text-red-700">{file.error}</span>
+                <span className="mt-2 text-xs text-red-300">{file.error}</span>
               )}
             </li>
           ))}
@@ -174,7 +174,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
       )}
 
       {photos.length < MAX_PHOTOS && (
-        <label className="inline-flex cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900">
+        <label className="inline-flex cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition hover:brightness-110 active:scale-[0.98]">
           Добавить фото
           <input
             ref={inputRef}

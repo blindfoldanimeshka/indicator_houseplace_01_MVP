@@ -154,17 +154,17 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="w-full max-w-md rounded-2xl border border-border-muted bg-white p-8 shadow-sm"
+        className="surface-elevated w-full max-w-md rounded-2xl border border-border-muted bg-surface p-8 shadow-[var(--shadow-raised)]"
       >
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-2xl tracking-tight text-foreground">
           {isReset ? 'Сброс пароля' : isSignUp ? 'Регистрация' : 'Вход'}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Аренда жилья напрямую, без посредников.
+          Аренда жилья СКВОТ, без посредников.
         </p>
 
         {isUnconfirmed && (
-          <div className="mt-4 space-y-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <div className="mt-4 space-y-3 rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber-foreground">
             <p>
               Письмо отправлено на {user?.email}. Проверьте папку «Спам».
               Не пришло?
@@ -249,7 +249,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
                 type="checkbox"
                 checked={consent}
                 onChange={(event) => setConsent(event.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-border-muted text-primary focus:ring-teal-200"
+                className="mt-0.5 h-4 w-4 rounded border-border-muted text-primary focus:ring-secondary/40"
               />
               <span>
                 Я согласен на обработку персональных данных согласно{' '}
@@ -284,13 +284,13 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           )}
 
           {formError && (
-            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+            <p className="rounded-xl border border-red/30 bg-red/10 px-4 py-3 text-sm text-red-300">
               {formError}
             </p>
           )}
 
           {successMessage && (
-            <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+            <p className="rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-sm text-green-foreground">
               {successMessage}
             </p>
           )}
@@ -298,7 +298,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           <button
             type="submit"
             disabled={isSubmitting || (isSignUp && !consent)}
-            className="w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+            className="w-full rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
           >
             {isSubmitting
               ? 'Подождите…'
@@ -363,7 +363,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
 
 function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-50 px-5 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-background px-5 py-12">
       {children}
     </main>
   )
@@ -399,9 +399,9 @@ function Field({
         value={value}
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+        className="mt-1 w-full rounded-xl border border-border-muted bg-background px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-secondary/40"
       />
-      {error && <span className="mt-1 block text-sm text-red-700">{error}</span>}
+      {error && <span className="mt-1 block text-sm text-red-300">{error}</span>}
     </label>
   )
 }

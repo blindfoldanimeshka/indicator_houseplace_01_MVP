@@ -22,20 +22,20 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
-          <h1 className="text-lg font-semibold">Что-то пошло не так</h1>
+        <div className="flex min-h-screen flex-col items-center justify-center gap-5 p-6 text-center bg-background">
+          <h1 className="font-display text-lg font-semibold">Что-то пошло не так</h1>
           <p className="max-w-md text-sm text-muted-foreground">
             Приложение столкнулось с непредвиденной ошибкой. Попробуйте
             перезагрузить страницу. Если проблема повторится — сообщите
             разработчику.
           </p>
-          <pre className="max-w-md overflow-auto rounded bg-muted p-3 text-left text-xs">
+          <pre className="max-w-md overflow-auto rounded-xl border border-border-muted bg-surface p-3 text-left text-xs text-muted-foreground">
             {this.state.error.message}
           </pre>
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition hover:brightness-110 active:scale-[0.98]"
           >
             Перезагрузить
           </button>

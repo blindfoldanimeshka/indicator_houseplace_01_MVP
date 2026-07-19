@@ -163,7 +163,7 @@ function AppContent() {
   if (isLoading) {
     return (
       <AppShell>
-        <p className="text-muted-foreground">Загрузка…</p>
+        <p className="text-muted-foreground animate-pulse">Загрузка…</p>
       </AppShell>
     )
   }
@@ -331,8 +331,8 @@ function AppContent() {
 
 function SupabaseNotConfigured() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="text-lg font-semibold">Supabase не настроен</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center bg-background">
+      <h1 className="font-display text-lg font-semibold">Supabase не настроен</h1>
       <p className="max-w-md text-sm text-muted-foreground">
         Приложение запущено без переменных окружения{' '}
         <code>VITE_SUPABASE_URL</code> и{' '}
