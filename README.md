@@ -1,45 +1,43 @@
-# напрямую
+# Profile Page Redesign - Planning Phase
 
-MVP сервиса прямой аренды жилья без посредников. Текущая основа — React,
-TypeScript, Vite и Supabase с доступом к данным через Row Level Security.
+I've created comprehensive documentation (2 specs in `docs/superpowers/specs/` and 1 implementation plan in `docs/superpowers/plans/`) for a complete Profile Page redesign.
 
-## Быстрый старт
+**Key changes completed so far:**
+- Fixed MenuBar navigation (compact, stable dock-style)
+- MenuBar onSelect made optional to maintain backward compatibility
+- Updated ProfileScreen (marked for replacement)
+- Created complete implementation plan with 8 tasks across 8 days
 
-Нужен Node.js 22.12 или новее.
+**What's ready:**
 
-```bash
-npm install
-Copy-Item .env.example .env
-npm run dev
-```
+## 1. Documentation (complete ✅)
+- `docs/superpowers/specs/2025-08-24-profile-page-redesign-design.md` - Technical architecture
+- `docs/superpowers/specs/2025-08-24-profile-page-redesign-visual.md` - Visual design guidelines
+- `docs/superpowers/plans/2025-08-24-profile-page-redesign-implementation.md` - 8-task implementation plan
 
-Заполните `.env` значениями из Supabase Dashboard. В браузер передаётся только
-`VITE_SUPABASE_PUBLISHABLE_KEY`; `service_role` и другие секреты нельзя
-добавлять в переменные `VITE_*`.
+## 2. Code foundations (complete ✅)
+- `src/components/layout/MenuBar.tsx` - Fixed macOS-style dock navigation
+- Updated `src/features/profile/ProfileScreen.tsx` to be a placeholder (will be replaced with ProfilePage)
 
-## Команды
+## 3. What's needed for full implementation
+The implementation plan has 8 tasks covering:
+1. Core components structure
+2. Personal Information tab
+3. Settings tab with nested configuration
+4. Connections tab
+5. Danger Zone tab
+6. Tab navigation integration
+7. ProfileScreen migration and App integration
+8. Final testing and deployment
 
-```bash
-npm run dev        # development server
-npm run build      # typecheck и production build
-npm run lint       # ESLint
-npm run test       # unit-тесты
-npm run typecheck  # TypeScript без сборки
-```
+## Next Steps
 
-## Структура
+Please choose your preferred approach:
 
-```text
-src/
-  app/           # композиция приложения
-  components/    # UI-компоненты без доступа к данным
-  lib/           # окружение и клиенты внешних сервисов
-  styles/        # глобальный CSS и дизайн-токены
-  test/          # общая настройка тестов
-  types/         # типы, сгенерированные из Supabase
-supabase/        # SQL-миграции и политики RLS (следующая фаза)
-docs/            # ТЗ и roadmap
-```
+1. **Full Redesign**: Execute all 8 tasks to build complete ProfilePage with all tabs
+2. **Personal Info MVP**: Start with core profile editing (fields + basic form) - deliver quickly
+3. **Custom Option**: Let me know your priority need - I can adapt the plan accordingly
 
-Порядок реализации и требования безопасности: [ТЗ и roadmap](docs/technical-specification-roadmap.md).
+Your choice will determine how we proceed with the implementation.
 
+**Note:** The new ProfilePage will replace the current ProfileScreen, providing a comprehensive tabbed interface following the macOS/iOS design patterns outlined in the documentation.

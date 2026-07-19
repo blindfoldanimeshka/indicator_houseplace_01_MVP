@@ -25,7 +25,7 @@ function scaleForDistance(dist: number): number {
   return 1 + (MAX_SCALE - 1) * t * t
 }
 
-export function MenuBar({ items, className, onSelect, ...props }: MenuBarProps) {
+export function MenuBar({ items, className, onSelect = () => {}, ...props }: MenuBarProps) {
   const [hovered, setHovered] = React.useState<number | null>(null)
   const [cursorX, setCursorX] = React.useState<number | null>(null)
   const [tooltipLeft, setTooltipLeft] = React.useState(0)
