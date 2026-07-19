@@ -23,9 +23,10 @@ export interface Database {
           address: string
           lat: number | null
           lng: number | null
-          created_at: string
+           created_at: string
           updated_at: string
           deleted_at: string | null
+          is_mock: boolean
         }
         Insert: {
           author_id: string
@@ -39,6 +40,7 @@ export interface Database {
           lat?: number | null
           lng?: number | null
           status?: 'active' | 'archived' | 'rejected'
+          is_mock?: boolean
         }
         Update: {
           type?: 'offer' | 'request'
@@ -52,6 +54,7 @@ export interface Database {
           lng?: number | null
           deleted_at?: string | null
           status?: 'active' | 'archived' | 'rejected'
+          is_mock?: boolean
         }
         Relationships: []
       }

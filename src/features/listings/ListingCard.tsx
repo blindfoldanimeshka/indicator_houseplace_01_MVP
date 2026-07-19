@@ -52,6 +52,12 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
         {isOffer ? 'Сдаётся' : 'Ищу'}
       </span>
 
+      {listing.is_mock && (
+        <span className="mb-3 ml-2 inline-flex w-fit items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-900">
+          MOCK
+        </span>
+      )}
+
       <h3 className="text-lg font-semibold tracking-tight text-foreground">
         {listing.city}
       </h3>
