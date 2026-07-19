@@ -1,25 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense, lazy } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Plus, Home, MessageSquare, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 import { AppShell } from '@/components/layout/AppShell'
-import { EnvironmentNotice } from '@/components/system/EnvironmentNotice'
 import { MenuBar, type MenuBarItem } from '@/components/layout/MenuBar'
 import { isSupabaseConfigured } from '@/lib/env'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { useAuth } from '@/features/auth/useAuth'
 import { AuthScreen } from '@/features/auth/AuthScreen'
-import { ProfilePage } from '@/features/profile/components/ProfilePage'
-import { Feed } from '@/features/listings/Feed'
-import { ListingForm } from '@/features/listings/ListingForm'
-import { MyListings } from '@/features/listings/MyListings'
-import { ListingDetail } from '@/features/listings/ListingDetail'
-import { ChatList } from '@/features/chat/ChatList'
-import { Thread } from '@/features/chat/Thread'
 import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
-import { NotificationPanel } from '@/features/chat/NotificationPanel'
-import { PrivacyPolicy } from '@/features/legal/PrivacyPolicy'
-import { TermsOfService } from '@/features/legal/TermsOfService'
+
+// Lazy-loaded heavy screens
+const NewListing = lazy(() => import('@/app/screens/NewListing').then((m) => ({ default: m.NewListing })))
+const MyListingsScreen = lazy(() => import('@/app/screens/MyListingsScreen').then((m) => ({ default: m.MyListingsScreen })))
+const ListingDetailScreen = lazy(() => import('@/app/screens/ListingDetailScreen').then((m) => ({ default: m.ListingDetailScreen })))
+const ChatsScreen = lazy(() => import('@/app/screens/ChatsScreen').then((m) => ({ default: m.ChatsScreen })))
+const ThreadScreen = lazy(() => import('@/app/screens/ThreadScreen').then((m) => ({ default: m.ThreadScreen })))
+const ProfileScreenWrapper = lazy(() => import('@/app/screens/ProfileScreenWrapper').then((m) => ({ default: m.ProfileScreenWrapper })))
+const LegalScreen = lazy(() => import('@/app/screens/LegalScreen').then((m) => ({ default: m.LegalScreen })))
+
+// Eager-loaded landing screen
+import { HomeFeed } from '@/app/screens/HomeFeed'
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -171,138 +172,135 @@ function AppContent() {
     return <AuthScreen onOpenLegal={(legalView) => navigate(legalView)} />
   }
 
+  const SuspenseFallback = (
+    <AppShell>
+      <div className="flex h-32 items-center justify-center text-muted-foreground">
+        Загрузка…
+      </div>
+    </AppShell>
+  )
+
   return (
     <AnimatePresence mode="wait">
       {view === 'privacy' && (
         <PageTransition key="privacy">
-          <PrivacyPolicy onBack={() => navigate('home')} />
+          <Suspense fallback={SuspenseFallback}>
+            <LegalScreen doc="privacy" onBack={() => navigate('home')} />
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'terms' && (
         <PageTransition key="terms">
-          <TermsOfService onBack={() => navigate('home')} />
+          <Suspense fallback={SuspenseFallback}>
+            <LegalScreen doc="terms" onBack={() => navigate('home')} />
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'new' && (
         <PageTransition key="new">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <ListingForm
-              onSaved={() => navigate('mine')}
-              onCancel={() => navigate('home')}
-            />
-          </AppShell>
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <NewListing onSaved={() => navigate('mine')} onCancel={() => navigate('home')} />
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'mine' && (
         <PageTransition key="mine">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <MyListings onBack={() => navigate('home')} />
-          </AppShell>
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <MyListingsScreen onBack={() => navigate('home')} />
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'detail' && selected && (
         <PageTransition key="detail">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <ListingDetail
-              id={selected.id}
-              onBack={() => navigate('home')}
-              onStartChat={openChat}
-            />
-          </AppShell>
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <ListingDetailScreen
+                id={selected.id}
+                onBack={() => navigate('home')}
+                onStartChat={openChat}
+              />
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'chats' && (
         <PageTransition key="chats">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <section className="space-y-5">
-              <button
-                type="button"
-                onClick={() => navigate('home')}
-                className="text-sm font-medium text-primary hover:underline"
-              >
-                ← Назад
-              </button>
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Мои чаты
-              </h1>
-              <ChatList
-                onOpen={openChat}
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <ChatsScreen
+                onBack={() => navigate('home')}
                 unread={unread}
-                onChatsResolved={unread.setMyChats}
-              />
-            </section>
-            {showNotifications && (
-              <NotificationPanel
-                notifications={unread.recent}
                 onOpenChat={openChat}
-                onClose={() => setShowNotifications(false)}
+                showNotifications={showNotifications}
+                onCloseNotifications={() => setShowNotifications(false)}
               />
-            )}
-          </AppShell>
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'thread' && selectedChatId && (
         <PageTransition key="thread">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <button
-              type="button"
-              onClick={() => navigate('chats')}
-              className="mb-5 text-sm font-medium text-primary hover:underline"
-            >
-              ← Назад
-            </button>
-            <Thread chatId={selectedChatId} />
-          </AppShell>
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <ThreadScreen chatId={selectedChatId} onBack={() => navigate('chats')} />
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
       {view === 'profile' && (
         <PageTransition key="profile">
-          <AppShell>
-            <MenuNav
-              view={view}
-              onNavigate={navigate}
-              unreadTotal={unread.total}
-              onToggleNotifications={toggleNotifications}
-            />
-            <ProfilePage />
-          </AppShell>
+          <Suspense fallback={SuspenseFallback}>
+            <AppShell>
+              <MenuNav
+                view={view}
+                onNavigate={navigate}
+                unreadTotal={unread.total}
+                onToggleNotifications={toggleNotifications}
+              />
+              <ProfileScreenWrapper onBack={() => navigate('home')} />
+            </AppShell>
+          </Suspense>
         </PageTransition>
       )}
 
@@ -315,20 +313,15 @@ function AppContent() {
               unreadTotal={unread.total}
               onToggleNotifications={toggleNotifications}
             />
-            <Feed onOpen={openDetail} />
-            {!user?.email_confirmed_at && (
-              <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-                Подтвердите email, чтобы публиковать объявления.
-              </p>
-            )}
-            <EnvironmentNotice configured={isSupabaseConfigured()} />
-            {showNotifications && (
-              <NotificationPanel
-                notifications={unread.recent}
-                onOpenChat={openChat}
-                onClose={() => setShowNotifications(false)}
-              />
-            )}
+            <HomeFeed
+              onOpen={openDetail}
+              userEmailConfirmed={Boolean(user?.email_confirmed_at)}
+              isSupabaseConfigured={isSupabaseConfigured()}
+              showNotifications={showNotifications}
+              unread={unread}
+              onOpenChat={openChat}
+              onCloseNotifications={() => setShowNotifications(false)}
+            />
           </AppShell>
         </PageTransition>
       )}
