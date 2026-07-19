@@ -1,20 +1,16 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
 import { AuthContext, type AuthContextValue } from '@/features/auth/AuthProvider'
 
 const channelHandlers: Record<string, (payload: unknown) => void> = {}
-let subscribeCallback: ((status: string) => void) | null = null
 
 const channelMock = {
   on: (_event: string, _filter: unknown, handler: (payload: unknown) => void) => {
     channelHandlers['message'] = handler as never
     return channelMock
   },
-  subscribe: (cb: (status: string) => void) => {
-    subscribeCallback = cb
-    return channelMock
-  },
+  subscribe: () => channelMock,
 }
 
 vi.mock('@/lib/supabase', () => ({
@@ -45,7 +41,6 @@ function wrapper(overrides: Partial<AuthContextValue> = {}) {
 describe('useUnreadCounts', () => {
   beforeEach(() => {
     for (const k of Object.keys(channelHandlers)) delete channelHandlers[k]
-    subscribeCallback = null
   })
 
   it('ignores messages sent by the current user', () => {
