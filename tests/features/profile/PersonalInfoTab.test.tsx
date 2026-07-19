@@ -58,6 +58,18 @@ describe('PersonalInfoTab', () => {
     })
   })
 
+  it('shows a validation error and does not call updateProfile when name is empty', async () => {
+    const value = renderWithAuth()
+
+    fireEvent.change(screen.getByLabelText(/имя/i), {
+      target: { value: '' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /сохранить/i }))
+
+    expect(await screen.findByText(/укажите имя/i)).toBeInTheDocument()
+    expect(value.updateProfile).not.toHaveBeenCalled()
+  })
+
   it('shows a success message after saving', async () => {
     renderWithAuth()
 
