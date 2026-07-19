@@ -9,7 +9,7 @@ export interface MenuBarItem {
   active?: boolean
 }
 
-interface MenuBarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface MenuBarProps {
   items: MenuBarItem[]
   onSelect: (key: string) => void
 }

@@ -2,6 +2,9 @@ import { useState, type FormEvent } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
 import { profileSchema, type ProfileInput } from '@/features/profile/profileSchema'
 
+// Redirect to new ProfilePage - old ProfileScreen is being replaced
+// TODO: Remove this file after ProfilePage is implemented
+
 export function ProfileScreen({ onBack }: { onBack: () => void }) {
   const { user, updateProfile, signOut, deleteAccount } = useAuth()
   const [name, setName] = useState(user?.user_metadata?.name ?? '')
