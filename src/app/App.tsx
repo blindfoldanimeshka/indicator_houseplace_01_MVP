@@ -8,7 +8,7 @@ import { isSupabaseConfigured } from '@/lib/env'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { useAuth } from '@/features/auth/useAuth'
 import { AuthScreen } from '@/features/auth/AuthScreen'
-import { ProfileScreen } from '@/features/profile/ProfileScreen'
+import { ProfilePage } from '@/features/profile/components/ProfilePage'
 import { Feed } from '@/features/listings/Feed'
 import { ListingForm } from '@/features/listings/ListingForm'
 import { MyListings } from '@/features/listings/MyListings'
@@ -175,7 +175,7 @@ function AppContent() {
     return (
       <AppShell>
         <MenuNav view={view} onNavigate={navigate} />
-        <ProfileScreen onBack={() => navigate('home')} />
+        <ProfilePage />
       </AppShell>
     )
   }
