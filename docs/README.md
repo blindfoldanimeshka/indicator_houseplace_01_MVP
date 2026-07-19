@@ -1,50 +1,70 @@
-# напрямую — SaaS аренды жилья без агентств
+# напрямую — аренда жилья без агентств
 
-Индекс документации проекта. Текущее состояние: есть кликабельный прототип
-(React-артефакт + репозиторий `indicator_houseplace_01_MVP`), который
-доказывает UX-гипотезу, но не является рабочим продуктом — нет бэкенда,
-нет базы данных, хранение через `window.storage` (демо-хранилище только
-внутри Claude-артефактов).
+Индекс документации проекта. **MVP уже реализован и работает** на стеке
+React 19 + Vite + Supabase (не Next.js/NestJS/Prisma, как планировалось
+изначально — см. историю решений в `progress.md`).
 
-Эта папка описывает, что нужно реализовать, чтобы дойти от прототипа до
-настоящего MVP, который можно показывать реальным пользователям.
+Репозиторий: `github.com/blindfoldanimeshka/indicator_houseplace_01_MVP`
+Проект Supabase: **MVP-House** (`uwinrqeyixdnemszhxoj`, eu-north-1).
 
 ## Документы
 
-- [[frontend]] — фронтенд: стек, экраны, состояние, чем отличается от прототипа
-- [[backend]] — бэкенд: модули, API, WebSocket, фоновые задачи
-- [[database]] — схема БД, ER-диаграмма, индексы
-- [[auth-verification]] — регистрация, JWT, верификация собственников
-- [[infrastructure]] — хостинг, CI/CD, 152-ФЗ, мониторинг
-- [[roadmap]] — фазы разработки от прототипа до MVP, definition of done
+- `progress.md` — **основной индекс прогресса** по фазам (фактическое
+  состояние продукта, что сделано и что требует решения пользователя).
+- `backend.md` — Supabase как бэкенд: Auth, PostgreSQL, Realtime, Storage,
+  RPC-функции.
+- `db.md` — схема БД, RLS, миграции (`supabase/migrations/`).
+- `frontend.md` — фронтенд: стек, структура `src/`, навигация, экраны.
+- `security-review.md` — отчёт по безопасности (матрица RLS-изоляции).
+- `technical-specification-roadmap.md` — ТЗ и roadmap MVP (исходный план).
+- `real-estate-listing.md` — спецификация размещения объявления (форма,
+  карта, геокодинг).
+- `features/` — документация по конкретным фичам (`profile/`,
+  `social-connections.md`).
+- `out-of-code/` — задачи вне кода, требующие внешних ключей/решений
+  пользователя или юр. проверки (CAPTCHA, SMTP, 152-ФЗ, закрытая бета).
+- `superpowers/specs/` — дизайн-спеки по фазам (auth/profile, chat,
+  listings, photos, reports, deferred-auth).
 
-## Что такое MVP в этом проекте
+## Что такое MVP в этом проекте (достигнуто)
 
-MVP = реальные пользователи могут:
-1. Зарегистрироваться по телефону и подтвердить номер.
-2. Опубликовать объявление «Сдаю» или «Ищу» с фото.
-3. Найти чужое объявление через ленту с фильтрами (город, комнаты, цена).
-4. Написать автору объявления и получить ответ — переписка сохраняется
-   и доступна с любого устройства.
-5. Пожаловаться на объявление/собеседника, и это увидит модератор.
+Реальные пользователи могут:
+1. Зарегистрироваться по email+паролю (подтверждение email), войти через
+   OAuth-провайдеры (Yandex/VK/Telegram).
+2. Опубликовать объявление «Сдаю» или «Ищу» с фото (до 10, ≤5 МБ).
+3. Найти чужое объявление через ленту с фильтрами (город, комнаты, цена,
+   тип) и пагинацией.
+4. Написать автору объявления и получить ответ — переписка в реалтайме
+   (Supabase Realtime), доступна с любого устройства.
+5. Пожаловаться на объявление/собеседника (жалоба пишется в
+   `moderation_audit`, доступно только service_role).
 
-Всё, что не входит в этот список (аналитика, монетизация, автоматическая
-верификация через API, рекомендации, мобильное приложение) — сознательно
-после MVP, см. [[roadmap]].
-
-## Технологический стек (кратко)
+## Технологический стек (фактический)
 
 | Слой | Технология |
 |---|---|
-| Frontend | Next.js (App Router) + TypeScript + Tailwind |
-| Backend | NestJS (Node.js + TypeScript) |
-| База данных | PostgreSQL + Prisma ORM |
-| Realtime | Socket.io (чат) |
-| Файлы | S3-совместимое хранилище (фото объявлений) |
-| Очереди/фон | Redis + BullMQ |
-| Хостинг | Yandex Cloud / VK Cloud / Selectel (требование 152-ФЗ) |
+| Frontend | React 19 + Vite 8 + TypeScript + Tailwind CSS 4 |
+| Анимации | framer-motion 12 |
+| Валидация | zod 4 |
+| Бэкенд | Supabase (PostgreSQL + Auth + Realtime + Storage + Edge Functions) |
+| Клиент БД/Auth | @supabase/supabase-js v2 |
+| Тесты | Vitest 4 + Testing Library + MSW |
+| Линт/типы | ESLint 10 + TypeScript (6 + native 7) |
 
-## Связанные материалы
+> Историческая альтернатива «через Next.js + Telegram Login» описана в
+> `out-of-code/plan-legacy-nextjs.md` — она **устарела**, стек выбран
+> Supabase (см. `progress.md`, раздел «Решения, зафиксированные в ходе
+> работы»).
 
-- Прототип-артефакт: `napryamuyu.jsx` (React, без бэкенда, `window.storage`)
-- Репозиторий: `github.com/blindfoldanimeshka/indicator_houseplace_01_MVP`
+## Быстрый старт
+
+```bash
+npm install
+npm run dev        # → http://localhost:5173
+npm run build      # tsc -b && vite build → dist/
+npm run test       # vitest run
+npm run lint       # eslint .
+```
+
+Переменные окружения (через `.env`, не в git): `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_PUBLISHABLE_KEY` (см. `src/lib/env.ts`).

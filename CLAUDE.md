@@ -184,8 +184,12 @@ While many source files are missing, `README.md` and `docs/` contain the archite
 3. **Follow the existing patterns** in the remaining code
 
 ### Available Documentation
-- **docs/README.md**: Project documentation index
+- **docs/README.md**: Project documentation index (real stack: React 19 + Vite + Supabase)
+- **docs/progress.md**: Primary progress index by phase — read this first for current state
 - **docs/frontend.md**: Frontend architecture and components
-- **docs/backend.md**: Backend/API details
+- **docs/backend.md**: Backend/API details (Supabase)
 - **docs/db.md**: Database schema and RLS policies
-- **docs/technical-specification-roadmap.md**: Detailed technical specifications
+- **docs/security-review.md**: Security/R entertained isolation matrix
+- **docs/technical-specification-roadmap.md**: Detailed technical specifications (original TЗ)
+- **docs/out-of-code/**: Tasks needing external keys / user decisions / legal review (incl. legacy Next.js plan)
+- Note: `docs/plan.md` was moved to `docs/out-of-code/plan-legacy-nextjs.md` — it is DEPRECATED (Next.js alternative not chosen).

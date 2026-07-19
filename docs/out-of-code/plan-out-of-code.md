@@ -25,7 +25,7 @@
 ## Контекст из `docs/progress.md` (почему эти пункты здесь)
 
 - **Фазы 0–7 завершены.** Стек окончательно **Supabase** (roadmap приоритетнее
-  `docs/plan.md`, который предлагал Next.js + Telegram Login).
+  `docs/out-of-code/plan-legacy-nextjs.md`, который предлагал Next.js + Telegram Login).
 - **Фаза 3b уже сделала задел:** шаблоны-заглушки Privacy/Terms, чекбокс
   согласия на ПДн при регистрации, `resetPasswordForEmail`, клиентский
   `email-confirmation guard`. Это снимает часть работы в 02 и 03.

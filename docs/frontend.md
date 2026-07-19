@@ -1,117 +1,102 @@
 # Frontend — «напрямую» MVP
 
-## Стек
+## Стек (фактический)
 
 | Зависимость | Версия | Назначение |
 |---|---|---|
-| React | ^18.3.1 | UI-библиотека |
-| react-dom | ^18.3.1 | Рендер в DOM |
-| lucide-react | ^0.383.0 | Иконки |
-| Vite | ^5.4.0 | Сборщик / dev-сервер |
-| Tailwind CSS | ^3.4.10 | Утилитарные стили |
-| PostCSS + Autoprefixer | — | Пост-обработка CSS |
+| React | ^19.2.7 | UI-библиотека |
+| react-dom | ^19.2.7 | Рендер в DOM |
+| Vite | ^8.1.5 | Сборщик / dev-сервер (`@vitejs/plugin-react`) |
+| TypeScript | 6 (alias) + `@typescript/native` 7 | Типы / typecheck (`tsc -b`) |
+| Tailwind CSS | ^4.3.3 | Утилитарные стили (через `@tailwindcss/vite`, **без PostCSS**) |
+| framer-motion | ^12.42.2 | Анимации (dock-панель, переходы экранов) |
+| lucide-react | ^1.25.0 | Иконки |
+| zod | ^4.4.3 | Валидация форм (профиль, объявление, инвайт) |
+| @supabase/supabase-js | ^2.110.7 | Клиент БД/Auth/Realtime/Storage |
+| Vitest | ^4.1.10 | Тесты (unit + integration через MSW) |
+| ESLint | ^10.7.0 | Линт (`eslint .`) |
 
 ## Структура файлов
 
 ```
 index.html              — точка входа HTML (lang="ru")
 src/
-  main.jsx              — ReactDOM.createRoot, подключение storageShim → App
-  storageShim.js        — заглушка window.storage (deprecated, не используется)
-  lib/supabase.js       — клиент Supabase
-  components/Auth.jsx   — экран логина/регистрации
-  App.jsx               — всё приложение
-  index.css             — @tailwind base/components/utilities
+  main.tsx              — ReactDOM.createRoot, обёртка провайдерами
+  app/
+    App.tsx             — view-роутер (стейт view), MenuNav, scroll-compact,
+                          панель уведомлений, EnvironmentNotice
+    screens/            — ленивые экраны (React.lazy + Suspense):
+                          HomeFeed, NewListing, MyListingsScreen,
+                          ListingDetailScreen, ChatsScreen, ThreadScreen,
+                          ProfileScreenWrapper, LegalScreen
+  components/
+    layout/             — MenuBar (dock-навигация)
+    system/             — системные компоненты (баннеры, заглушки)
+  features/
+    auth/               — AuthProvider, AuthScreen, useAuth
+    chat/               — чат-лист, тред, realtime-подписки
+    listings/           — лента, фильтры, форма объявления, детали
+    photos/             — загрузка/удаление фото (photoApi, PhotoUploader)
+    profile/            — профиль (PersonalInfoTab, SettingsTab, ConnectionsTab,
+                          DangerTab), AvatarUpload, useProfile
+    legal/              — Privacy/Terms (заглушки 152-ФЗ)
+    reports/            — жалобы (UI «Пожаловаться»)
+  lib/
+    supabase.ts         — getSupabaseClient()
+    storage.ts          — storageBuckets, getAvatarPublicUrl,
+                          getListingPhotoUrl, removeAvatar, removeListingPhoto
+    env.ts              — чтение VITE_SUPABASE_* из import.meta.env
+    utils.ts            — formatPrice, timeAgo, валидация
+  styles/               — глобальные стили Tailwind
+  test/                 — общие тестовые утилиты/моки
+  types/                — типы БД (Database), доменные типы
 ```
 
-## Архитектура App.jsx
+## Навигация без react-router
 
-Единый компонент `App()` с маршрутизацией через стейт `view`:
+Приложение — SPA с маршрутизацией через стейт `view` в `App.tsx`
+(условный рендеринг, без react-router). Dock-панель (`MenuBar`) переключает
+`view`; тяжёлые экраны грузятся лениво через `React.lazy`.
 
 | view | Экран | Описание |
 |---|---|---|
-| `feed` | Лента | Список объявлений + фильтры (тип, город, комнаты, цена) |
-| `new` | Форма | Создание нового объявления (offer / request) |
-| `mine` | Мои | Объявления текущего пользователя, удаление |
-| `chats` | Список чатов | Превью бесед, отсортированных по последнему сообщению |
-| `thread` | Чат | Переписка с собеседником по конкретному объявлению |
+| `feed` | HomeFeed | Публичная лента + фильтры + пагинация |
+| `new` | NewListing | Создание объявления (offer / request) |
+| `mine` | MyListingsScreen | Свои объявления, редактирование/архив |
+| `chats` | ChatsScreen | Список диалогов, бейдж непрочитанных |
+| `thread` | ThreadScreen | Переписка по объявлению (realtime) |
+| `profile` | ProfileScreenWrapper | 4 вкладки: Личные данные / Аккаунт / Подключения / Действия |
+| `privacy` / `terms` | LegalScreen | Юр. тексты-заглушки |
 
-### Жизненный цикл
+## Ключевые потоки
 
-1. Загрузка → проверка `supabase.auth.getSession()`
-2. Нет сессии → экран `Auth` (логин / регистрация email+пароль)
-3. Есть сессия → загрузка профиля из `users` по `userId`
-4. Навбар с 4 экранами + кнопка редактирования профиля + выход
-5. `feed` / `mine` → загрузка объявлений из Supabase
-6. `chats` → загрузка чатов текущего пользователя
-7. `thread` → реалтайм-подписка на сообщения (Supabase Realtime)
-
-### Маршрутизация
-
-Нет react-router. Навигация — стейт `view` +条件 рендеринг (`{view === 'feed' && ...}`).
-
-## Компоненты
-
-### Auth
-
-Экран логина/регистрации. Два режима: `login` и `register`.
-- Регистрация: имя, город, email, пароль → `supabase.auth.signUp()` с `data: { name, city }`
-- Логин: email, пароль → `supabase.auth.signInWithPassword()`
-- При регистрации триггер в БД автоматически создаёт запись в `users`
-- Ошибки отображаются на русском
-
-### DirectionTag
-
-Бейдж «Сдаётся» / «Ищут» с иконкой. Пропсы: `type` (`offer` | `request`), `size` (`sm` | `md`).
-
-### ListingCard
-
-Карточка объявления: бейдж направления, цена, город/комнаты/площадь, описание, автор + время, кнопка «Написать» или «Удалить».
-
-Пропсы: `listing`, `isMine`, `onContact`, `onDelete`.
-
-### NavButton
-
-Кнопка навбара с иконкой + текст. Пропсы: `active`, `icon`, `label`, `onClick`.
+1. Загрузка → `supabase.auth.getSession()`; нет сессии → `AuthScreen`.
+2. Есть сессия → профиль из `users` (`useProfile` / `AuthProvider`).
+3. Лента/мои объявления → запросы к Supabase (фильтры на клиенте +
+   пагинация `range()`).
+4. Чат → `open_or_create_chat` RPC (атомарно), затем realtime-подписка на
+   `messages` (`subscribeMessages` с корректной отпиской).
+5. Аватар → `AvatarUpload`: ресайз на клиенте до 500×500, удаление старого
+   объекта, `upload(userId)` (объект `avatars/{userId}`, RLS через
+   `private.user_id_from_avatar_path`).
 
 ## Стилизация
 
-- **Инлайновые стили** через объекты (`style={{...}}`), не CSS-модули
-- **Шрифты** (подключаются через `@import` в inline-стиле):
-  - Fraunces — display-заголовки (`fontDisplay(weight)`)
-  - Inter — основной текст (`fontBody(weight)`)
-  - IBM Plex Mono — цены (`fontMono(weight)`)
-- **Цвета** — объект `COLORS`:
-
-| Имя | HEX | Назначение |
-|---|---|---|
-| `paper` | `#F3F2ED` | Фон страницы |
-| `paperSoft` | `#EAE8E0` | Мягкий фон |
-| `ink` | `#1D1B18` | Основной текст |
-| `muted` | `#736F65` | Приглушённый текст |
-| `deep` | `#16302E` | Основной акцент (тёмно-зелёный) |
-| `deepSoft` | `#20423F` | Вторичный акцент |
-| `offer` | `#B9713A` | Тип «Сдаю» |
-| `offerBg` | `#FAF0E3` | Фон бейджа «Сдаю» |
-| `request` | `#3E7C74` | Тип «Ищу» |
-| `requestBg` | `#E9F2EF` | Фон бейджа «Ищу» |
-| `border` | `#E2DFD3` | Рамки |
-| `white` | `#FFFFFF` | Белый |
-
-## Фильтрация ленты
-
-| Фильтр | Стейт | Тип сравнения |
-|---|---|---|
-| Направление | `filterType` | Точное: `all` / `offer` / `request` |
-| Город | `filterCity` | Частичное совпадение (регистронезависимое) |
-| Комнаты | `filterRooms` | Точное: `any` или значение |
-| Цена до | `filterMaxPrice` | Числовое `<=` |
+- Tailwind CSS 4 (utility-first), конфигурация через `@tailwindcss/vite`,
+  не через `tailwind.config.js` + PostCSS.
+- Тема — кастомные токены (цвета `primary`/`surface`/`muted`/`border-muted`
+  и т.п.) в `src/index.css` / `src/styles/`.
+- Анимации — framer-motion (dock scale при scroll, AnimatePresence между
+  экранами).
+- Иконки — `lucide-react`.
 
 ## Запуск
 
 ```bash
 npm install
 npm run dev        # → http://localhost:5173
-npm run build      # → dist/
+npm run build      # tsc -b && vite build → dist/
 npm run preview    # превью production-сборки
+npm run test       # vitest run
+npm run lint       # eslint .
 ```

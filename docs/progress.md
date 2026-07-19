@@ -34,7 +34,7 @@
 
 ## Решения, зафиксированные в ходе работы
 
-- **Стек — Supabase, без Next.js/NestJS/Prisma.** Согласно roadmap §1; `docs/plan.md`
+- **Стек — Supabase, без Next.js/NestJS/Prisma.** Согласно roadmap §1; `docs/out-of-code/plan-legacy-nextjs.md`
   предлагает альтернативу (Telegram + Next.js), но roadmap имеет приоритет и код
   уже построен на Supabase Auth.
 - **`listing_status` без `pending`.** В текущей схеме объявление создаётся как
