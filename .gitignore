@@ -7,3 +7,8 @@ coverage/
 *.log
 .DS_Store
 beta-codes.md
+
+# Agent / tooling artifacts (not part of the app)
+.remember/
+graphify-out/
+.claude/
