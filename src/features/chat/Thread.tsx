@@ -12,7 +12,7 @@ interface ThreadProps {
 type Mode = 'realtime' | 'polling' | 'idle'
 
 const inputClass =
-  'w-full resize-none rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+  'w-full resize-none rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-secondary/40'
 
 export function Thread({ chatId }: ThreadProps) {
   const { user } = useAuth()
@@ -78,7 +78,7 @@ export function Thread({ chatId }: ThreadProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-2xl tracking-tight text-foreground">
           Диалог
         </h1>
         {mode === 'polling' && (
@@ -98,7 +98,7 @@ export function Thread({ chatId }: ThreadProps) {
         </p>
       )}
 
-      <div className="min-h-40 space-y-3 rounded-2xl border border-border-muted bg-white p-4">
+      <div className="min-h-40 space-y-3 rounded-2xl border border-border-muted bg-surface p-4 shadow-[var(--shadow-surface)]">
         {messages.length === 0 && !loadError && (
           <p className="py-8 text-center text-sm text-muted-foreground">
             Сообщений пока нет. Напишите первым.
@@ -113,10 +113,10 @@ export function Thread({ chatId }: ThreadProps) {
               className={`flex ${own ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+                className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                   own
-                    ? 'bg-primary text-white'
-                    : 'border border-border-muted bg-stone-50 text-foreground'
+                    ? 'bg-primary text-white rounded-br-md shadow-[var(--shadow-glow)]'
+                    : 'border border-border-muted bg-muted/40 text-foreground rounded-bl-md'
                 }`}
               >
                 {message.text}
@@ -146,7 +146,7 @@ export function Thread({ chatId }: ThreadProps) {
               <button
                 type="button"
                 onClick={handleSend}
-                className="rounded-xl border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-50"
+                className="rounded-xl border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-500/10"
               >
                 Повторить
               </button>
@@ -155,7 +155,7 @@ export function Thread({ chatId }: ThreadProps) {
               type="button"
               onClick={handleSend}
               disabled={!isValid || state === 'sending'}
-              className="rounded-xl bg-primary px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-40"
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:opacity-50"
             >
               {state === 'sending' ? 'Отправка…' : 'Отправить'}
             </button>

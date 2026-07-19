@@ -98,9 +98,9 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
 
   if (chats.length === 0) {
     return (
-      <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-border-muted bg-surface px-4 py-10 text-center text-sm text-muted-foreground">
         У вас пока нет диалогов.
-      </p>
+      </div>
     )
   }
 
@@ -111,32 +111,32 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
           <button
             type="button"
             onClick={() => onOpen(chat.id)}
-            className="flex w-full flex-col gap-1 rounded-2xl border border-border-muted bg-white p-4 text-left transition hover:border-teal-300 hover:shadow-md"
+            className="flex w-full flex-col gap-1 rounded-2xl border border-border-muted bg-surface p-4 text-left shadow-[var(--shadow-surface)] transition-all duration-200 ease-[var(--ease-smooth)] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
           >
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-foreground">
+              <span className="font-display text-base text-foreground">
                 {chat.listings?.city ?? 'Объявление'}
               </span>
               {chat.listings && (
                 <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${
                     chat.listings.type === 'offer'
-                      ? 'bg-teal-100 text-teal-900'
-                      : 'bg-amber-100 text-amber-900'
+                      ? 'bg-primary/15 text-primary'
+                      : 'bg-secondary/15 text-secondary'
                   }`}
                 >
                   {TYPE_LABELS[chat.listings.type]}
                 </span>
               )}
             </div>
-              <span className="text-xs text-muted-foreground">
-                {formatDate(chat.created_at)}
+            <span className="text-xs text-muted-foreground">
+              {formatDate(chat.created_at)}
+            </span>
+            {unread && (unread.byChat[chat.id] ?? 0) > 0 && (
+              <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white shadow-[0_0_0_2px_rgba(239,68,68,0.25)]">
+                {unread.byChat[chat.id]}
               </span>
-              {unread && (unread.byChat[chat.id] ?? 0) > 0 && (
-                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
-                  {unread.byChat[chat.id]}
-                </span>
-              )}
+            )}
           </button>
         </li>
       ))}

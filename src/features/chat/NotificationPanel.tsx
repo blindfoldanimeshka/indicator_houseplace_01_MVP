@@ -39,10 +39,10 @@ export function NotificationPanel({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 8, scale: 0.96 }}
       transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-      className="absolute bottom-[96px] left-1/2 z-50 w-80 -translate-x-1/2 overflow-hidden rounded-2xl border border-border-muted bg-muted shadow-xl"
+      className="absolute bottom-[96px] left-1/2 z-50 w-80 -translate-x-1/2 overflow-hidden rounded-2xl border border-border-muted bg-surface shadow-[var(--shadow-float)] backdrop-blur-xl"
     >
       <div className="border-b border-border-muted px-4 py-3">
-        <h2 className="text-sm font-semibold text-foreground">Уведомления</h2>
+        <h2 className="font-display text-sm text-foreground">Уведомления</h2>
       </div>
       {notifications.length === 0 ? (
         <p className="px-4 py-8 text-center text-sm text-muted-foreground">
@@ -60,7 +60,7 @@ export function NotificationPanel({
               <button
                 type="button"
                 onClick={() => onOpenChat(note.chatId)}
-                className="flex w-full flex-col gap-0.5 border-b border-stone-100 px-4 py-3 text-left transition hover:bg-stone-50"
+                className="flex w-full flex-col gap-0.5 border-b border-border-muted px-4 py-3 text-left transition hover:bg-muted/60"
               >
                 <span className="line-clamp-2 text-sm text-foreground">
                   {note.text}
