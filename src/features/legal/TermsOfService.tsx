@@ -4,7 +4,7 @@ interface LegalViewProps {
 
 export function TermsOfService({ onBack }: LegalViewProps) {
   return (
-    <main className="min-h-screen bg-stone-50 px-5 py-12 sm:px-8">
+    <main className="min-h-screen bg-background px-5 py-12 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <button
           type="button"
@@ -13,15 +13,15 @@ export function TermsOfService({ onBack }: LegalViewProps) {
         >
           ← Назад
         </button>
-        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <p className="mb-4 rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber-950">
           Шаблон. Требует юридической проверки перед публичным запуском (152-ФЗ).
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
           Условия использования
         </h1>
-        <div className="mt-6 space-y-6 text-sm leading-7 text-foreground">
+        <div className="mt-6 space-y-6 text-sm leading-7 text-muted-foreground">
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               1. Принятие условий
             </h2>
             <p>
@@ -30,16 +30,16 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               2. Характер сервиса
             </h2>
             <p>
-              Сервис предназначен для прямой аренды жилья между пользователями
+              Сервис «СКВОТ» предназначен для прямой аренды жилья между пользователями
               без посредников. Мы не являемся стороной договора аренды.
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               3. Обязанности пользователя
             </h2>
             <p>
@@ -48,7 +48,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               4. Ответственность
             </h2>
             <p>
@@ -57,7 +57,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               5. Изменение условий
             </h2>
             <p>

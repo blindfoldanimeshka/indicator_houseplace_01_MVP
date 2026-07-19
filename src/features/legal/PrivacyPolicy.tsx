@@ -4,7 +4,7 @@ interface LegalViewProps {
 
 export function PrivacyPolicy({ onBack }: LegalViewProps) {
   return (
-    <main className="min-h-screen bg-stone-50 px-5 py-12 sm:px-8">
+    <main className="min-h-screen bg-background px-5 py-12 sm:px-8">
       <div className="mx-auto max-w-3xl">
         <button
           type="button"
@@ -13,15 +13,15 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
         >
           ← Назад
         </button>
-        <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <p className="mb-4 rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber-950">
           Шаблон. Требует юридической проверки перед публичным запуском (152-ФЗ).
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
           Политика конфиденциальности
         </h1>
-        <div className="mt-6 space-y-6 text-sm leading-7 text-foreground">
+        <div className="mt-6 space-y-6 text-sm leading-7 text-muted-foreground">
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               1. Какие данные мы собираем
             </h2>
             <p>
@@ -31,7 +31,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               2. Цель обработки
             </h2>
             <p>
@@ -41,7 +41,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               3. Хранение данных
             </h2>
             <p>
@@ -51,7 +51,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               4. Ваши права
             </h2>
             <p>
@@ -61,7 +61,7 @@ export function PrivacyPolicy({ onBack }: LegalViewProps) {
             </p>
           </section>
           <section>
-            <h2 className="text-lg font-semibold text-foreground">5. Контакты</h2>
+            <h2 className="font-display text-lg font-semibold text-foreground">5. Контакты</h2>
             <p>
               По вопросам обработки персональных данных пишите на адрес
               поддержки, указанный в сервисе.
