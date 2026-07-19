@@ -36,6 +36,12 @@ export const listingFormSchema = z.object({
     .max(10_000, { message: 'Площадь не больше 10 000.' })
     .optional()
     .nullable(),
+  address: z
+    .string()
+    .max(300, { message: 'Адрес не длиннее 300 символов.' })
+    .default(''),
+  lat: z.number().min(-90).max(90).nullable().optional(),
+  lng: z.number().min(-180).max(180).nullable().optional(),
   description: z
     .string()
     .max(2000, { message: 'Описание не длиннее 2000 символов.' })

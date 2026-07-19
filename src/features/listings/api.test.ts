@@ -37,6 +37,9 @@ const validValues = {
   price: 50000,
   area: 40,
   description: 'Светлая квартира',
+  address: '',
+  lat: null,
+  lng: null,
 }
 
 describe('listings api', () => {

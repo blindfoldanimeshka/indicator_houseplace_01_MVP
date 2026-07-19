@@ -30,6 +30,9 @@ export async function createListing(
       price: values.price,
       area: values.area ?? null,
       description: values.description,
+      address: values.address ?? '',
+      lat: values.lat ?? null,
+      lng: values.lng ?? null,
       status: 'active',
     })
     .select()
@@ -54,6 +57,9 @@ export async function updateListing(
       price: values.price,
       area: values.area ?? null,
       description: values.description,
+      address: values.address ?? '',
+      lat: values.lat ?? null,
+      lng: values.lng ?? null,
     })
     .eq('id', id)
     .eq('author_id', authorId)

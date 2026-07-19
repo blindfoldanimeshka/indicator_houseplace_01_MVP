@@ -4,6 +4,7 @@ import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
 import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
+import { MapView } from './MapView'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -161,6 +162,27 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
               <p className="mt-1 whitespace-pre-wrap text-stone-800">
                 {listing.description}
               </p>
+            </div>
+          )}
+
+          {listing.address && (
+            <div>
+              <h2 className="text-sm font-medium text-stone-500">Адрес</h2>
+              <p className="mt-1 text-stone-800">{listing.address}</p>
+            </div>
+          )}
+
+          {listing.lat !== null && listing.lng !== null && (
+            <div>
+              <h2 className="text-sm font-medium text-stone-500">На карте</h2>
+              <div className="mt-2">
+                <MapView
+                  lat={listing.lat}
+                  lng={listing.lng}
+                  address={listing.address}
+                  height={300}
+                />
+              </div>
             </div>
           )}
 

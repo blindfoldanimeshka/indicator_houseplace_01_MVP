@@ -7,6 +7,8 @@ import {
 } from './types'
 import { createListing, updateListing } from './api'
 import { PhotoUploader } from '@/features/photos/PhotoUploader'
+import { MapView } from './MapView'
+import { geocodeAddress } from './geocode'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -37,6 +39,11 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
     initial?.area ? String(initial.area) : '',
   )
   const [description, setDescription] = useState(initial?.description ?? '')
+  const [address, setAddress] = useState(initial?.address ?? '')
+  const [lat, setLat] = useState<number | null>(initial?.lat ?? null)
+  const [lng, setLng] = useState<number | null>(initial?.lng ?? null)
+  const [geoState, setGeoState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [geoError, setGeoError] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle')
@@ -44,6 +51,25 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
 
   const isEditing = Boolean(initial)
   const uploaderListingId = initial?.id ?? createdId
+
+  async function handleGeocode() {
+    if (!address.trim()) {
+      setGeoError('Введите адрес для поиска на карте.')
+      return
+    }
+    setGeoState('loading')
+    setGeoError(null)
+    const result = await geocodeAddress(`${city}, ${address}`)
+    if (result) {
+      setLat(result.lat)
+      setLng(result.lng)
+      setAddress(result.address)
+      setGeoState('idle')
+    } else {
+      setGeoState('error')
+      setGeoError('Адрес не найден. Уточните или поставьте точку на карте.')
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -57,6 +83,9 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
       price: price === '' ? undefined : Number(price),
       area: area === '' ? null : Number(area),
       description,
+      address,
+      lat,
+      lng,
     })
 
     if (!parsed.success) {
@@ -223,6 +252,63 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
             </span>
           )}
         </label>
+
+        <div className="space-y-2">
+          <label className="block">
+            <span className="text-sm font-medium text-stone-800">
+              Адрес / ориентир{' '}
+              <span className="text-stone-400">(необязательно)</span>
+            </span>
+            <input
+              type="text"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              placeholder="ул. Тверская, 13"
+              className={fieldClass}
+            />
+            {errors.address && (
+              <span className="mt-1 block text-sm text-red-700">
+                {errors.address}
+              </span>
+            )}
+          </label>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={handleGeocode}
+              disabled={geoState === 'loading'}
+              className="rounded-xl border border-stone-300 px-3 py-2 text-sm font-medium text-stone-800 transition hover:bg-stone-100 disabled:opacity-60"
+            >
+              {geoState === 'loading' ? 'Ищем…' : 'Найти на карте'}
+            </button>
+            {(lat !== null && lng !== null) && (
+              <span className="text-xs text-stone-500">
+                Точка: {lat.toFixed(5)}, {lng.toFixed(5)}
+              </span>
+            )}
+          </div>
+
+          {geoError && (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+              {geoError}
+            </p>
+          )}
+
+          {(lat !== null && lng !== null) && (
+            <MapView
+              lat={lat}
+              lng={lng}
+              address={address}
+              height={240}
+              selectable
+              onSelect={(newLat, newLng) => {
+                setLat(newLat)
+                setLng(newLng)
+              }}
+            />
+          )}
+        </div>
 
         {formError && (
           <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">

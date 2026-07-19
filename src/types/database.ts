@@ -20,6 +20,9 @@ export interface Database {
           area: number | null
           description: string
           status: 'active' | 'archived' | 'rejected'
+          address: string
+          lat: number | null
+          lng: number | null
           created_at: string
           updated_at: string
           deleted_at: string | null
@@ -32,6 +35,9 @@ export interface Database {
           price: number
           area?: number | null
           description?: string
+          address?: string
+          lat?: number | null
+          lng?: number | null
           status?: 'active' | 'archived' | 'rejected'
         }
         Update: {
@@ -41,6 +47,9 @@ export interface Database {
           price?: number
           area?: number | null
           description?: string
+          address?: string
+          lat?: number | null
+          lng?: number | null
           deleted_at?: string | null
           status?: 'active' | 'archived' | 'rejected'
         }
