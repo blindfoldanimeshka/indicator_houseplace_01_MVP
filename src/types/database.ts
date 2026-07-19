@@ -125,12 +125,43 @@ export interface Database {
         }
         Relationships: []
       }
+      invites: {
+        Row: {
+          code: string
+          created_by: string | null
+          used_by: string | null
+          used_at: string | null
+          note: string | null
+          created_at: string
+          expires_at: string | null
+        }
+        Insert: {
+          code: string
+          created_by?: string | null
+          used_by?: string | null
+          note?: string | null
+          expires_at?: string | null
+        }
+        Update: {
+          used_by?: string | null
+          used_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
       open_or_create_chat: {
         Args: { p_listing_id: string }
         Returns: string
+      }
+      is_invite_valid: {
+        Args: { p_code: string }
+        Returns: boolean
+      }
+      claim_invite: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: Record<string, never>

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/useAuth'
 import { authSchema } from '@/features/profile/profileSchema'
+import { validateInviteCode, isInviteCodeFormatValid } from '@/features/auth/invite'
 
 type Mode = 'signIn' | 'signUp' | 'reset'
 
@@ -26,6 +27,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
   const [name, setName] = useState('')
   const [city, setCity] = useState('')
   const [consent, setConsent] = useState(false)
+  const [inviteCode, setInviteCode] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -94,11 +96,26 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
     let result
     if (isSignUp) {
       const data = parsed.data as z.infer<typeof authSchema>
+
+      if (!isInviteCodeFormatValid(inviteCode)) {
+        setIsSubmitting(false)
+        setFormError('Введите инвайт-код в формате BETA-XXXXXX')
+        return
+      }
+
+      const inviteValid = await validateInviteCode(inviteCode)
+      if (!inviteValid) {
+        setIsSubmitting(false)
+        setFormError('Недействительный инвайт-код')
+        return
+      }
+
       result = await signUp({
         email: data.email,
         password: data.password,
         name: data.name,
         city: data.city ?? '',
+        inviteCode: inviteCode.trim().toUpperCase(),
       })
     } else {
       const data = parsed.data as z.infer<typeof signInOnlySchema>
@@ -124,9 +141,30 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
         </p>
 
         {isUnconfirmed && (
-          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-            Подтвердите email, чтобы публиковать объявления.
-          </p>
+          <div className="mt-4 space-y-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            <p>
+              Письмо отправлено на {user?.email}. Проверьте папку «Спам».
+              Не пришло?
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!user?.email) return
+                setIsSubmitting(true)
+                const res = await resetPassword(user.email)
+                setIsSubmitting(false)
+                if (res.error) {
+                  setFormError(res.error)
+                } else {
+                  setSuccessMessage('Письмо повторно отправлено')
+                }
+              }}
+              disabled={isSubmitting}
+              className="font-medium text-teal-800 hover:underline disabled:opacity-60"
+            >
+              Отправить повторно
+            </button>
+          </div>
         )}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
@@ -149,6 +187,17 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
               error={errors.city}
               autoComplete="address-level2"
               optional
+            />
+          )}
+
+          {isSignUp && (
+            <Field
+              label="Инвайт-код"
+              type="text"
+              value={inviteCode}
+              onChange={setInviteCode}
+              error={errors.inviteCode}
+              autoComplete="off"
             />
           )}
           <Field

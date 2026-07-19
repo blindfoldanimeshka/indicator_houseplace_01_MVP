@@ -22,12 +22,13 @@ function createMockSupabase() {
     }
     return chain
   })
-  return { auth, from }
+  const rpc = vi.fn().mockResolvedValue({ data: true, error: null })
+  return { auth, from, rpc }
 }
 
 const mock = createMockSupabase()
 vi.mock('@/lib/supabase', () => ({
-  getSupabaseClient: () => ({ auth: mock.auth, from: mock.from }),
+  getSupabaseClient: () => ({ auth: mock.auth, from: mock.from, rpc: mock.rpc }),
 }))
 
 function renderWithAuth(overrides: Partial<AuthContextValue> = {}) {
@@ -40,6 +41,7 @@ function renderWithAuth(overrides: Partial<AuthContextValue> = {}) {
     signOut: vi.fn().mockResolvedValue({ error: null }),
     updateProfile: vi.fn().mockResolvedValue({ error: null }),
     resetPassword: vi.fn().mockResolvedValue({ error: null }),
+    deleteAccount: vi.fn().mockResolvedValue({ error: null }),
     ...overrides,
   }
 
@@ -141,5 +143,52 @@ describe('AuthScreen', () => {
     expect(
       screen.getByText(/письмо отправлено, проверьте почту/i),
     ).toBeInTheDocument()
+  })
+
+  it('shows invite code field only in sign up mode', () => {
+    renderWithAuth()
+    expect(screen.queryByLabelText(/инвайт-код/i)).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /нет аккаунта/i }))
+    expect(screen.getByLabelText(/инвайт-код/i)).toBeInTheDocument()
+  })
+
+  it('rejects registration with invalid invite code format', async () => {
+    const value = renderWithAuth()
+
+    fireEvent.click(screen.getByRole('button', { name: /нет аккаунта/i }))
+    fireEvent.change(screen.getByLabelText(/имя/i), { target: { value: 'Иван' } })
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@b.com' } })
+    fireEvent.change(screen.getByLabelText(/пароль/i), { target: { value: 'password1' } })
+    fireEvent.change(screen.getByLabelText(/инвайт-код/i), { target: { value: 'bad' } })
+    fireEvent.click(screen.getByLabelText(/я согласен/i))
+
+    fireEvent.click(screen.getByRole('button', { name: /зарегистрироваться/i }))
+
+    await waitFor(() =>
+      expect(screen.getByText(/формате BETA-XXXXXX/i)).toBeInTheDocument(),
+    )
+    expect(value.signUp).not.toHaveBeenCalled()
+  })
+
+  it('calls signUp with normalized invite code when valid', async () => {
+    const value = renderWithAuth()
+    fireEvent.click(screen.getByRole('button', { name: /нет аккаунта/i }))
+    fireEvent.change(screen.getByLabelText(/имя/i), { target: { value: 'Иван' } })
+    fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'a@b.com' } })
+    fireEvent.change(screen.getByLabelText(/пароль/i), { target: { value: 'password1' } })
+    fireEvent.change(screen.getByLabelText(/инвайт-код/i), { target: { value: 'beta-xyz789' } })
+    fireEvent.click(screen.getByLabelText(/я согласен/i))
+
+    fireEvent.click(screen.getByRole('button', { name: /зарегистрироваться/i }))
+
+    await waitFor(() => expect(value.signUp).toHaveBeenCalledTimes(1))
+    expect(value.signUp).toHaveBeenCalledWith({
+      email: 'a@b.com',
+      password: 'password1',
+      name: 'Иван',
+      city: '',
+      inviteCode: 'BETA-XYZ789',
+    })
   })
 })

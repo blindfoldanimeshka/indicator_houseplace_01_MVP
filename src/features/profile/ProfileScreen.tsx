@@ -3,7 +3,7 @@ import { useAuth } from '@/features/auth/useAuth'
 import { profileSchema, type ProfileInput } from '@/features/profile/profileSchema'
 
 export function ProfileScreen({ onBack }: { onBack: () => void }) {
-  const { user, updateProfile, signOut } = useAuth()
+  const { user, updateProfile, signOut, deleteAccount } = useAuth()
   const [name, setName] = useState(user?.user_metadata?.name ?? '')
   const [city, setCity] = useState(user?.user_metadata?.city ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -12,6 +12,10 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
   )
   const [formError, setFormError] = useState<string | null>(null)
   const [signOutError, setSignOutError] = useState<string | null>(null)
+  const [deleteState, setDeleteState] = useState<'idle' | 'deleting' | 'error'>(
+    'idle',
+  )
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -53,6 +57,26 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
     if (result.error) {
       setSignOutError(result.error)
     }
+  }
+
+  async function handleDeleteAccount() {
+    if (
+      !window.confirm(
+        'Удалить аккаунт и все ваши данные безвозвратно? Это действие необратимо.',
+      )
+    ) {
+      return
+    }
+
+    setDeleteState('deleting')
+    setDeleteError(null)
+    const result = await deleteAccount()
+    if (result.error) {
+      setDeleteState('error')
+      setDeleteError(result.error)
+      return
+    }
+    await signOut()
   }
 
   return (
@@ -141,6 +165,22 @@ export function ProfileScreen({ onBack }: { onBack: () => void }) {
         </button>
         {signOutError && (
           <p className="mt-2 text-sm text-red-700">{signOutError}</p>
+        )}
+      </div>
+
+      <div className="border-t border-stone-200 pt-6">
+        <button
+          type="button"
+          onClick={handleDeleteAccount}
+          disabled={deleteState === 'deleting'}
+          className="rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:opacity-60"
+        >
+          {deleteState === 'deleting'
+            ? 'Удаляем…'
+            : 'Удалить аккаунт и мои данные'}
+        </button>
+        {deleteError && (
+          <p className="mt-2 text-sm text-red-700">{deleteError}</p>
         )}
       </div>
     </section>

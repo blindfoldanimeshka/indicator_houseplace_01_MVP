@@ -151,3 +151,9 @@ CREATE POLICY "Participants can send messages"
       WHERE chat_id = messages.chat_id AND user_id = auth.uid()
     )
   );
+
+-- NOTE: invites (фаза 8, закрытая бета) определены в
+-- migrations/202607190005_beta_invites.sql — таблица public.invites,
+-- SECURITY DEFINER функции is_invite_valid() и claim_invite().
+-- Прямое чтение/запись invites запрещены для клиента (только service_role).
+

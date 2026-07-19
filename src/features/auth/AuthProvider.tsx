@@ -23,11 +23,13 @@ export interface AuthContextValue {
     password: string
     name: string
     city: string
+    inviteCode?: string
   }) => Promise<AuthResult>
   signIn: (params: { email: string; password: string }) => Promise<AuthResult>
   signOut: () => Promise<AuthResult>
   updateProfile: (input: ProfileInput) => Promise<AuthResult>
   resetPassword: (email: string) => Promise<AuthResult>
+  deleteAccount: () => Promise<AuthResult>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
@@ -63,14 +65,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signUp = useCallback<AuthContextValue['signUp']>(
-    async ({ email, password, name, city }) => {
-      const { error } = await getSupabaseClient().auth.signUp({
+    async ({ email, password, name, city, inviteCode }) => {
+      const supabase = getSupabaseClient()
+
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { name, city } },
       })
 
-      return { error: error ? error.message : null }
+      if (error) {
+        return { error: error.message }
+      }
+
+      if (inviteCode && data.user) {
+        await supabase.rpc('claim_invite', {
+          p_code: inviteCode,
+          p_user_id: data.user.id,
+        })
+      }
+
+      return { error: null }
     },
     [],
   )
@@ -132,6 +147,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const deleteAccount = useCallback<AuthContextValue['deleteAccount']>(
+    async () => {
+      const { error } = await getSupabaseClient().functions.invoke(
+        'delete-account',
+      )
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return { error: null }
+    },
+    [],
+  )
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -142,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       updateProfile,
       resetPassword,
+      deleteAccount,
     }),
     [
       session,
@@ -152,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       updateProfile,
       resetPassword,
+      deleteAccount,
     ],
   )
 
