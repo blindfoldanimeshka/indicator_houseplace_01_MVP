@@ -37,6 +37,18 @@ describe('SettingsTab', () => {
     expect(screen.getByRole('button', { name: /сменить пароль/i })).toBeInTheDocument()
   })
 
+  it('flips aria-pressed when a notification toggle is clicked', () => {
+    render(<SettingsTab />)
+
+    fireEvent.click(screen.getByRole('tab', { name: /уведомления/i }))
+
+    const toggle = screen.getByRole('switch', { name: /email-уведомления/i })
+    expect(toggle).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(toggle)
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('shows preferences content when its sub-tab is clicked', () => {
     render(<SettingsTab />)
 
