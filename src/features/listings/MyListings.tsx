@@ -124,7 +124,7 @@ export function MyListings({ onBack }: MyListingsProps) {
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-border-muted bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
           У вас пока нет объявлений.
         </p>
       )}
@@ -136,7 +136,7 @@ export function MyListings({ onBack }: MyListingsProps) {
             return (
               <li
                 key={listing.id}
-                className="flex flex-col gap-3 rounded-2xl border border-border-muted bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-2xl border border-border-muted bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">

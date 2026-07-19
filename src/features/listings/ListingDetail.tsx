@@ -80,7 +80,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
   }
 
   return (
-    <section className="max-w-2xl space-y-5">
+    <section className="max-w-2xl space-y-6">
       <button
         type="button"
         onClick={onBack}
@@ -98,13 +98,13 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       )}
 
       {!loading && !error && !listing && (
-        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl border border-border-muted bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
           Объявление не найдено.
         </p>
       )}
 
       {!loading && !error && listing && (
-        <div className="space-y-4 rounded-2xl border border-border-muted bg-white p-6">
+        <div className="space-y-6 rounded-2xl border border-border-muted bg-surface shadow-[var(--shadow-raised)] p-6 sm:p-8">
           {photos.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((url) => (
@@ -113,7 +113,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                   src={url}
                   alt={`Фото: ${listing.city}`}
                   loading="lazy"
-                  className="aspect-square w-full rounded-xl border border-stone-100 object-cover"
+                  className="aspect-square w-full rounded-xl border border-border-muted object-cover hover:scale-[1.03] transition duration-[var(--duration-base)]"
                 />
               ))}
             </div>
@@ -135,26 +135,26 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
             </span>
           )}
 
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="font-display text-3xl tracking-tight text-foreground">
             {listing.city}
           </h1>
 
-          <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <div>
+          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+            <div className="surface-elevated rounded-lg px-3 py-2">
               <dt className="text-muted-foreground">Комнаты</dt>
               <dd className="font-medium text-foreground">
                 {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
               </dd>
             </div>
             {listing.area && (
-              <div>
+              <div className="surface-elevated rounded-lg px-3 py-2">
                 <dt className="text-muted-foreground">Площадь</dt>
                 <dd className="font-medium text-foreground">
                   {listing.area} м²
                 </dd>
               </div>
             )}
-            <div>
+            <div className="surface-elevated rounded-lg px-3 py-2">
               <dt className="text-muted-foreground">Цена</dt>
               <dd className="font-medium text-foreground">
                 {formatPrice(listing.price)} ₽ / мес.
@@ -198,7 +198,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                 type="button"
                 onClick={handleStartChat}
                 disabled={chatLoading}
-                className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-50"
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)] hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
               >
                 {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
               </button>

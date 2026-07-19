@@ -133,7 +133,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
   }
 
   const fieldClass =
-    'mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+    'w-full rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition duration-[var(--duration-base)] focus:border-primary focus:ring-2 focus:ring-secondary/40'
 
   return (
     <section className="max-w-xl space-y-5">
@@ -147,12 +147,12 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </button>
       )}
 
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+      <h1 className="font-display text-3xl tracking-tight text-foreground">
         {isEditing ? 'Редактировать объявление' : 'Новое объявление'}
       </h1>
 
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-        <label className="block">
+      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">Тип</span>
           <select
             value={type}
@@ -166,7 +166,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           </select>
         </label>
 
-        <label className="block">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">Город</span>
           <input
             type="text"
@@ -181,7 +181,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           )}
         </label>
 
-        <label className="block">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">Комнаты</span>
           <select
             value={rooms}
@@ -201,7 +201,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           )}
         </label>
 
-        <label className="block">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">
             Цена, ₽ / мес.
           </span>
@@ -218,7 +218,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           )}
         </label>
 
-        <label className="block">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">
             Площадь, м² <span className="text-stone-400">(необязательно)</span>
           </span>
@@ -235,7 +235,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           )}
         </label>
 
-        <label className="block">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">
             Описание{' '}
             <span className="text-stone-400">(необязательно)</span>
@@ -254,7 +254,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </label>
 
         <div className="space-y-2">
-          <label className="block">
+          <label className="block space-y-1.5">
             <span className="text-sm font-medium text-foreground">
               Адрес / ориентир{' '}
               <span className="text-stone-400">(необязательно)</span>
@@ -278,7 +278,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
               type="button"
               onClick={handleGeocode}
               disabled={geoState === 'loading'}
-              className="rounded-xl border border-border-muted px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted/50 disabled:opacity-60"
+              className="rounded-xl border border-border-muted px-3 py-2.5 text-sm font-medium text-foreground transition duration-[var(--duration-base)] hover:bg-muted/60 hover:border-primary/40 disabled:opacity-60"
             >
               {geoState === 'loading' ? 'Ищем…' : 'Найти на карте'}
             </button>
@@ -319,7 +319,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         <button
           type="submit"
           disabled={status === 'saving'}
-          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)] hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
           >
             {status === 'saving'
               ? 'Сохраняем…'
@@ -336,7 +336,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
               <button
                 type="button"
                 onClick={onSaved}
-                className="mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900"
+                className="mt-4 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)] hover:brightness-110 active:scale-[0.98]"
               >
                 Готово
               </button>
