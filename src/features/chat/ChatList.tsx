@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { getSupabaseClient } from '@/lib/supabase'
 import { listMyChats } from './chatApi'
+import type { UnreadState } from './useUnreadCounts'
 
 interface ChatSummary {
   id: string
@@ -10,6 +12,8 @@ interface ChatSummary {
 
 interface ChatListProps {
   onOpen: (chatId: string) => void
+  unread?: UnreadState
+  onChatsResolved?: (ids: string[]) => void
 }
 
 const TYPE_LABELS: Record<'offer' | 'request', string> = {
@@ -24,12 +28,12 @@ function formatDate(value: string): string {
   })
 }
 
-export function ChatList({ onOpen }: ChatListProps) {
+export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
   const [chats, setChats] = useState<ChatSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     let active = true
     setLoading(true)
     setError(null)
@@ -46,6 +50,7 @@ export function ChatList({ onOpen }: ChatListProps) {
         setChats([])
       } else {
         setChats(result.data ?? [])
+        onChatsResolved?.(result.data?.map((c) => c.id) ?? [])
       }
       setLoading(false)
     })
@@ -53,7 +58,31 @@ export function ChatList({ onOpen }: ChatListProps) {
     return () => {
       active = false
     }
-  }, [])
+  }, [onChatsResolved])
+
+  useEffect(() => {
+    const cancel = refresh()
+    const supabase = getSupabaseClient()
+
+    const channel = supabase
+      .channel('chat-list')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        () => refresh(),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'chats' },
+        () => refresh(),
+      )
+      .subscribe()
+
+    return () => {
+      cancel()
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [refresh])
 
   if (loading) {
     return <p className="text-sm text-stone-600">Загрузка…</p>
@@ -100,9 +129,14 @@ export function ChatList({ onOpen }: ChatListProps) {
                 </span>
               )}
             </div>
-            <span className="text-xs text-stone-500">
-              {formatDate(chat.created_at)}
-            </span>
+              <span className="text-xs text-stone-500">
+                {formatDate(chat.created_at)}
+              </span>
+              {unread && (unread.byChat[chat.id] ?? 0) > 0 && (
+                <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
+                  {unread.byChat[chat.id]}
+                </span>
+              )}
           </button>
         </li>
       ))}

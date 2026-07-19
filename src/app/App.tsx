@@ -15,6 +15,8 @@ import { MyListings } from '@/features/listings/MyListings'
 import { ListingDetail } from '@/features/listings/ListingDetail'
 import { ChatList } from '@/features/chat/ChatList'
 import { Thread } from '@/features/chat/Thread'
+import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
+import { NotificationPanel } from '@/features/chat/NotificationPanel'
 import { PrivacyPolicy } from '@/features/legal/PrivacyPolicy'
 import { TermsOfService } from '@/features/legal/TermsOfService'
 
@@ -39,7 +41,17 @@ const NAV_ITEMS: MenuBarItem[] = [
   { key: 'profile', label: 'Профиль', icon: User },
 ]
 
-function MenuNav({ view, onNavigate }: { view: View; onNavigate: (view: View) => void }) {
+function MenuNav({
+  view,
+  onNavigate,
+  unreadTotal,
+  onToggleNotifications,
+}: {
+  view: View
+  onNavigate: (view: View) => void
+  unreadTotal: number
+  onToggleNotifications: () => void
+}) {
   const topLevel: Record<string, View> = {
     home: 'home',
     new: 'new',
@@ -50,11 +62,18 @@ function MenuNav({ view, onNavigate }: { view: View; onNavigate: (view: View) =>
   const items: MenuBarItem[] = NAV_ITEMS.map((item) => ({
     ...item,
     active: topLevel[item.key] === view,
+    badge: item.key === 'chats' && unreadTotal > 0 ? unreadTotal : undefined,
   }))
 
   return (
     <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2">
-      <MenuBar items={items} onSelect={(key) => onNavigate(topLevel[key])} />
+      <MenuBar
+        items={items}
+        onSelect={(key) => {
+          if (key === 'chats') onToggleNotifications()
+          else onNavigate(topLevel[key])
+        }}
+      />
     </div>
   )
 }
@@ -64,6 +83,8 @@ function AppContent() {
   const [view, setView] = useState<View>('home')
   const [selected, setSelected] = useState<ListingRow | null>(null)
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const [showNotifications, setShowNotifications] = useState(false)
+  const unread = useUnreadCounts()
 
   function navigate(next: View) {
     setSelected(null)
@@ -76,8 +97,15 @@ function AppContent() {
   }
 
   function openChat(chatId: string) {
+    unread.markChatRead(chatId)
+    setShowNotifications(false)
     setSelectedChatId(chatId)
     setView('thread')
+  }
+
+  function toggleNotifications() {
+    setShowNotifications((prev) => !prev)
+    if (view !== 'chats') setView('chats')
   }
 
   if (isLoading) {
@@ -103,7 +131,12 @@ function AppContent() {
   if (view === 'new') {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <ListingForm
           onSaved={() => navigate('mine')}
           onCancel={() => navigate('home')}
@@ -115,7 +148,12 @@ function AppContent() {
   if (view === 'mine') {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <MyListings onBack={() => navigate('home')} />
       </AppShell>
     )
@@ -124,7 +162,12 @@ function AppContent() {
   if (view === 'detail' && selected) {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <ListingDetail
           id={selected.id}
           onBack={() => navigate('home')}
@@ -137,7 +180,12 @@ function AppContent() {
   if (view === 'chats') {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <section className="space-y-5">
           <button
             type="button"
@@ -149,8 +197,19 @@ function AppContent() {
           <h1 className="text-3xl font-semibold tracking-tight text-stone-950">
             Мои чаты
           </h1>
-          <ChatList onOpen={openChat} />
+          <ChatList
+            onOpen={openChat}
+            unread={unread}
+            onChatsResolved={unread.setMyChats}
+          />
         </section>
+        {showNotifications && (
+          <NotificationPanel
+            notifications={unread.recent}
+            onOpenChat={openChat}
+            onClose={() => setShowNotifications(false)}
+          />
+        )}
       </AppShell>
     )
   }
@@ -158,7 +217,12 @@ function AppContent() {
   if (view === 'thread' && selectedChatId) {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <button
           type="button"
           onClick={() => navigate('chats')}
@@ -174,7 +238,12 @@ function AppContent() {
   if (view === 'profile') {
     return (
       <AppShell>
-        <MenuNav view={view} onNavigate={navigate} />
+        <MenuNav
+          view={view}
+          onNavigate={navigate}
+          unreadTotal={unread.total}
+          onToggleNotifications={toggleNotifications}
+        />
         <ProfilePage />
       </AppShell>
     )
@@ -182,7 +251,12 @@ function AppContent() {
 
   return (
     <AppShell>
-      <MenuNav view={view} onNavigate={navigate} />
+      <MenuNav
+        view={view}
+        onNavigate={navigate}
+        unreadTotal={unread.total}
+        onToggleNotifications={toggleNotifications}
+      />
       <Feed onOpen={openDetail} />
       {!user?.email_confirmed_at && (
         <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
@@ -190,6 +264,13 @@ function AppContent() {
         </p>
       )}
       <EnvironmentNotice configured={isSupabaseConfigured()} />
+      {showNotifications && (
+        <NotificationPanel
+          notifications={unread.recent}
+          onOpenChat={openChat}
+          onClose={() => setShowNotifications(false)}
+        />
+      )}
     </AppShell>
   )
 }

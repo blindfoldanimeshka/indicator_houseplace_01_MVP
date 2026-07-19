@@ -37,6 +37,11 @@ describe('App', () => {
           getUser: vi.fn(),
         },
         from: vi.fn(() => chain),
+        channel: vi.fn(() => ({
+          on: vi.fn().mockReturnThis(),
+          subscribe: vi.fn(),
+        })),
+        removeChannel: vi.fn(),
       }),
     }))
 

@@ -7,6 +7,7 @@ export interface MenuBarItem {
   label: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   active?: boolean
+  badge?: number
 }
 
 interface MenuBarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
@@ -134,6 +135,11 @@ export function MenuBar({ items, className, onSelect = () => {}, ...props }: Men
                 style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
               >
                 <item.icon className="h-[22px] w-[22px]" />
+                {item.badge ? (
+                  <span className="absolute right-0 top-0 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[11px] font-bold leading-none text-white">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                ) : null}
               </motion.span>
             </button>
           )
