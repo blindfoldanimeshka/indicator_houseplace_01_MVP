@@ -21,7 +21,8 @@ const BASE_ICON_BTN = 52
 // Bar height = icon + equal vertical padding (pt-3 + pb-3 = 24px) so the dock
 // grows/shrinks symmetrically top-to-bottom, never lopsided.
 const BAR_PADDING = 12
-const BASE_BAR_HEIGHT = BASE_ICON_BTN + BAR_PADDING * 2
+const LABEL_HEIGHT = 16
+const BASE_BAR_HEIGHT = BASE_ICON_BTN + LABEL_HEIGHT + BAR_PADDING * 2
 const MAX_SCALE = 1.35
 const MAGNET_RANGE = 120
 // Compact state is a single proportional scale of the whole dock, so the panel
@@ -137,7 +138,7 @@ export function MenuBar({
           >
             <motion.div
               ref={tooltipRef}
-              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md border border-border-muted bg-white/95 px-2.5 text-xs font-medium leading-tight text-foreground shadow-sm backdrop-blur"
+              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md border border-border-muted bg-surface/95 px-2.5 text-xs font-medium leading-tight text-foreground shadow-sm backdrop-blur"
               animate={{ left: tooltipLeft }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
@@ -155,7 +156,7 @@ export function MenuBar({
           setCursorX(null)
         }}
         className={cn(
-          'flex origin-bottom items-center justify-center gap-2 rounded-[28px] border border-border-muted/80 bg-white/80 px-3 pt-3 pb-3 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_14px_32px_-8px_rgba(0,0,0,0.25)] backdrop-blur-md',
+          'flex origin-bottom items-center justify-center gap-2 rounded-[28px] border border-border-muted bg-surface/80 px-3 pt-3 pb-3 shadow-[var(--shadow-float)] backdrop-blur-xl',
         )}
         style={{ height: BASE_BAR_HEIGHT }}
         animate={{ scale: dockScale }}
@@ -170,17 +171,17 @@ export function MenuBar({
               aria-label={item.label}
               aria-current={item.active ? 'page' : undefined}
               onClick={() => onSelect(item.key)}
-              className="group relative flex origin-bottom items-end justify-center outline-none"
-              style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
+              className="group relative flex origin-bottom flex-col items-center outline-none cursor-pointer"
+              style={{ width: BASE_ICON_BTN }}
             >
               <motion.span
                 animate={{ scale, y: lift }}
                 transition={SPRING}
                 className={cn(
-                  'flex items-center justify-center rounded-[16px] transition-colors',
+                  'flex items-center justify-center rounded-[16px] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)]',
                   item.active
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-muted-foreground hover:bg-muted/50',
+                    ? 'bg-primary text-white shadow-[var(--shadow-glow)]'
+                    : 'text-muted-foreground hover:bg-muted/60',
                 )}
                 style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
               >
@@ -191,6 +192,9 @@ export function MenuBar({
                   </span>
                 ) : null}
               </motion.span>
+              <span className="mt-1 text-[10px] leading-none text-muted-foreground">
+                {item.label}
+              </span>
             </button>
           )
         })}
