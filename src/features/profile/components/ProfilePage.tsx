@@ -38,16 +38,20 @@ export function ProfilePage() {
       <nav
         role="tablist"
         aria-label="Разделы профиля"
-        className="flex gap-1 border-b border-stone-200"
+        className="flex flex-wrap gap-1 border-b border-stone-200"
       >
         {TABS.map((tab) => {
           const selected = tab.id === activeTab
+          const tabId = `tab-${tab.id}`
+          const panelId = `panel-${tab.id}`
           return (
             <button
               key={tab.id}
+              id={tabId}
               role="tab"
               type="button"
               aria-selected={selected}
+              aria-controls={panelId}
               onClick={() => setActiveTab(tab.id)}
               className={[
                 'px-3 py-2 text-sm font-medium transition-colors',
@@ -62,7 +66,12 @@ export function ProfilePage() {
         })}
       </nav>
 
-      <div role="tabpanel">
+      <div
+        role="tabpanel"
+        id={`panel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+        tabIndex={0}
+      >
         <ActiveTab />
       </div>
     </section>
