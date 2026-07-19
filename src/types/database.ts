@@ -4,9 +4,9 @@ export interface Database {
   public: {
     Tables: {
       users: {
-        Row: { id: string; name: string; city: string | null; avatar_path: string | null; created_at: string }
-        Insert: { id: string; name: string; city?: string | null; avatar_path?: string | null }
-        Update: { name?: string; city?: string | null; avatar_path?: string | null }
+        Row: { id: string; name: string; city: string | null; avatar_path: string | null; telegram_id: string | null; created_at: string }
+        Insert: { id: string; name: string; city?: string | null; avatar_path?: string | null; telegram_id?: string | null }
+        Update: { name?: string; city?: string | null; avatar_path?: string | null; telegram_id?: string | null }
         Relationships: []
       }
       listings: {

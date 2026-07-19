@@ -1,12 +1,13 @@
-import type { ConnectedService } from '@/features/profile/types/profile.types'
+import type { ConnectionStatus } from '@/features/profile/useConnections'
 
 interface ConnectedServiceProps {
-  service: ConnectedService
-  onConnect: (id: string) => void
+  service: ConnectionStatus
+  onConnect: (id: ConnectionStatus['id']) => void
+  onUnlink: (id: ConnectionStatus['id']) => void
 }
 
-export function ConnectedService({ service, onConnect }: ConnectedServiceProps) {
-  const isConnected = service.status === 'connected'
+export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServiceProps) {
+  const isConnected = service.connected
 
   return (
     <div
@@ -16,17 +17,19 @@ export function ConnectedService({ service, onConnect }: ConnectedServiceProps) 
       <span className="text-stone-800">{service.name}</span>
 
       <div className="flex items-center gap-3">
-        <span
-          className={
-            isConnected
-              ? 'text-green-600'
-              : 'text-stone-500'
-          }
-        >
+        <span className={isConnected ? 'text-green-600' : 'text-stone-500'}>
           {isConnected ? 'Подключено' : 'Не подключено'}
         </span>
 
-        {!isConnected && (
+        {isConnected ? (
+          <button
+            type="button"
+            onClick={() => onUnlink(service.id)}
+            className="rounded-md border border-red-300 px-3 py-1 text-sm text-red-700 transition hover:bg-red-50"
+          >
+            Отвязать
+          </button>
+        ) : (
           <button
             type="button"
             onClick={() => onConnect(service.id)}
