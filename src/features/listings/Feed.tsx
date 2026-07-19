@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
 import { listListings } from './api'
+import { listCoverPaths } from '@/features/photos/photoApi'
 import { ListingCard } from './ListingCard'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -24,6 +25,7 @@ interface FeedProps {
 export function Feed({ onOpen }: FeedProps) {
   const [filters, setFilters] = useState<ListingFilters>({})
   const [listings, setListings] = useState<ListingRow[]>([])
+  const [covers, setCovers] = useState<Record<string, string>>({})
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -50,6 +52,26 @@ export function Feed({ onOpen }: FeedProps) {
       active = false
     }
   }, [filters, page])
+
+  useEffect(() => {
+    if (listings.length === 0) {
+      setCovers({})
+      return
+    }
+
+    let active = true
+    const ids = listings.map((listing) => listing.id)
+    listCoverPaths(ids).then((result) => {
+      if (!active) return
+      if (result.data) {
+        setCovers(result.data)
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [listings])
 
   function updateFilter(patch: Partial<ListingFilters>) {
     setPage(0)
@@ -176,6 +198,7 @@ export function Feed({ onOpen }: FeedProps) {
               <ListingCard
                 key={listing.id}
                 listing={listing}
+                coverPath={covers[listing.id]}
                 onOpen={onOpen}
               />
             ))}

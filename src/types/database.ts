@@ -176,6 +176,10 @@ export interface Database {
         Args: { p_code: string; p_user_id: string }
         Returns: boolean
       }
+      listing_cover_path: {
+        Args: { p_listing_id: string }
+        Returns: string
+      }
     }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>

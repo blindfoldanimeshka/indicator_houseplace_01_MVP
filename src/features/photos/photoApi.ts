@@ -93,6 +93,36 @@ export function getPublicUrl(path: string): string {
   return supabase.storage.from('listing-photos').getPublicUrl(path).data.publicUrl
 }
 
+export async function listCoverPaths(
+  listingIds: string[],
+): Promise<PhotoApiResult<Record<string, string>>> {
+  if (listingIds.length === 0) {
+    return { data: {}, error: null }
+  }
+
+  const supabase = getSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('listing_images')
+    .select('listing_id, path')
+    .in('listing_id', listingIds)
+    .order('sort_order', { ascending: true })
+
+  if (error) {
+    return { data: null, error: error.message }
+  }
+
+  const rows = data as Array<{ listing_id: string; path: string }>
+  const covers: Record<string, string> = {}
+  for (const row of rows) {
+    if (!covers[row.listing_id]) {
+      covers[row.listing_id] = row.path
+    }
+  }
+
+  return { data: covers, error: null }
+}
+
 export async function removePhoto(
   imageId: string,
   path: string,
