@@ -81,22 +81,22 @@ export function Feed({ onOpen }: FeedProps) {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const inputClass =
-    'rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200'
+    'rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-secondary/40 transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
 
   return (
     <section className="space-y-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-4xl font-bold tracking-tight text-foreground">
           Объявления
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Аренда жилья напрямую, без посредников.
+        <p className="mt-2 text-sm text-muted-foreground">
+          Аренда жилья СКВОТ, без посредников.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border-muted bg-white p-4 sm:grid-cols-3 lg:grid-cols-5">
-        <label className="block">
-          <span className="text-xs font-medium text-stone-700">Тип</span>
+      <div className="surface-elevated grid grid-cols-2 gap-3 rounded-2xl border border-border-muted p-5 shadow-[var(--shadow-surface)] sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-end lg:gap-3">
+        <label className="block lg:w-auto">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Тип</span>
           <select
             value={filters.type ?? ''}
             onChange={(event) =>
@@ -115,8 +115,8 @@ export function Feed({ onOpen }: FeedProps) {
           </select>
         </label>
 
-        <label className="block">
-          <span className="text-xs font-medium text-stone-700">Город</span>
+        <label className="block lg:w-auto">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Город</span>
           <input
             type="text"
             value={filters.city ?? ''}
@@ -126,8 +126,8 @@ export function Feed({ onOpen }: FeedProps) {
           />
         </label>
 
-        <label className="block">
-          <span className="text-xs font-medium text-stone-700">Комнаты</span>
+        <label className="block lg:w-auto">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Комнаты</span>
           <select
             value={filters.rooms ?? ''}
             onChange={(event) =>
@@ -143,8 +143,8 @@ export function Feed({ onOpen }: FeedProps) {
           </select>
         </label>
 
-        <label className="block">
-          <span className="text-xs font-medium text-stone-700">
+        <label className="block lg:w-auto">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Цена до, ₽
           </span>
           <input
@@ -162,8 +162,8 @@ export function Feed({ onOpen }: FeedProps) {
           />
         </label>
 
-        <label className="block">
-          <span className="text-xs font-medium text-stone-700">Сортировка</span>
+        <label className="block lg:w-auto">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Сортировка</span>
           <select
             value={filters.sort ?? 'newest'}
             onChange={(event) =>
@@ -187,15 +187,17 @@ export function Feed({ onOpen }: FeedProps) {
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className="rounded-xl border border-border-muted bg-white px-4 py-8 text-center text-sm text-muted-foreground">
-          Объявлений не найдено. Попробуйте изменить фильтры.
-        </p>
+        <div className="surface-elevated rounded-2xl border border-border-muted p-10 text-center shadow-[var(--shadow-surface)]">
+          <p className="text-sm text-muted-foreground">
+            Объявлений не найдено. Попробуйте изменить фильтры.
+          </p>
+        </div>
       )}
 
       {!loading && !error && listings.length > 0 && (
         <>
           <motion.div
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
             initial="hidden"
             animate="visible"
             variants={{
@@ -221,7 +223,7 @@ export function Feed({ onOpen }: FeedProps) {
             ))}
           </motion.div>
 
-          <div className="flex items-center justify-between text-sm text-stone-700">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>
               Всего: {total}
             </span>
@@ -230,7 +232,7 @@ export function Feed({ onOpen }: FeedProps) {
                 type="button"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-xl border border-border-muted px-3 py-1.5 font-medium transition hover:bg-muted/50 disabled:opacity-40"
+                className="rounded-xl border border-border-muted bg-surface px-3 py-1.5 font-medium transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/50 hover:text-primary disabled:opacity-40"
               >
                 ← Назад
               </button>
@@ -243,7 +245,7 @@ export function Feed({ onOpen }: FeedProps) {
                   setPage((p) => Math.min(totalPages - 1, p + 1))
                 }
                 disabled={page >= totalPages - 1}
-                className="rounded-xl border border-border-muted px-3 py-1.5 font-medium transition hover:bg-muted/50 disabled:opacity-40"
+                className="rounded-xl border border-border-muted bg-surface px-3 py-1.5 font-medium transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/50 hover:text-primary disabled:opacity-40"
               >
                 Вперёд →
               </button>
