@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactElement } from 'react'
 import { PersonalInfoTab } from './PersonalInfoTab'
 import { SettingsTab } from './SettingsTab'
 import { ConnectionsTab } from './ConnectionsTab'
@@ -13,7 +13,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'danger', label: 'Действия' },
 ]
 
-const TAB_CONTENT: Record<TabId, () => JSX.Element> = {
+const TAB_CONTENT: Record<TabId, () => ReactElement> = {
   personal: PersonalInfoTab,
   settings: SettingsTab,
   connections: ConnectionsTab,

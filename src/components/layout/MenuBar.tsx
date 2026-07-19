@@ -9,9 +9,9 @@ export interface MenuBarItem {
   active?: boolean
 }
 
-interface MenuBarProps {
+interface MenuBarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSelect'> {
   items: MenuBarItem[]
-  onSelect: (key: string) => void
+  onSelect?: (key: string) => void
 }
 
 const BASE_ICON_BTN = 52

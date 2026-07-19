@@ -14,6 +14,7 @@
 | 6. Чат | Связь между пользователями | ✅ | RPC `open_or_create_chat` (атомарно), ChatList, Thread (realtime + polling-fallback), кнопка «Написать» в деталях; `sender_id` из сессии; 68 тестов |
 | 7. Жалобы и финальная защита | Контролируемая beta | ✅ | UI «Пожаловаться» (объявление+чат), таблица `moderation_audit` (только service role), security-review.md с RLS-матрицей; 83 теста; единственный lint-ворнинг (`open_or_create_chat` SECURITY DEFINER) — намеренный и безопасный |
 | 3b. Отложенная ч. фазы 3 | Безопасный вход (юр./reset) | ✅ | Reset password (`resetPasswordForEmail`), legal pages (Privacy/Terms, заглушка 152-ФЗ), чекбокс согласия при регистрации; 90 тестов. **TODO (требует внешних ключей/решения): CAPTCHA (hCaptcha/Turnstile) и собственный SMTP** |
+| 8. Редизайн профиля | 4-вкладочный ProfilePage | ✅ | Личные данные / Аккаунт / Подключения / Действия; typecheck/lint/tests зелёные; settings и connections — пока локальный UI без бэкенда |
 
 ### Решения, требующие участия пользователя (не сделано автономно)
 - **CAPTCHA**: нужен провайдер (hCaptcha или Cloudflare Turnstile) + sitekey/secret. Без ключей не включается. Фронтенд-хук под Turnstile можно добавить, когда будут env-ключи.
