@@ -1,16 +1,35 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
+import { getSupabaseClient } from '@/lib/supabase'
 import { profileSchema } from '@/features/profile/profileSchema'
+import { AvatarUpload } from '@/features/profile/components/AvatarUpload'
 
 export function PersonalInfoTab() {
   const { user, updateProfile } = useAuth()
   const [name, setName] = useState(user?.user_metadata?.name ?? '')
   const [city, setCity] = useState(user?.user_metadata?.city ?? '')
+  const [avatarPath, setAvatarPath] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
     'idle',
   )
   const [formError, setFormError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    let active = true
+    getSupabaseClient()
+      .from('users')
+      .select('avatar_path')
+      .eq('id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active && data) setAvatarPath(data.avatar_path)
+      })
+    return () => {
+      active = false
+    }
+  }, [user])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -36,6 +55,7 @@ export function PersonalInfoTab() {
     const result = await updateProfile({
       name: parsed.data.name,
       city: parsed.data.city || '',
+      avatarPath,
     })
     setStatus(result.error ? 'error' : 'saved')
 
@@ -53,6 +73,15 @@ export function PersonalInfoTab() {
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+        <AvatarUpload
+          userId={user?.id ?? ''}
+          currentPath={avatarPath}
+          onUploaded={(path) => {
+            setAvatarPath(path)
+            setStatus('idle')
+          }}
+        />
+
         <label className="block">
           <span className="text-sm font-medium text-stone-800">Имя</span>
           <input

@@ -12,6 +12,7 @@ export const profileSchema = z.object({
     .max(100, { message: 'Город не длиннее 100 символов.' })
     .optional()
     .or(z.literal('')),
+  avatarPath: z.string().nullable().optional(),
 })
 
 export const authSchema = z.object({

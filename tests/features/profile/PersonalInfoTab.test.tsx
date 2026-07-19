@@ -55,6 +55,7 @@ describe('PersonalInfoTab', () => {
     expect(value.updateProfile).toHaveBeenCalledWith({
       name: 'Иван',
       city: 'Москва',
+      avatarPath: null,
     })
   })
 

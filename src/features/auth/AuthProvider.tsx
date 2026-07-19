@@ -118,9 +118,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: 'Пользователь не найден.' }
       }
 
+      const patch: { name: string; city: string | null; avatar_path?: string | null } = {
+        name: input.name,
+        city: input.city || null,
+      }
+      if (input.avatarPath !== undefined) {
+        patch.avatar_path = input.avatarPath
+      }
+
       const { error } = await getSupabaseClient()
         .from('users')
-        .update({ name: input.name, city: input.city || null })
+        .update(patch)
         .eq('id', currentUser.id)
 
       return { error: error ? error.message : null }
