@@ -12,7 +12,7 @@ export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServ
   return (
     <div
       data-testid="service-row"
-      className="flex items-center justify-between border-b border-border-muted py-3 last:border-0"
+      className="flex items-center justify-between border-b border-border-muted py-3 transition hover:bg-muted/40 last:border-0"
     >
       <span className="text-foreground">{service.name}</span>
 
@@ -25,7 +25,7 @@ export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServ
           <button
             type="button"
             onClick={() => onUnlink(service.id)}
-            className="rounded-md border border-red-300 px-3 py-1 text-sm text-red-700 transition hover:bg-red-50"
+            className="rounded-md border border-red-300 px-3 py-1.5 text-sm text-red-700 transition hover:bg-red-500/10"
           >
             Отвязать
           </button>
@@ -33,7 +33,7 @@ export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServ
           <button
             type="button"
             onClick={() => onConnect(service.id)}
-            className="rounded-md bg-primary px-3 py-1 text-sm text-white hover:bg-teal-900"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm text-white shadow-[var(--shadow-glow)] transition hover:brightness-110"
           >
             Подключить
           </button>

@@ -34,11 +34,11 @@ function Toggle({
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-          checked ? 'bg-primary' : 'bg-stone-300'
+          checked ? 'bg-primary' : 'bg-stone-300/60'
         }`}
       >
         <span
-          className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+          className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition-transform ${
             checked ? 'translate-x-5' : 'translate-x-0.5'
           }`}
         />
@@ -85,8 +85,8 @@ export function SettingsTab() {
             onClick={() => setActive(tab.id)}
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
               active === tab.id
-                ? 'bg-primary text-white'
-                : 'border border-border-muted text-foreground hover:bg-muted/50'
+                ? 'bg-primary text-white shadow-[var(--shadow-glow)]'
+                : 'border border-border-muted text-foreground hover:bg-muted/60'
             }`}
           >
             {tab.label}
@@ -108,7 +108,7 @@ export function SettingsTab() {
         </p>
       )}
 
-      <div className="divide-y divide-stone-200 rounded-xl border border-border-muted bg-white px-4">
+      <div className="divide-y divide-border-muted rounded-xl border border-border-muted bg-surface px-4 shadow-[var(--shadow-surface)]">
         {active === 'notifications' && (
           <div>
             <Toggle
@@ -169,7 +169,7 @@ export function SettingsTab() {
                 onChange={(e) =>
                   updatePreferences('theme', e.target.value as Theme)
                 }
-                className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+                className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
               >
                 <option value="light">Светлая</option>
                 <option value="dark">Тёмная</option>
@@ -184,7 +184,7 @@ export function SettingsTab() {
                 onChange={(e) =>
                   updatePreferences('language', e.target.value as Language)
                 }
-                className="mt-1 w-full rounded-xl border border-border-muted bg-white px-3 py-2 text-sm text-foreground outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-200"
+                className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
               >
                 <option value="ru">Русский</option>
                 <option value="en">English</option>

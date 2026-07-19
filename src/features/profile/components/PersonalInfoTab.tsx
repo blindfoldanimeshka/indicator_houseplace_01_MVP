@@ -85,7 +85,7 @@ export function PersonalInfoTab() {
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-secondary/40"
           />
           {errors.name && (
             <span className="mt-1 block text-sm text-red-700">{errors.name}</span>
@@ -100,7 +100,7 @@ export function PersonalInfoTab() {
             type="text"
             value={city}
             onChange={(event) => setCity(event.target.value)}
-            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-secondary/40"
           />
           {errors.city && (
             <span className="mt-1 block text-sm text-red-700">{errors.city}</span>
@@ -113,7 +113,7 @@ export function PersonalInfoTab() {
           </p>
         )}
         {status === 'saved' && (
-          <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+          <p className="rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-sm text-green-foreground">
             Профиль сохранён.
           </p>
         )}
@@ -121,7 +121,7 @@ export function PersonalInfoTab() {
         <button
           type="submit"
           disabled={status === 'saving'}
-          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-900 disabled:opacity-60"
+          className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
         >
           {status === 'saving' ? 'Сохраняем…' : 'Сохранить'}
         </button>

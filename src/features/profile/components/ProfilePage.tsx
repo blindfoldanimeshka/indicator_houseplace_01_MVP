@@ -28,7 +28,7 @@ export function ProfilePage() {
   return (
     <section className="mx-auto max-w-2xl space-y-6">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
           Профиль
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">

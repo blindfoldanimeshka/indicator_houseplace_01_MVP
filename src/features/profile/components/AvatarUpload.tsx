@@ -101,7 +101,7 @@ export function AvatarUpload({
 
   return (
     <div className="flex items-center gap-4">
-      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted/80">
+      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-muted/60 ring-2 ring-border-muted">
         {preview ? (
           <img src={preview} alt="Аватар" className="h-full w-full object-cover" />
         ) : (
@@ -124,7 +124,7 @@ export function AvatarUpload({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="rounded-xl border border-border-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/50 disabled:opacity-60"
+          className="rounded-xl border border-border-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/60 disabled:opacity-60"
         >
           {uploading ? 'Загрузка…' : 'Загрузить фото'}
         </button>

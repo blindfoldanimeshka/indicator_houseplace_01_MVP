@@ -34,7 +34,7 @@ export function ConnectionsTab() {
 
   return (
     <div data-testid="connections-tab" className="p-4">
-      <h2 className="mb-4 text-lg font-semibold text-primary">
+      <h2 className="mb-4 font-display text-lg text-primary">
         Подключённые сервисы
       </h2>
 
@@ -50,7 +50,7 @@ export function ConnectionsTab() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Загрузка…</p>
       ) : (
-        <div className="rounded-lg border border-border-muted bg-white p-4">
+        <div className="rounded-lg border border-border-muted bg-surface p-4 shadow-[var(--shadow-surface)]">
           {connections
             .filter((service) => service.id !== 'telegram')
             .map((service) => (
