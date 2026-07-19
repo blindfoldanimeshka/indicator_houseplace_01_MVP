@@ -1,43 +1,64 @@
-# Profile Page Redesign - Planning Phase
+# напрямую — аренда жилья без агентств
 
-I've created comprehensive documentation (2 specs in `docs/superpowers/specs/` and 1 implementation plan in `docs/superpowers/plans/`) for a complete Profile Page redesign.
+Прямая аренда жилья между людьми: собственник публикует «Сдаю»,
+арендатор ищет «Ищу», они переписываются в чате — без посредников
+и комиссий. MVP уже работает и проверен на реальном стеке.
 
-**Key changes completed so far:**
-- Fixed MenuBar navigation (compact, stable dock-style)
-- MenuBar onSelect made optional to maintain backward compatibility
-- Updated ProfileScreen (marked for replacement)
-- Created complete implementation plan with 8 tasks across 8 days
+Репозиторий: `github.com/blindfoldanimeshka/indicator_houseplace_01_MVP`
+Проект Supabase: **MVP-House** (`uwinrqeyixdnemszhxoj`, eu-north-1).
 
-**What's ready:**
+## Что умеет MVP
 
-## 1. Documentation (complete ✅)
-- `docs/superpowers/specs/2025-08-24-profile-page-redesign-design.md` - Technical architecture
-- `docs/superpowers/specs/2025-08-24-profile-page-redesign-visual.md` - Visual design guidelines
-- `docs/superpowers/plans/2025-08-24-profile-page-redesign-implementation.md` - 8-task implementation plan
+- Регистрация по email+пароль (с подтверждением) и вход через OAuth
+  (Yandex / VK / Telegram).
+- Публикация объявлений «Сдаю» / «Ищу» с фото (до 10, ≤5 МБ).
+- Лента с фильтрами (город, комнаты, цена, тип) и пагинацией.
+- Чат по объявлению в реальном времени (Supabase Realtime), доступный
+  с любого устройства.
+- Жалобы на объявление / собеседника (moderation_audit, только service_role).
 
-## 2. Code foundations (complete ✅)
-- `src/components/layout/MenuBar.tsx` - Fixed macOS-style dock navigation
-- Updated `src/features/profile/ProfileScreen.tsx` to be a placeholder (will be replaced with ProfilePage)
+## Технологический стек
 
-## 3. What's needed for full implementation
-The implementation plan has 8 tasks covering:
-1. Core components structure
-2. Personal Information tab
-3. Settings tab with nested configuration
-4. Connections tab
-5. Danger Zone tab
-6. Tab navigation integration
-7. ProfileScreen migration and App integration
-8. Final testing and deployment
+| Слой | Технология |
+|---|---|
+| Frontend | React 19 + Vite 8 + TypeScript + Tailwind CSS 4 |
+| Анимации | framer-motion 12 |
+| Валидация | zod 4 |
+| Бэкенд | Supabase (PostgreSQL + Auth + Realtime + Storage + Edge Functions) |
+| Клиент БД/Auth | @supabase/supabase-js v2 |
+| Тесты | Vitest 4 + Testing Library + MSW |
+| Линт/типы | ESLint 10 + TypeScript (6 + native 7) |
 
-## Next Steps
+> Историческая альтернатива «через Next.js + Telegram Login» описана в
+> `docs/out-of-code/plan-legacy-nextjs.md` — она **устарела**, стек выбран
+> Supabase (см. `docs/progress.md`).
 
-Please choose your preferred approach:
+## Быстрый старт
 
-1. **Full Redesign**: Execute all 8 tasks to build complete ProfilePage with all tabs
-2. **Personal Info MVP**: Start with core profile editing (fields + basic form) - deliver quickly
-3. **Custom Option**: Let me know your priority need - I can adapt the plan accordingly
+```bash
+npm install
+npm run dev      # → http://localhost:5173
+npm run build    # tsc -b && vite build → dist/
+npm run test     # vitest run
+npm run lint     # eslint .
+```
 
-Your choice will determine how we proceed with the implementation.
+Переменные окружения (через `.env`, не в git):
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
+(см. `src/lib/env.ts`).
 
-**Note:** The new ProfilePage will replace the current ProfileScreen, providing a comprehensive tabbed interface following the macOS/iOS design patterns outlined in the documentation.
+## Документация
+
+Подробная документация проекта — в `docs/`:
+
+- `docs/progress.md` — **основной индекс прогресса** по фазам (что сделано
+  и что требует решения пользователя).
+- `docs/README.md` → перенесено сюда; навигация по документам ниже.
+- `docs/frontend.md` — фронтенд: стек, структура `src/`, навигация, экраны.
+- `docs/backend.md` — Supabase как бэкенд (Auth, RPC, Realtime, Storage).
+- `docs/db.md` — схема БД, RLS, миграции (`supabase/migrations/`).
+- `docs/security-review.md` — отчёт по безопасности (матрица RLS-изоляции).
+- `docs/technical-specification-roadmap.md` — ТЗ и roadmap MVP (исходный план).
+- `docs/out-of-code/` — задачи вне кода (CAPTCHA, SMTP, 152-ФЗ, закрытая бета).
+- `docs/features/` — документация по конкретным фичам.
+- `docs/superpowers/specs/` — дизайн-спеки по фазам.
