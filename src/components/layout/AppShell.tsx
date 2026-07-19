@@ -6,7 +6,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <main className="min-h-screen bg-stone-50 px-5 py-12 sm:px-8">
+    <main className="min-h-screen bg-stone-50 px-5 pb-24 pt-12 sm:px-8 sm:pb-12">
       <div className="mx-auto max-w-6xl">
         <header className="mb-16 flex items-center justify-between">
           <a className="text-lg font-bold tracking-tight text-teal-950" href="/">

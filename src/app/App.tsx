@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { Search, Plus, Home, MessageSquare, User } from 'lucide-react'
 import type { Database } from '@/types/database'
 import { AppShell } from '@/components/layout/AppShell'
 import { EnvironmentNotice } from '@/components/system/EnvironmentNotice'
+import { MenuBar, type MenuBarItem } from '@/components/layout/MenuBar'
 import { isSupabaseConfigured } from '@/lib/env'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { useAuth } from '@/features/auth/useAuth'
@@ -29,41 +31,31 @@ type View =
   | 'privacy'
   | 'terms'
 
-function NavBar({
-  view,
-  onNavigate,
-}: {
-  view: View
-  onNavigate: (view: View) => void
-}) {
-  const items: { view: View; label: string }[] = [
-    { view: 'home', label: 'Поиск' },
-    { view: 'new', label: '+ Новое' },
-    { view: 'mine', label: 'Мои' },
-    { view: 'chats', label: 'Чаты' },
-    { view: 'profile', label: 'Профиль' },
-  ]
+const NAV_ITEMS: MenuBarItem[] = [
+  { key: 'home', label: 'Поиск', icon: Search },
+  { key: 'new', label: 'Новое', icon: Plus },
+  { key: 'mine', label: 'Мои', icon: Home },
+  { key: 'chats', label: 'Чаты', icon: MessageSquare },
+  { key: 'profile', label: 'Профиль', icon: User },
+]
+
+function MenuNav({ view, onNavigate }: { view: View; onNavigate: (view: View) => void }) {
+  const topLevel: Record<string, View> = {
+    home: 'home',
+    new: 'new',
+    mine: 'mine',
+    chats: 'chats',
+    profile: 'profile',
+  }
+  const items: MenuBarItem[] = NAV_ITEMS.map((item) => ({
+    ...item,
+    active: topLevel[item.key] === view,
+  }))
 
   return (
-    <nav className="mb-10 flex flex-wrap gap-2">
-      {items.map((item) => {
-        const active = item.view === view
-        return (
-          <button
-            key={item.view}
-            type="button"
-            onClick={() => onNavigate(item.view)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-              active
-                ? 'bg-teal-800 text-white'
-                : 'border border-stone-300 text-stone-800 hover:bg-stone-100'
-            }`}
-          >
-            {item.label}
-          </button>
-        )
-      })}
-    </nav>
+    <div className="fixed bottom-4 left-1/2 z-40 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:right-4 sm:top-4 sm:translate-x-0">
+      <MenuBar items={items} onSelect={(key) => onNavigate(topLevel[key])} />
+    </div>
   )
 }
 
@@ -111,7 +103,7 @@ function AppContent() {
   if (view === 'new') {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <ListingForm
           onSaved={() => navigate('mine')}
           onCancel={() => navigate('home')}
@@ -123,7 +115,7 @@ function AppContent() {
   if (view === 'mine') {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <MyListings onBack={() => navigate('home')} />
       </AppShell>
     )
@@ -132,7 +124,7 @@ function AppContent() {
   if (view === 'detail' && selected) {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <ListingDetail
           id={selected.id}
           onBack={() => navigate('home')}
@@ -145,7 +137,7 @@ function AppContent() {
   if (view === 'chats') {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <section className="space-y-5">
           <button
             type="button"
@@ -166,7 +158,7 @@ function AppContent() {
   if (view === 'thread' && selectedChatId) {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <button
           type="button"
           onClick={() => navigate('chats')}
@@ -182,7 +174,7 @@ function AppContent() {
   if (view === 'profile') {
     return (
       <AppShell>
-        <NavBar view={view} onNavigate={navigate} />
+        <MenuNav view={view} onNavigate={navigate} />
         <ProfileScreen onBack={() => navigate('home')} />
       </AppShell>
     )
@@ -190,7 +182,7 @@ function AppContent() {
 
   return (
     <AppShell>
-      <NavBar view={view} onNavigate={navigate} />
+      <MenuNav view={view} onNavigate={navigate} />
       <Feed onOpen={openDetail} />
       {!user?.email_confirmed_at && (
         <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
