@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useAuth } from '@/features/auth/useAuth'
-import { getSupabaseClient } from '@/lib/supabase'
 import { profileSchema } from '@/features/profile/profileSchema'
 import { AvatarUpload } from '@/features/profile/components/AvatarUpload'
+import { useProfile } from '@/features/profile/useProfile'
+import { useAuth } from '@/features/auth/useAuth'
 
 export function PersonalInfoTab() {
-  const { user, updateProfile } = useAuth()
+  const { user } = useAuth()
+  const { profile, save } = useProfile()
   const [name, setName] = useState('')
   const [city, setCity] = useState('')
   const [avatarPath, setAvatarPath] = useState<string | null>(null)
@@ -15,26 +16,14 @@ export function PersonalInfoTab() {
   )
   const [formError, setFormError] = useState<string | null>(null)
 
-  // Load the profile from the `users` table (the save target), not from
-  // user_metadata — those can diverge and make saves look like they didn't stick.
+  // Seed local form state from the loaded profile (and after every reload that
+  // follows a save), without clobbering in-progress edits on unrelated renders.
   useEffect(() => {
-    if (!user) return
-    let active = true
-    getSupabaseClient()
-      .from('users')
-      .select('name, city, avatar_path')
-      .eq('id', user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!active || !data) return
-        setName(data.name ?? '')
-        setCity(data.city ?? '')
-        setAvatarPath(data.avatar_path ?? null)
-      })
-    return () => {
-      active = false
-    }
-  }, [user])
+    if (!profile) return
+    setName(profile.name)
+    setCity(profile.city ?? '')
+    setAvatarPath(profile.avatar_path ?? null)
+  }, [profile])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -57,7 +46,7 @@ export function PersonalInfoTab() {
     }
 
     setStatus('saving')
-    const result = await updateProfile({
+    const result = await save({
       name: parsed.data.name,
       city: parsed.data.city || '',
       avatarPath,
@@ -69,17 +58,6 @@ export function PersonalInfoTab() {
       return
     }
 
-    // Re-read the persisted row so the form reflects what's actually stored.
-    const { data } = await getSupabaseClient()
-      .from('users')
-      .select('name, city, avatar_path')
-      .eq('id', user!.id)
-      .maybeSingle()
-    if (data) {
-      setName(data.name ?? '')
-      setCity(data.city ?? '')
-      setAvatarPath(data.avatar_path ?? null)
-    }
     setStatus('saved')
   }
 

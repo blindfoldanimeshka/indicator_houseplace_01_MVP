@@ -1,25 +1,9 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { getSupabaseClient } from '@/lib/supabase'
+import { getAvatarPublicUrl, removeAvatar } from '@/lib/storage'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const TARGET_SIZE = 500
-
-// Stored avatar_path is the bare user id (object name is `avatars/{userId}`).
-// Strip a possible accidental `avatars/` prefix so the public URL is never doubled.
-function objectName(path: string | null | undefined): string | null {
-  if (!path) return null
-  return path.replace(/^avatars\//, '')
-}
-
-function publicUrl(path: string | null | undefined): string | null {
-  const bare = objectName(path)
-  if (!bare) return null
-  const client = getSupabaseClient()
-  // `getPublicUrl` already prepends the bucket name, so pass the bare object
-  // name (`{userId}`), not `avatars/{userId}` — otherwise the URL becomes
-  // `avatars/avatars/{userId}` and the image 404s.
-  return client.storage.from('avatars').getPublicUrl(bare).data.publicUrl
-}
 
 // Resize/crop the image to a centered TARGET_SIZE x TARGET_SIZE square on a
 // canvas, then return it as a PNG blob. Supabase Storage does not resize
@@ -62,7 +46,7 @@ export function AvatarUpload({
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [preview, setPreview] = useState<string | null>(publicUrl(currentPath))
+  const [preview, setPreview] = useState<string | null>(getAvatarPublicUrl(currentPath))
 
   async function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -80,11 +64,10 @@ export function AvatarUpload({
     }
 
     setUploading(true)
-    const client = getSupabaseClient()
 
     // 1. Fully remove any previous avatar so there is never more than one
     //    object per user and no history of prior avatars is kept.
-    await client.storage.from('avatars').remove([`avatars/${userId}`])
+    await removeAvatar(userId)
 
     // 2. Resize to a 500x500 square on the client.
     let toUpload: File
@@ -99,8 +82,8 @@ export function AvatarUpload({
     //    user_id_from_avatar_path(name) parses via array_split(name,'/')[2].
     //    We avoid `upsert` (it triggers a pre-delete that must also pass RLS)
     //    since we already removed the old object explicitly above.
-    const { error: uploadError } = await client.storage
-      .from('avatars')
+    const { error: uploadError } = await getSupabaseClient()
+      .storage.from('avatars')
       .upload(userId, toUpload, { upsert: false, contentType: 'image/png' })
 
     if (uploadError) {
@@ -110,7 +93,7 @@ export function AvatarUpload({
     }
 
     // Persist the bare user id as avatar_path (object name is `avatars/{userId}`).
-    const url = publicUrl(userId)
+    const url = getAvatarPublicUrl(userId)
     setPreview(`${url}?t=${Date.now()}`)
     onUploaded(userId)
     setUploading(false)

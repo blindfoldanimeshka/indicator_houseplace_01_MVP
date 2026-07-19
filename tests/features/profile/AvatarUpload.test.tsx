@@ -49,7 +49,8 @@ describe('AvatarUpload', () => {
 
     await waitFor(() => expect(onUploaded).toHaveBeenCalledWith('u1'))
     // Old avatar is fully removed first (no history kept).
-    expect(removeMock).toHaveBeenCalledWith(['avatars/u1'])
+    // removeAvatar passes bare userId; supabase-js prepends bucket name.
+    expect(removeMock).toHaveBeenCalledWith(['u1'])
     // supabase-js prefixes the bucket name (`avatars/`) to the upload path, so
     // we pass the bare id. The stored object becomes `avatars/u1`, which the
     // RLS helper user_id_from_avatar_path(name) parses via array_split(name,'/')[2].

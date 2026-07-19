@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase'
+import { getListingPhotoUrl, removeListingPhoto } from '@/lib/storage'
 import type { Database } from '@/types/database'
 import { photoFileSchema, MAX_BYTES, MAX_PHOTOS } from './photoSchema'
 
@@ -61,7 +62,7 @@ export async function uploadPhoto(
     .single()
 
   if (insertError) {
-    await supabase.storage.from('listing-photos').remove([path])
+    await removeListingPhoto(path)
     return { data: null, error: insertError.message }
   }
 
@@ -89,8 +90,7 @@ export async function listPhotos(
 }
 
 export function getPublicUrl(path: string): string {
-  const supabase = getSupabaseClient()
-  return supabase.storage.from('listing-photos').getPublicUrl(path).data.publicUrl
+  return getListingPhotoUrl(path) ?? ''
 }
 
 export async function listCoverPaths(
@@ -138,12 +138,11 @@ export async function removePhoto(
     return { data: null, error: deleteError.message }
   }
 
-  const { error: removeError } = await supabase.storage
-    .from('listing-photos')
-    .remove([path])
+  const { error: removeError } = await removeListingPhoto(path)
 
   if (removeError) {
-    return { data: null, error: removeError.message }
+    const message = typeof removeError === 'string' ? removeError : removeError.message
+    return { data: null, error: message }
   }
 
   return { data: true, error: null }
