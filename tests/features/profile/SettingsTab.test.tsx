@@ -1,10 +1,41 @@
 import { render, screen, fireEvent } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { SettingsTab } from '@/features/profile/components/SettingsTab'
+import { AuthContext, type AuthContextValue } from '@/features/auth/AuthProvider'
+
+vi.mock('@/lib/supabase', () => ({
+  getSupabaseClient: () => ({
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: () => Promise.resolve({ data: null, error: null }),
+        }),
+      }),
+      upsert: () => Promise.resolve({ error: null }),
+    }),
+  }),
+}))
+
+function renderWithAuth(ui: React.ReactElement) {
+  const value: AuthContextValue = {
+    session: { user: { id: 'u1' } } as never,
+    user: { id: 'u1', email: 'a@b.com', user_metadata: {} } as never,
+    isLoading: false,
+    signUp: vi.fn(),
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    updateProfile: vi.fn(),
+    resetPassword: vi.fn(),
+    deleteAccount: vi.fn(),
+  }
+  return render(
+    <AuthContext.Provider value={value}>{ui}</AuthContext.Provider>,
+  )
+}
 
 describe('SettingsTab', () => {
   it('renders the four sub-tab labels', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     expect(screen.getByRole('tab', { name: /уведомления/i })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /приватность/i })).toBeInTheDocument()
@@ -13,7 +44,7 @@ describe('SettingsTab', () => {
   })
 
   it('shows notifications content by default', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     expect(screen.getByText(/email-уведомления/i)).toBeInTheDocument()
     expect(screen.getByText(/push-уведомления/i)).toBeInTheDocument()
@@ -21,7 +52,7 @@ describe('SettingsTab', () => {
   })
 
   it('shows privacy content when its sub-tab is clicked', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     fireEvent.click(screen.getByRole('tab', { name: /приватность/i }))
 
@@ -30,7 +61,7 @@ describe('SettingsTab', () => {
   })
 
   it('shows security content when its sub-tab is clicked', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     fireEvent.click(screen.getByRole('tab', { name: /безопасность/i }))
 
@@ -38,7 +69,7 @@ describe('SettingsTab', () => {
   })
 
   it('flips aria-pressed when a notification toggle is clicked', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     fireEvent.click(screen.getByRole('tab', { name: /уведомления/i }))
 
@@ -50,7 +81,7 @@ describe('SettingsTab', () => {
   })
 
   it('shows preferences content when its sub-tab is clicked', () => {
-    render(<SettingsTab />)
+    renderWithAuth(<SettingsTab />)
 
     fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
 

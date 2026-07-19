@@ -157,6 +157,39 @@ export interface Database {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          user_id: string
+          email_notif: boolean
+          push_notif: boolean
+          inapp_notif: boolean
+          show_profile: boolean
+          show_email: boolean
+          theme: 'light' | 'dark' | 'system'
+          language: 'ru' | 'en'
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          email_notif?: boolean
+          push_notif?: boolean
+          inapp_notif?: boolean
+          show_profile?: boolean
+          show_email?: boolean
+          theme?: 'light' | 'dark' | 'system'
+          language?: 'ru' | 'en'
+        }
+        Update: {
+          email_notif?: boolean
+          push_notif?: boolean
+          inapp_notif?: boolean
+          show_profile?: boolean
+          show_email?: boolean
+          theme?: 'light' | 'dark' | 'system'
+          language?: 'ru' | 'en'
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {

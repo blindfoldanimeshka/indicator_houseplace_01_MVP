@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import {
-  DEFAULT_SETTINGS,
   type Setting,
   type Theme,
   type Language,
 } from '@/features/profile/types/settings.types'
+import { useSettings } from '@/features/profile/useSettings'
 
 type SubTab = 'notifications' | 'privacy' | 'security' | 'preferences'
 
@@ -48,34 +48,25 @@ function Toggle({
 }
 
 export function SettingsTab() {
-  const [settings, setSettings] = useState<Setting>(DEFAULT_SETTINGS)
+  const { settings, save, saving, error } = useSettings()
   const [active, setActive] = useState<SubTab>('notifications')
 
   function updateNotifications(
     key: keyof Setting['notifications'],
     value: boolean,
   ) {
-    setSettings((prev) => ({
-      ...prev,
-      notifications: { ...prev.notifications, [key]: value },
-    }))
+    save({ ...settings, notifications: { ...settings.notifications, [key]: value } })
   }
 
   function updatePrivacy(key: keyof Setting['privacy'], value: boolean) {
-    setSettings((prev) => ({
-      ...prev,
-      privacy: { ...prev.privacy, [key]: value },
-    }))
+    save({ ...settings, privacy: { ...settings.privacy, [key]: value } })
   }
 
   function updatePreferences<K extends keyof Setting['preferences']>(
     key: K,
     value: Setting['preferences'][K],
   ) {
-    setSettings((prev) => ({
-      ...prev,
-      preferences: { ...prev.preferences, [key]: value },
-    }))
+    save({ ...settings, preferences: { ...settings.preferences, [key]: value } })
   }
 
   return (
@@ -102,6 +93,20 @@ export function SettingsTab() {
           </button>
         ))}
       </div>
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700"
+        >
+          Не удалось сохранить настройки: {error}
+        </p>
+      )}
+      {saving && (
+        <p className="text-sm text-stone-500" aria-live="polite">
+          Сохранение…
+        </p>
+      )}
 
       <div className="divide-y divide-stone-200 rounded-xl border border-stone-200 bg-white px-4">
         {active === 'notifications' && (
