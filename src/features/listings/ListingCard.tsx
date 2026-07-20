@@ -47,7 +47,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
         </div>
       )}
 
-      <div className="surface-elevated space-y-3 rounded-b-[8px] p-5">
+      <div className="surface-elevated space-y-3 rounded-b-[8px] p-6">
       <div className="flex flex-wrap items-center gap-2">
       <span
         className={`inline-flex w-fit items-center rounded-[8px] border px-3 py-1 text-xs font-semibold backdrop-blur-sm ${
@@ -66,7 +66,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       )}
       </div>
 
-      <h3 className="font-display text-lg font-semibold tracking-tight text-foreground">
+      <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
         {listing.city}
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -76,7 +76,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
 
       <div className="my-3 h-px bg-border-muted" />
 
-      <p className="font-display text-xl font-semibold text-foreground">
+      <p className="font-display text-2xl font-semibold text-foreground">
         {formatPrice(listing.price)} ₽
         <span className="text-sm font-normal text-muted-foreground"> / мес.</span>
       </p>
