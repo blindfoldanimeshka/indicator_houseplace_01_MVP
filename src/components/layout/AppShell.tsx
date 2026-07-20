@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useScroll, useSpring, useReducedMotion, motion } from 'framer-motion'
+import { useScroll, useSpring, useReducedMotion, useTransform, motion } from 'framer-motion'
 import logoSvg from '@/public/СКВОТ.svg'
 
 interface AppShellProps {
@@ -15,6 +15,11 @@ export function AppShell({ children }: AppShellProps) {
     restDelta: 0.001,
   })
   const scaleX = prefersReduced ? scrollYProgress : smoothX
+
+  const topFade = useTransform(scrollYProgress, [0, 0.04], [0, 0.9])
+  const bottomFade = useTransform(scrollYProgress, [0.96, 1], [0, 0.9])
+  const topOpacity = prefersReduced ? undefined : topFade
+  const bottomOpacity = prefersReduced ? undefined : bottomFade
 
   return (
     <main className="min-h-screen bg-stone-50 pb-28">
@@ -39,6 +44,18 @@ export function AppShell({ children }: AppShellProps) {
       <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8 sm:pt-8">
         {children}
       </div>
+      {/* top edge fade */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed inset-x-0 top-0 z-30 h-24 bg-gradient-to-b from-black/70 to-transparent"
+        style={prefersReduced ? undefined : { opacity: topOpacity }}
+      />
+      {/* bottom edge fade */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32 bg-gradient-to-t from-black/70 to-transparent"
+        style={prefersReduced ? undefined : { opacity: bottomOpacity }}
+      />
     </main>
   )
 }
