@@ -1,16 +1,24 @@
-import { useState, type ReactElement } from 'react'
+import { type ReactElement } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { PersonalInfoTab } from './PersonalInfoTab'
 import { SettingsTab } from './SettingsTab'
 import { ConnectionsTab } from './ConnectionsTab'
 import { DangerTab } from './DangerTab'
+import { OrganizationsTab } from './OrganizationsTab'
+import { useNavEntryState } from '@/app/navigation/useNavEntryState'
 
-type TabId = 'personal' | 'settings' | 'connections' | 'danger'
+type TabId =
+  | 'personal'
+  | 'settings'
+  | 'connections'
+  | 'organizations'
+  | 'danger'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'personal', label: 'Личные данные' },
   { id: 'settings', label: 'Аккаунт' },
   { id: 'connections', label: 'Подключения' },
+  { id: 'organizations', label: 'Организации' },
   { id: 'danger', label: 'Действия' },
 ]
 
@@ -18,11 +26,12 @@ const TAB_CONTENT: Record<TabId, () => ReactElement> = {
   personal: PersonalInfoTab,
   settings: SettingsTab,
   connections: ConnectionsTab,
+  organizations: OrganizationsTab,
   danger: DangerTab,
 }
 
 export function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<TabId>('personal')
+  const [activeTab, setActiveTab] = useNavEntryState<TabId>('profileTab', 'personal')
   const ActiveTab = TAB_CONTENT[activeTab]
 
   return (
@@ -67,7 +76,7 @@ export function ProfilePage() {
         })}
       </nav>
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false}>
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 6 }}
