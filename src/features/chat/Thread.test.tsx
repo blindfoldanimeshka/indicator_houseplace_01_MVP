@@ -144,29 +144,73 @@ describe('Thread auto-scroll guard', () => {
     mockSupabase()
   })
 
-  it('skips auto-scroll on mount but scrolls when a new message arrives', async () => {
+  it('case 1: does not auto-scroll on mount with empty messages', async () => {
     const scrollSpy = vi.fn()
     Element.prototype.scrollIntoView = scrollSpy
 
-    // Empty initial load: no growth, so the mount guard must not auto-scroll.
-    const api = mockChatApi({
+    mockChatApi({
       listMessages: vi.fn().mockResolvedValue({ data: [], error: null }),
     })
 
     await renderThread()
 
-    // On mount (and after the empty initial load) no auto-scroll should fire.
+    // Mounted with an empty thread — no auto-scroll should fire.
+    expect(scrollSpy).not.toHaveBeenCalled()
+  })
+
+  it('case 2: does not auto-scroll on the initial history load (0 -> N)', async () => {
+    const scrollSpy = vi.fn()
+    Element.prototype.scrollIntoView = scrollSpy
+
+    mockChatApi({
+      listMessages: vi.fn().mockResolvedValue({
+        data: [
+          { id: 'm1', chat_id: 'c1', sender_id: 'me', text: 'hi', created_at: 't1' },
+          { id: 'm2', chat_id: 'c1', sender_id: 'other', text: 'hello', created_at: 't2' },
+        ],
+        error: null,
+      }),
+    })
+
+    await renderThread()
+
+    // Wait until the initial history has populated the thread.
+    await waitFor(() => expect(screen.getByText('hello')).toBeInTheDocument())
+
+    // The 0 -> N population must NOT auto-scroll (preserves restored scroll).
+    expect(scrollSpy).not.toHaveBeenCalled()
+  })
+
+  it('case 3: auto-scrolls when a new message arrives after the history loaded (N -> N+1)', async () => {
+    const scrollSpy = vi.fn()
+    Element.prototype.scrollIntoView = scrollSpy
+
+    const api = mockChatApi({
+      listMessages: vi.fn().mockResolvedValue({
+        data: [
+          { id: 'm1', chat_id: 'c1', sender_id: 'me', text: 'hi', created_at: 't1' },
+          { id: 'm2', chat_id: 'c1', sender_id: 'other', text: 'hello', created_at: 't2' },
+        ],
+        error: null,
+      }),
+    })
+
+    await renderThread()
+
+    await waitFor(() => expect(screen.getByText('hello')).toBeInTheDocument())
+
+    // Still no auto-scroll right after the initial load.
     expect(scrollSpy).not.toHaveBeenCalled()
 
     // Simulate a new incoming message after the thread is already open.
     const onInsert = api.subscribeMessages.mock.calls[0][1]
     act(() => {
       onInsert({
-        id: 'm1',
+        id: 'm3',
         chat_id: 'c1',
         sender_id: 'other',
-        text: 'привет',
-        created_at: 't',
+        text: 'ещё одно',
+        created_at: 't3',
       })
     })
 

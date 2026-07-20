@@ -32,8 +32,8 @@ export function Thread({ chatId }: ThreadProps) {
   const [reviewDone, setReviewDone] = useState(false)
   const [reviewError, setReviewError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
-  const isMountedRef = useRef(false)
   const prevCountRef = useRef(0)
+  const initializedRef = useRef(false)
 
   const currentUserId = user?.id
 
@@ -79,10 +79,11 @@ export function Thread({ chatId }: ThreadProps) {
   }, [chatId])
 
   useEffect(() => {
-    if (!isMountedRef.current) {
-      isMountedRef.current = true
+    if (!initializedRef.current) {
+      if (messages.length === 0) return // still loading — wait, don't scroll
+      initializedRef.current = true // first real population = initial history load
       prevCountRef.current = messages.length
-      return // skip auto-scroll on mount so restored scroll position is preserved
+      return // do NOT auto-scroll on initial load (preserves restored scroll)
     }
     if (messages.length > prevCountRef.current) {
       bottomRef.current?.scrollIntoView?.({ behavior: 'smooth' })
