@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useScroll, useSpring, useReducedMotion, useTransform, motion } from 'framer-motion'
+import { useScroll, useSpring, useReducedMotion, useTransform, motion } from 'motion/react'
 import logoSvg from '@/public/СКВОТ.svg'
 
 interface AppShellProps {

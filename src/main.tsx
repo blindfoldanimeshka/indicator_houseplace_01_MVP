@@ -11,7 +11,7 @@ try {
 
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { MotionConfig } from 'framer-motion'
+import { MotionConfig } from 'motion/react'
 import { App } from '@/app/App'
 import { ErrorBoundary } from '@/app/ErrorBoundary'
 import '@/styles/index.css'

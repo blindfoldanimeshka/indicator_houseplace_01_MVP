@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 
 export interface MenuBarItem {
   key: string
   label: string
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
+  icon: React.ComponentType<{ size?: number; className?: string }>
   active?: boolean
   badge?: number
 }
@@ -19,10 +19,10 @@ interface MenuBarProps {
 
 const BASE_ICON_BTN = 52
 // Bar height = icon + equal vertical padding (pt-3 + pb-3 = 24px) so the dock
-// grows/shrinks symmetrically top-to-bottom, never lopsided.
+// grows/shrinks symmetrically top-to-bottom, never lopsided. Labels are hidden
+// (icon-only dock), so no label row is reserved.
 const BAR_PADDING = 12
-const LABEL_HEIGHT = 16
-const BASE_BAR_HEIGHT = BASE_ICON_BTN + LABEL_HEIGHT + BAR_PADDING * 2
+const BASE_BAR_HEIGHT = BASE_ICON_BTN + BAR_PADDING * 2
 const MAX_SCALE = 1.35
 const MAGNET_RANGE = 120
 // Compact state is a single proportional scale of the whole dock, so the panel
@@ -178,23 +178,23 @@ export function MenuBar({
                 animate={{ scale, y: lift }}
                 transition={SPRING}
                 className={cn(
-                  'flex items-center justify-center rounded-[16px] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)]',
+                  'relative flex items-center justify-center rounded-[16px] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)]',
                   item.active
                     ? 'bg-primary text-white shadow-[var(--shadow-glow)]'
                     : 'text-muted-foreground hover:bg-muted/60',
                 )}
                 style={{ width: BASE_ICON_BTN, height: BASE_ICON_BTN }}
               >
-                <item.icon className="h-[22px] w-[22px]" />
+                <item.icon
+                  size={22}
+                  className="h-[22px] w-[22px]"
+                />
                 {item.badge ? (
                   <span className="absolute right-0 top-0 inline-flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-white bg-red-600 px-1 text-[11px] font-bold leading-none text-white">
                     {item.badge > 99 ? '99+' : item.badge}
                   </span>
                 ) : null}
               </motion.span>
-              <span className="mt-1 text-[10px] leading-none text-muted-foreground">
-                {item.label}
-              </span>
             </button>
           )
         })}

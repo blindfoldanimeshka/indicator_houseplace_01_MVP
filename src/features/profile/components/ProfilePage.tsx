@@ -1,5 +1,5 @@
 import { useState, type ReactElement } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'motion/react'
 import { PersonalInfoTab } from './PersonalInfoTab'
 import { SettingsTab } from './SettingsTab'
 import { ConnectionsTab } from './ConnectionsTab'

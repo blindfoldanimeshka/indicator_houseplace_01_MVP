@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
 import { listListings } from './api'

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { z } from 'zod'
 import { useAuth } from '@/features/auth/useAuth'
 import { authSchema } from '@/features/profile/profileSchema'

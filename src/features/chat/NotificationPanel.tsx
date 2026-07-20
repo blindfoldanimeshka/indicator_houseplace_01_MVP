@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import type { UnreadNotification } from '@/features/chat/useUnreadCounts'
 
 export function NotificationPanel({

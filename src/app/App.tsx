@@ -1,6 +1,10 @@
 import { useEffect, useState, Suspense, lazy } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Search, Plus, Home, MessageSquare, User } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { SearchIcon } from '@/components/icons/search'
+import { PlusIcon } from '@/components/icons/plus'
+import { HomeIcon } from '@/components/icons/home'
+import { MessageSquareIcon } from '@/components/icons/message-square'
+import { UserIcon } from '@/components/icons/user'
 import type { Database } from '@/types/database'
 import { AppShell } from '@/components/layout/AppShell'
 import { MenuBar, type MenuBarItem } from '@/components/layout/MenuBar'
@@ -63,11 +67,11 @@ type View =
   | 'terms'
 
 const NAV_ITEMS: MenuBarItem[] = [
-  { key: 'home', label: 'Поиск', icon: Search },
-  { key: 'new', label: 'Новое', icon: Plus },
-  { key: 'mine', label: 'Мои', icon: Home },
-  { key: 'chats', label: 'Чаты', icon: MessageSquare },
-  { key: 'profile', label: 'Профиль', icon: User },
+  { key: 'home', label: 'Поиск', icon: SearchIcon },
+  { key: 'new', label: 'Новое', icon: PlusIcon },
+  { key: 'mine', label: 'Мои', icon: HomeIcon },
+  { key: 'chats', label: 'Чаты', icon: MessageSquareIcon },
+  { key: 'profile', label: 'Профиль', icon: UserIcon },
 ]
 
 function MenuNav({
