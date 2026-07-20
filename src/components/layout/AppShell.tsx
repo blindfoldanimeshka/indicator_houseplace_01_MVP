@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useScroll, useSpring, useReducedMotion, motion } from 'framer-motion'
 import logoSvg from '@/public/СКВОТ.svg'
 
 interface AppShellProps {
@@ -6,6 +7,15 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const { scrollYProgress } = useScroll()
+  const prefersReduced = useReducedMotion()
+  const smoothX = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    restDelta: 0.001,
+  })
+  const scaleX = prefersReduced ? scrollYProgress : smoothX
+
   return (
     <main className="min-h-screen bg-stone-50 pb-28">
       <header className="sticky top-0 z-40 border-b border-border-muted bg-surface/80 shadow-[var(--shadow-surface)] backdrop-blur-xl">
@@ -21,6 +31,10 @@ export function AppShell({ children }: AppShellProps) {
             MVP
           </span>
         </div>
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 z-50 h-0.5 origin-left bg-primary"
+          style={{ scaleX }}
+        />
       </header>
       <div className="mx-auto max-w-6xl px-5 pt-6 sm:px-8 sm:pt-8">
         {children}
