@@ -3,6 +3,8 @@ import { EnvironmentNotice } from '@/components/system/EnvironmentNotice'
 import { NotificationPanel } from '@/features/chat/NotificationPanel'
 import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
 import type { Database } from '@/types/database'
+import { useNavEntryState } from '@/app/navigation/useNavEntryState'
+import type { ListingFilters } from '@/features/listings/types'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -27,9 +29,19 @@ export function HomeFeed({
   onOpenChat,
   onCloseNotifications,
 }: HomeFeedProps) {
+  const [filters, setFilters] = useNavEntryState<ListingFilters>('feedFilters', {})
+  const [page, setPage] = useNavEntryState<number>('feedPage', 0)
+
   return (
     <>
-      <Feed onOpen={onOpen} onCreate={onCreate} />
+      <Feed
+        onOpen={onOpen}
+        onCreate={onCreate}
+        filters={filters}
+        onFiltersChange={setFilters}
+        page={page}
+        onPageChange={setPage}
+      />
       {!userEmailConfirmed && (
         <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Подтвердите email, чтобы публиковать объявления.

@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type SetStateAction } from 'react'
 import { motion } from 'motion/react'
 import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
-import { listListings } from './api'
+import { listListings, recordListingView } from './api'
 import { listCoverPaths } from '@/features/photos/photoApi'
 import { getMockPhotoUrl } from './mockPhotos'
 import { ListingCard } from './ListingCard'
 import { Pagination } from '@/components/Pagination'
+import { trackEvent } from '@/features/analytics/trackEvent'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -24,14 +25,32 @@ const PAGE_SIZE = 10
 interface FeedProps {
   onOpen: (listing: ListingRow) => void
   onCreate?: () => void
+  filters?: ListingFilters
+  onFiltersChange?: (filters: ListingFilters) => void
+  page?: number
+  onPageChange?: (page: number) => void
 }
 
-export function Feed({ onOpen, onCreate }: FeedProps) {
-  const [filters, setFilters] = useState<ListingFilters>({})
+export function Feed({
+  onOpen,
+  onCreate,
+  filters: propsFilters,
+  onFiltersChange: propsOnFiltersChange,
+  page: propsPage,
+  onPageChange: propsOnPageChange,
+}: FeedProps) {
+  const [internalFilters, setInternalFilters] = useState<ListingFilters>({})
+  const [internalPage, setInternalPage] = useState(0)
+  const filters = propsFilters ?? internalFilters
+  const page = propsPage ?? internalPage
+  const setPage = propsOnPageChange ?? setInternalPage
+  const setFilters = (value: SetStateAction<ListingFilters>) => {
+    const next = typeof value === 'function' ? value(filters) : value
+    ;(propsOnFiltersChange ?? setInternalFilters)(next)
+  }
   const [listings, setListings] = useState<ListingRow[]>([])
   const [covers, setCovers] = useState<Record<string, string>>({})
   const [total, setTotal] = useState(0)
-  const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -93,6 +112,12 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
   function updateFilter(patch: Partial<ListingFilters>) {
     setPage(0)
     setFilters((prev) => ({ ...prev, ...patch }))
+  }
+
+  function handleOpen(listing: ListingRow) {
+    void trackEvent('view_listing', { listing_id: listing.id })
+    void recordListingView(listing.id)
+    onOpen(listing)
   }
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -184,12 +209,13 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
             value={filters.sort ?? 'newest'}
             onChange={(event) =>
               updateFilter({
-                sort: (event.target.value || undefined) as 'newest' | undefined,
+                sort: (event.target.value || 'newest') as 'newest' | 'popular',
               })
             }
             className={`${inputClass} mt-1 w-full`}
           >
             <option value="newest">Сначала новые</option>
+            <option value="popular">Популярные</option>
           </select>
         </label>
       </div>
@@ -230,7 +256,7 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
                 <ListingCard
                   listing={listing}
                   coverPath={covers[listing.id]}
-                  onOpen={onOpen}
+                  onOpen={handleOpen}
                 />
               </motion.div>
             ))}
