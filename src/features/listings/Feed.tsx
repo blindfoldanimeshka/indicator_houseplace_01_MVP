@@ -213,18 +213,18 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
         <>
           <motion.div
             className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: {} }}
           >
-            {listings.map((listing) => (
+            {listings.map((listing, i) => (
               <motion.div
                 key={listing.id}
-                variants={{
-                  hidden: { opacity: 0, y: 16 },
-                  visible: { opacity: 1, y: 0 },
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 400,
+                  damping: 30,
+                  delay: Math.min(i * 0.04, 0.3),
                 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               >
                 <ListingCard
                   listing={listing}
