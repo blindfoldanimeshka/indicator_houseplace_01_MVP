@@ -6,6 +6,7 @@ import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
 import { MapView } from './MapView'
+import { MorphHeading } from '@/components/MorphHeading'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -141,9 +142,10 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
             </span>
           )}
 
-          <h1 className="font-display text-3xl tracking-tight text-foreground">
-            {listing.city}
-          </h1>
+      <MorphHeading
+        text={listing.city}
+        className="font-display text-3xl tracking-tight text-foreground"
+      />
 
           <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
             <div className="surface-elevated rounded-lg px-3 py-2">
