@@ -315,6 +315,7 @@ function AppContent() {
             />
             <HomeFeed
               onOpen={openDetail}
+              onCreate={() => navigate('new')}
               userEmailConfirmed={Boolean(user?.email_confirmed_at)}
               isSupabaseConfigured={isSupabaseConfigured()}
               showNotifications={showNotifications}

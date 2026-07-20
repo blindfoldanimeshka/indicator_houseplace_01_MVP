@@ -8,6 +8,7 @@ type ListingRow = Database['public']['Tables']['listings']['Row']
 
 interface HomeFeedProps {
   onOpen: (listing: ListingRow) => void
+  onCreate?: () => void
   userEmailConfirmed: boolean
   isSupabaseConfigured: boolean
   showNotifications: boolean
@@ -18,6 +19,7 @@ interface HomeFeedProps {
 
 export function HomeFeed({
   onOpen,
+  onCreate,
   userEmailConfirmed,
   isSupabaseConfigured,
   showNotifications,
@@ -27,7 +29,7 @@ export function HomeFeed({
 }: HomeFeedProps) {
   return (
     <>
-      <Feed onOpen={onOpen} />
+      <Feed onOpen={onOpen} onCreate={onCreate} />
       {!userEmailConfirmed && (
         <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Подтвердите email, чтобы публиковать объявления.

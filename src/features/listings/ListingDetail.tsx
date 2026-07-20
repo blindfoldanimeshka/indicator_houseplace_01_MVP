@@ -128,15 +128,15 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
               listing.type === 'offer'
-                ? 'bg-teal-100 text-teal-900'
-                : 'bg-amber-100 text-amber-900'
+                ? 'border border-primary/30 bg-primary/20 text-primary'
+                : 'border border-secondary/30 bg-secondary/20 text-secondary'
             }`}
           >
             {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
           </span>
 
           {listing.is_mock && (
-            <span className="inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-900">
+            <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
               MOCK
             </span>
           )}

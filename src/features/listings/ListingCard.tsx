@@ -29,7 +29,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
     <button
       type="button"
       onClick={() => onOpen(listing)}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border-muted bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
+      className="group flex flex-col overflow-hidden rounded-[8px] border border-border-muted bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
     >
       {coverPath ? (
         <div className="relative aspect-[4/3] w-full overflow-hidden">
@@ -47,10 +47,10 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
         </div>
       )}
 
-      <div className="space-y-3 p-5">
+      <div className="surface-elevated space-y-3 rounded-b-[8px] p-5">
       <div className="flex flex-wrap items-center gap-2">
       <span
-        className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-sm ${
+        className={`inline-flex w-fit items-center rounded-[8px] border px-3 py-1 text-xs font-semibold backdrop-blur-sm ${
           isOffer
             ? 'border-primary/30 bg-primary/20 text-primary'
             : 'border-secondary/30 bg-secondary/20 text-secondary'
@@ -60,7 +60,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       </span>
 
       {listing.is_mock && (
-        <span className="inline-flex w-fit items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-sm">
+        <span className="inline-flex w-fit items-center rounded-[8px] border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-sm">
           MOCK
         </span>
       )}

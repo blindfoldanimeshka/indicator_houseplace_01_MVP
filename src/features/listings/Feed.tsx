@@ -22,9 +22,10 @@ const PAGE_SIZE = 10
 
 interface FeedProps {
   onOpen: (listing: ListingRow) => void
+  onCreate?: () => void
 }
 
-export function Feed({ onOpen }: FeedProps) {
+export function Feed({ onOpen, onCreate }: FeedProps) {
   const [filters, setFilters] = useState<ListingFilters>({})
   const [listings, setListings] = useState<ListingRow[]>([])
   const [covers, setCovers] = useState<Record<string, string>>({})
@@ -95,7 +96,7 @@ export function Feed({ onOpen }: FeedProps) {
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const inputClass =
-    'rounded-xl border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-secondary/40 transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+    'rounded-[8px] border border-border-muted bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-secondary/40 transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
 
   return (
     <section className="space-y-6">
@@ -108,7 +109,7 @@ export function Feed({ onOpen }: FeedProps) {
         </p>
       </div>
 
-      <div className="surface-elevated grid grid-cols-2 gap-3 rounded-2xl border border-border-muted p-5 shadow-[var(--shadow-surface)] sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-end lg:gap-3">
+      <div className="surface-elevated grid grid-cols-2 gap-3 rounded-[8px] border border-border-muted p-5 shadow-[var(--shadow-surface)] sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-end lg:gap-3">
         <label className="block lg:w-auto">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Тип</span>
           <select
@@ -211,7 +212,7 @@ export function Feed({ onOpen }: FeedProps) {
       {!loading && !error && listings.length > 0 && (
         <>
           <motion.div
-            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-[35px]"
             initial="hidden"
             animate="visible"
             variants={{
@@ -264,6 +265,23 @@ export function Feed({ onOpen }: FeedProps) {
                 Вперёд →
               </button>
             </div>
+          </div>
+
+          <div className="mt-8 flex h-[86px] items-center justify-center gap-4 rounded-[8px] border border-border-muted bg-surface shadow-[var(--shadow-surface)]">
+            <button
+              type="button"
+              onClick={() => setFilters({})}
+              className="rounded-[8px] border border-border-muted bg-muted/40 px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-muted/60"
+            >
+              Сбросить фильтры
+            </button>
+            <button
+              type="button"
+              onClick={onCreate}
+              className="rounded-[8px] bg-primary px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition hover:opacity-90"
+            >
+              Подать объявление
+            </button>
           </div>
         </>
       )}
