@@ -1,5 +1,6 @@
 export type Theme = 'light' | 'dark' | 'system'
 export type Language = 'ru' | 'en'
+export type Accent = 'purple' | 'lime' | 'cyan'
 
 export interface NotificationsSettings {
   email: boolean
@@ -15,6 +16,7 @@ export interface PrivacySettings {
 export interface PreferencesSettings {
   theme: Theme
   language: Language
+  accent: Accent
 }
 
 export interface Setting {
@@ -26,5 +28,5 @@ export interface Setting {
 export const DEFAULT_SETTINGS: Setting = {
   notifications: { email: true, push: true, inApp: true },
   privacy: { showProfile: true, showEmail: false },
-  preferences: { theme: 'system', language: 'ru' },
+  preferences: { theme: 'system', language: 'ru', accent: 'purple' },
 }

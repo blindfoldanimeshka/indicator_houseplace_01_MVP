@@ -30,6 +30,7 @@ function rowToSettings(row: SettingsRow): Setting {
     preferences: {
       theme: row.theme,
       language: row.language,
+      accent: 'purple',
     },
   }
 }

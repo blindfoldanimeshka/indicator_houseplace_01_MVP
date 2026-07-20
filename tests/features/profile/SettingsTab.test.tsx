@@ -85,7 +85,7 @@ describe('SettingsTab', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
 
-    expect(screen.getByText(/тема/i)).toBeInTheDocument()
+    expect(screen.getByText(/акцент/i)).toBeInTheDocument()
     expect(screen.getByText(/язык/i)).toBeInTheDocument()
   })
 })

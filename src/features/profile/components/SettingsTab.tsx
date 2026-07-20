@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import {
   type Setting,
-  type Theme,
   type Language,
 } from '@/features/profile/types/settings.types'
 import { useSettings } from '@/features/profile/useSettings'
@@ -43,6 +43,67 @@ function Toggle({
           }`}
         />
       </button>
+    </div>
+  )
+}
+
+const ACCENTS = {
+  purple: { label: 'Пурпурный', color: '#7D39EB' },
+  lime: { label: 'Лаймовый', color: '#C6FF33' },
+  cyan: { label: 'Циан', color: '#22D3EE' },
+} as const
+const ACCENT_ORDER = ['purple', 'lime', 'cyan'] as const
+type AccentKey = (typeof ACCENT_ORDER)[number]
+
+function applyAccent(key: AccentKey) {
+  document.documentElement.style.setProperty('--color-primary', ACCENTS[key].color)
+  try {
+    localStorage.setItem('skvot-accent', key)
+  } catch { /* localStorage unavailable */ }
+}
+
+function AccentToggler() {
+  const [accent, setAccent] = useState<AccentKey>(() => {
+    const saved = (() => {
+      try {
+        return localStorage.getItem('skvot-accent')
+      } catch {
+        return null
+      }
+    })()
+    return (ACCENT_ORDER as readonly string[]).includes(saved ?? '')
+      ? (saved as AccentKey)
+      : 'purple'
+  })
+  useEffect(() => {
+    applyAccent(accent)
+  }, [accent])
+  const next = () => {
+    const i = ACCENT_ORDER.indexOf(accent)
+    const n = ACCENT_ORDER[(i + 1) % ACCENT_ORDER.length]
+    setAccent(n)
+  }
+  const current = ACCENTS[accent]
+  return (
+    <div className="flex items-center justify-between gap-4 py-3">
+      <div>
+        <p className="text-sm font-medium text-foreground">Акцент</p>
+        <p className="text-xs text-muted-foreground">{current.label}</p>
+      </div>
+      <motion.button
+        type="button"
+        onClick={next}
+        aria-label="Сменить акцент"
+        className="relative inline-flex h-8 w-14 items-center rounded-full border border-border-muted bg-muted/40 px-0.5"
+        whileTap={{ scale: 0.94 }}
+      >
+        <motion.span
+          className="inline-block h-7 w-7 rounded-full shadow"
+          style={{ backgroundColor: current.color }}
+          animate={{ x: accent === 'purple' ? 0 : accent === 'lime' ? 24 : 48 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+        />
+      </motion.button>
     </div>
   )
 }
@@ -162,20 +223,7 @@ export function SettingsTab() {
 
         {active === 'preferences' && (
           <div className="space-y-4 py-4">
-            <label className="block">
-              <span className="text-sm font-medium text-foreground">Тема</span>
-              <select
-                value={settings.preferences.theme}
-                onChange={(e) =>
-                  updatePreferences('theme', e.target.value as Theme)
-                }
-                className="mt-1 w-full rounded-xl border border-border-muted bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="light">Светлая</option>
-                <option value="dark">Тёмная</option>
-                <option value="system">Системная</option>
-              </select>
-            </label>
+            <AccentToggler />
 
             <label className="block">
               <span className="text-sm font-medium text-foreground">Язык</span>
