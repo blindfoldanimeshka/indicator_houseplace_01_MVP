@@ -1,6 +1,7 @@
 import type { Database } from '@/types/database'
 import { getPublicUrl } from '@/features/photos/photoApi'
 import { ImageIcon } from 'lucide-react'
+import { Highlighter } from '@/components/Highlighter'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -67,7 +68,9 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       </div>
 
       <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
-        {listing.city}
+        <Highlighter action="underline" color="#7D39EB">
+          {listing.city}
+        </Highlighter>
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
         {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
@@ -77,7 +80,9 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       <div className="my-3 h-px bg-border-muted" />
 
       <p className="font-display text-2xl font-semibold text-foreground">
-        {formatPrice(listing.price)} ₽
+        <Highlighter action="highlight" color="#C6FF33">
+          {formatPrice(listing.price)} ₽
+        </Highlighter>
         <span className="text-sm font-normal text-muted-foreground"> / мес.</span>
       </p>
 
