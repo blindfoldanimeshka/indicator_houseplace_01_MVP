@@ -123,7 +123,7 @@ export function MapView({
     <div
       ref={containerRef}
       style={{ height }}
-      className="w-full overflow-hidden rounded-2xl border border-border-muted bg-surface shadow-[var(--shadow-surface)]"
+      className="w-full overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-surface)]"
       aria-label={address ? `Карта: ${address}` : 'Карта объявления'}
       data-ready={ready}
     />

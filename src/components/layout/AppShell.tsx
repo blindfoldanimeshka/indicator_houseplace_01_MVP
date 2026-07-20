@@ -23,7 +23,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <main className="min-h-screen bg-stone-50 pb-28">
-      <header className="sticky top-0 z-40 border-b border-border-muted bg-surface/80 shadow-[var(--shadow-surface)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 bg-surface/80 shadow-[var(--shadow-surface)] backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 sm:px-8">
           <a href="/" aria-label="СКВОТ">
             <img

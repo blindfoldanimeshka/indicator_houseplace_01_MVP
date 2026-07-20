@@ -90,7 +90,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
 
   if (error) {
     return (
-      <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
         {error}
       </p>
     )
@@ -98,7 +98,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
 
   if (chats.length === 0) {
     return (
-      <div className="rounded-2xl border border-border-muted bg-surface px-4 py-10 text-center text-sm text-muted-foreground">
+      <div className="rounded-2xl bg-surface px-4 py-10 text-center text-sm text-muted-foreground">
         У вас пока нет диалогов.
       </div>
     )
@@ -111,7 +111,7 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
           <button
             type="button"
             onClick={() => onOpen(chat.id)}
-            className="flex w-full flex-col gap-1 rounded-2xl border border-border-muted bg-surface p-4 text-left shadow-[var(--shadow-surface)] transition-all duration-200 ease-[var(--ease-smooth)] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
+            className="flex w-full flex-col gap-1 rounded-2xl bg-surface p-4 text-left shadow-[var(--shadow-surface)] transition-all duration-200 ease-[var(--ease-smooth)] hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
           >
             <div className="flex items-center gap-2">
               <span className="font-display text-base text-foreground">

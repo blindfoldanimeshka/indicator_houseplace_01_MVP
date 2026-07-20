@@ -39,7 +39,7 @@ export function ProfilePage() {
       <nav
         role="tablist"
         aria-label="Разделы профиля"
-        className="flex flex-wrap gap-1 border-b border-border-muted"
+        className="flex flex-wrap gap-1"
       >
         {TABS.map((tab) => {
           const selected = tab.id === activeTab

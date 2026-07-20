@@ -58,7 +58,7 @@ export function ConfirmDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="w-full max-w-sm rounded-2xl border border-border-muted bg-surface p-6 shadow-[var(--shadow-float)]"
+            className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-[var(--shadow-float)]"
             onClick={(event) => event.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-foreground">{title}</h2>
@@ -68,7 +68,7 @@ export function ConfirmDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-border-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
+                className="rounded-xl px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted/60"
               >
                 Отмена
               </button>

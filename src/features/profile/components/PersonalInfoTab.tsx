@@ -64,7 +64,7 @@ export function PersonalInfoTab() {
   return (
     <section className="space-y-4">
       {!user?.email_confirmed_at && (
-        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Подтвердите email, чтобы публиковать объявления.
         </p>
           )}
@@ -108,12 +108,12 @@ export function PersonalInfoTab() {
         </label>
 
         {formError && (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
             {formError}
           </p>
         )}
         {status === 'saved' && (
-          <p className="rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-sm text-green-foreground">
+          <p className="rounded-xl bg-green/10 px-4 py-3 text-sm text-green-foreground">
             Профиль сохранён.
           </p>
         )}

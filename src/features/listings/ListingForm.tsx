@@ -278,7 +278,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
               type="button"
               onClick={handleGeocode}
               disabled={geoState === 'loading'}
-              className="rounded-xl border border-border-muted px-3 py-2.5 text-sm font-medium text-foreground transition duration-[var(--duration-base)] hover:bg-muted/60 hover:border-primary/40 disabled:opacity-60"
+              className="rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition duration-[var(--duration-base)] hover:bg-muted/60 hover:border-primary/40 disabled:opacity-60"
             >
               {geoState === 'loading' ? 'Ищем…' : 'Найти на карте'}
             </button>
@@ -290,7 +290,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
           </div>
 
           {geoError && (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+            <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-950">
               {geoError}
             </p>
           )}
@@ -311,7 +311,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </div>
 
         {formError && (
-          <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
             {formError}
           </p>
         )}
@@ -330,7 +330,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
         </form>
 
         {uploaderListingId && (
-          <div className="border-t border-border-muted pt-5">
+          <div className="pt-5">
             <PhotoUploader listingId={uploaderListingId} />
             {!isEditing && (
               <button

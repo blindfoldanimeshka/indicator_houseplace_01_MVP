@@ -112,19 +112,19 @@ export function MyListings({ onBack }: MyListingsProps) {
       {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {error}
         </p>
       )}
 
       {archiveError && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {archiveError}
         </p>
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <p className="rounded-xl border border-border-muted bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
           У вас пока нет объявлений.
         </p>
       )}
@@ -136,7 +136,7 @@ export function MyListings({ onBack }: MyListingsProps) {
             return (
               <li
                 key={listing.id}
-                className="flex flex-col gap-3 rounded-2xl border border-border-muted bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function MyListings({ onBack }: MyListingsProps) {
                     <button
                       type="button"
                       onClick={() => setEditing(listing)}
-                      className="rounded-xl border border-border-muted px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted/50"
+                      className="rounded-xl px-3 py-1.5 text-sm font-medium text-foreground transition hover:bg-muted/50"
                     >
                       Редактировать
                     </button>
@@ -167,7 +167,7 @@ export function MyListings({ onBack }: MyListingsProps) {
                       type="button"
                       onClick={() => handleArchive(listing)}
                       disabled={archivingId === listing.id}
-                      className="rounded-xl border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
+                      className="rounded-xl px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50"
                     >
                       {archivingId === listing.id ? 'Архивируем…' : 'Архивировать'}
                     </button>

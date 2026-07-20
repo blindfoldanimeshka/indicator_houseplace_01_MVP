@@ -124,7 +124,7 @@ export function AvatarUpload({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="rounded-xl border border-border-muted px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/60 disabled:opacity-60"
+          className="rounded-xl px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:bg-muted/60 disabled:opacity-60"
         >
           {uploading ? 'Загрузка…' : 'Загрузить фото'}
         </button>

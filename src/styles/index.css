@@ -21,6 +21,7 @@
   --color-foreground: #FFFFFF;
   --color-surface: #0a0a0a;
   --color-surface-foreground: #FFFFFF;
+  --color-card: #111111;
   --color-muted: #1a1a1a;
   --color-muted-foreground: rgba(255, 255, 255, 0.6);
   --color-border: rgba(125, 57, 235, 0.3);

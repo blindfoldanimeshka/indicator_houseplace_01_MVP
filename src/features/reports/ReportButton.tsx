@@ -73,7 +73,7 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
       {open && (
         <form
           onSubmit={handleSubmit}
-          className="space-y-3 rounded-xl border border-border-muted bg-surface p-3 shadow-[var(--shadow-surface)]"
+          className="space-y-3 rounded-xl bg-surface p-3 shadow-[var(--shadow-surface)]"
         >
           <label className="block space-y-1">
             <span className="text-xs font-medium text-muted-foreground">Причина</span>

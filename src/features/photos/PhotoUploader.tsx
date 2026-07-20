@@ -125,7 +125,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
       </div>
 
       {error && (
-        <p className="rounded-xl border border-red/30 bg-red/10 px-4 py-3 text-sm text-red-300">
+        <p className="rounded-xl bg-red/10 px-4 py-3 text-sm text-red-300">
           {error}
         </p>
       )}
@@ -139,7 +139,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
           {photos.map((photo) => (
             <li
               key={photo.id}
-              className="group relative overflow-hidden rounded-xl border border-border-muted bg-muted/40 shadow-[var(--shadow-surface)] transition hover:border-primary/40"
+              className="group relative overflow-hidden rounded-xl bg-muted/40 shadow-[var(--shadow-surface)] transition hover:border-primary/40"
             >
               <img
                 src={photo.url}
@@ -160,7 +160,7 @@ export function PhotoUploader({ listingId }: PhotoUploaderProps) {
           {uploading.map((file) => (
             <li
               key={file.name}
-              className="flex aspect-square flex-col items-center justify-center rounded-xl border border-border-muted bg-muted/40 p-3 text-center"
+              className="flex aspect-square flex-col items-center justify-center rounded-xl bg-muted/40 p-3 text-center"
             >
               <span className="line-clamp-2 text-xs text-muted-foreground">{file.name}</span>
               {file.status === 'uploading' ? (

@@ -99,19 +99,19 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {error}
         </p>
       )}
 
       {!loading && !error && !listing && (
-        <p className="rounded-xl border border-border-muted bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
+        <p className="rounded-xl bg-surface px-4 py-8 text-center text-sm text-muted-foreground">
           Объявление не найдено.
         </p>
       )}
 
       {!loading && !error && listing && (
-        <div className="space-y-6 rounded-2xl border border-border-muted bg-surface shadow-[var(--shadow-raised)] p-6 sm:p-8">
+        <div className="space-y-6 rounded-2xl bg-surface shadow-[var(--shadow-raised)] p-6 sm:p-8">
           {photos.length > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {photos.map((url) => (
@@ -120,7 +120,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                   src={url}
                   alt={`Фото: ${listing.city}`}
                   loading="lazy"
-                  className="aspect-square w-full rounded-xl border border-border-muted object-cover hover:scale-[1.03] transition duration-[var(--duration-base)]"
+                  className="aspect-square w-full rounded-xl object-cover hover:scale-[1.03] transition duration-[var(--duration-base)]"
                 />
               ))}
             </div>
@@ -211,7 +211,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                 {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
               </button>
               {chatError && (
-                <p className="mt-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-950">
+                <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-950">
                   {chatError}
                 </p>
               )}

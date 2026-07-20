@@ -147,7 +147,7 @@ export function SettingsTab() {
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
               active === tab.id
                 ? 'bg-primary text-white shadow-[var(--shadow-glow)]'
-                : 'border border-border-muted text-foreground hover:bg-muted/60'
+                : 'text-foreground hover:bg-muted/60'
             }`}
           >
             {tab.label}
@@ -158,7 +158,7 @@ export function SettingsTab() {
       {error && (
         <p
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700"
+          className="rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700"
         >
           Не удалось сохранить настройки: {error}
         </p>
@@ -169,7 +169,7 @@ export function SettingsTab() {
         </p>
       )}
 
-      <div className="divide-y divide-border-muted rounded-xl border border-border-muted bg-surface px-4 shadow-[var(--shadow-surface)]">
+      <div className="divide-y divide-border-muted rounded-xl bg-surface px-4 shadow-[var(--shadow-surface)]">
         {active === 'notifications' && (
           <div>
             <Toggle
@@ -214,7 +214,7 @@ export function SettingsTab() {
             <button
               type="button"
               disabled
-              className="rounded-xl border border-border-muted px-4 py-2.5 text-sm font-semibold text-stone-400 disabled:cursor-not-allowed"
+              className="rounded-xl px-4 py-2.5 text-sm font-semibold text-stone-400 disabled:cursor-not-allowed"
             >
               Сменить пароль
             </button>

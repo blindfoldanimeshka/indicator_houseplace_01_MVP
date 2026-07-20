@@ -37,7 +37,7 @@ export function DangerTab() {
 
   return (
     <section className="space-y-6">
-      <div className="rounded-2xl border border-border-muted bg-surface p-5 shadow-[var(--shadow-surface)]">
+      <div className="rounded-2xl bg-surface p-5 shadow-[var(--shadow-surface)]">
         <h2 className="text-base font-semibold text-foreground">Выйти</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Завершить сессию на этом устройстве.
@@ -46,13 +46,13 @@ export function DangerTab() {
           type="button"
           onClick={() => setSignOutOpen(true)}
           disabled={loading}
-          className="mt-4 rounded-xl border border-border-muted px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted/50 disabled:opacity-60"
+          className="mt-4 rounded-xl px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted/50 disabled:opacity-60"
         >
           Выйти
         </button>
       </div>
 
-      <div className="rounded-2xl border border-red-300/40 bg-red-500/5 p-5 shadow-[var(--shadow-surface)]">
+      <div className="rounded-2xl bg-red-500/5 p-5 shadow-[var(--shadow-surface)]">
         <h2 className="text-base font-semibold text-red-800">Удалить аккаунт</h2>
         <p className="mt-1 text-sm text-red-700">
           Это действие удалит ваши данные безвозвратно.
@@ -61,14 +61,14 @@ export function DangerTab() {
           type="button"
           onClick={() => setDeleteOpen(true)}
           disabled={loading}
-          className="mt-4 rounded-xl border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition duration-[--duration-base] hover:bg-red-500/10 disabled:opacity-60"
+          className="mt-4 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-700 transition duration-[--duration-base] hover:bg-red-500/10 disabled:opacity-60"
         >
           Удалить аккаунт
         </button>
       </div>
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {error}
         </p>
       )}

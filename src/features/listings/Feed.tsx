@@ -6,6 +6,7 @@ import { listListings } from './api'
 import { listCoverPaths } from '@/features/photos/photoApi'
 import { getMockPhotoUrl } from './mockPhotos'
 import { ListingCard } from './ListingCard'
+import { Pagination } from '@/components/Pagination'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -109,7 +110,7 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
         </p>
       </div>
 
-      <div className="surface-elevated grid grid-cols-2 gap-3 rounded-[8px] border border-border-muted p-5 shadow-[var(--shadow-surface)] sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-end lg:gap-3">
+      <div className="surface-elevated grid grid-cols-2 gap-3 rounded-[8px] p-5 shadow-[var(--shadow-surface)] sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-end lg:gap-3">
         <label className="block lg:w-auto">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Тип</span>
           <select
@@ -196,13 +197,13 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
       {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
 
       {error && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {error}
         </p>
       )}
 
       {!loading && !error && listings.length === 0 && (
-        <div className="surface-elevated rounded-2xl border border-border-muted p-10 text-center shadow-[var(--shadow-surface)]">
+        <div className="surface-elevated rounded-2xl p-10 text-center shadow-[var(--shadow-surface)]">
           <p className="text-sm text-muted-foreground">
             Объявлений не найдено. Попробуйте изменить фильтры.
           </p>
@@ -212,7 +213,7 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
       {!loading && !error && listings.length > 0 && (
         <>
           <motion.div
-            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+            className="grid grid-cols-1 gap-6 rounded-2xl bg-card p-4 sm:grid-cols-2 sm:p-6 lg:grid-cols-3 lg:gap-8 lg:p-8"
           >
             {listings.map((listing, i) => (
               <motion.div
@@ -235,40 +236,18 @@ export function Feed({ onOpen, onCreate }: FeedProps) {
             ))}
           </motion.div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>
-              Всего: {total}
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="rounded-xl border border-border-muted bg-surface px-3 py-1.5 font-medium transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/50 hover:text-primary disabled:opacity-40"
-              >
-                ← Назад
-              </button>
-              <span className="px-2 py-1.5">
-                {page + 1} / {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setPage((p) => Math.min(totalPages - 1, p + 1))
-                }
-                disabled={page >= totalPages - 1}
-                className="rounded-xl border border-border-muted bg-surface px-3 py-1.5 font-medium transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:border-primary/50 hover:text-primary disabled:opacity-40"
-              >
-                Вперёд →
-              </button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPageChange={setPage}
+          />
 
-          <div className="mt-8 flex h-[86px] items-center justify-center gap-4 rounded-[8px] border border-border-muted bg-surface shadow-[var(--shadow-surface)]">
+          <div className="mt-8 flex h-[86px] items-center justify-center gap-4 rounded-[8px] bg-surface shadow-[var(--shadow-surface)]">
             <button
               type="button"
               onClick={() => setFilters({})}
-              className="rounded-[8px] border border-border-muted bg-muted/40 px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-muted/60"
+              className="rounded-[8px] bg-muted/40 px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/50 hover:bg-muted/60"
             >
               Сбросить фильтры
             </button>

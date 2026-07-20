@@ -138,7 +138,7 @@ export function MenuBar({
           >
             <motion.div
               ref={tooltipRef}
-              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md border border-border-muted bg-surface/95 px-2.5 text-xs font-medium leading-tight text-foreground shadow-sm backdrop-blur"
+              className="absolute top-0 inline-flex h-6 -translate-x-1/2 items-center justify-center rounded-md bg-surface/95 px-2.5 text-xs font-medium leading-tight text-foreground shadow-sm backdrop-blur"
               animate={{ left: tooltipLeft }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             >
@@ -156,7 +156,7 @@ export function MenuBar({
           setCursorX(null)
         }}
         className={cn(
-          'flex origin-bottom items-center justify-center gap-2 rounded-[28px] border border-border-muted bg-surface/80 px-3 pt-3 pb-3 shadow-[var(--shadow-float)] backdrop-blur-xl',
+          'flex origin-bottom items-center justify-center gap-2 rounded-[28px] bg-surface/80 px-3 pt-3 pb-3 shadow-[var(--shadow-float)] backdrop-blur-xl',
         )}
         style={{ height: BASE_BAR_HEIGHT }}
         animate={{ scale: dockScale }}

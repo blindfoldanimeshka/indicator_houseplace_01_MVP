@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
             перезагрузить страницу. Если проблема повторится — сообщите
             разработчику.
           </p>
-          <pre className="max-w-md overflow-auto rounded-xl border border-border-muted bg-surface p-3 text-left text-xs text-muted-foreground">
+          <pre className="max-w-md overflow-auto rounded-xl bg-surface p-3 text-left text-xs text-muted-foreground">
             {this.state.error.message}
           </pre>
           <button

@@ -30,7 +30,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
     <button
       type="button"
       onClick={() => onOpen(listing)}
-      className="group flex flex-col overflow-hidden rounded-[8px] border border-border-muted bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
+      className="group flex flex-col overflow-hidden rounded-[8px] bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
     >
       {coverPath ? (
         <div className="relative aspect-[4/3] w-full overflow-hidden">

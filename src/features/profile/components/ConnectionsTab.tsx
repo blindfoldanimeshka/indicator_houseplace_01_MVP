@@ -41,7 +41,7 @@ export function ConnectionsTab() {
       {error && (
         <p
           role="alert"
-          className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
         >
           {error}
         </p>
@@ -50,7 +50,7 @@ export function ConnectionsTab() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Загрузка…</p>
       ) : (
-        <div className="rounded-lg border border-border-muted bg-surface p-4 shadow-[var(--shadow-surface)]">
+        <div className="rounded-lg bg-surface p-4 shadow-[var(--shadow-surface)]">
           {connections
             .filter((service) => service.id !== 'telegram')
             .map((service) => (
@@ -69,7 +69,7 @@ export function ConnectionsTab() {
         {telegramError && (
           <p
             role="alert"
-            className="mb-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700"
+            className="mb-2 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700"
           >
             {telegramError}
           </p>

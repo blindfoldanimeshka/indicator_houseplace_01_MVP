@@ -13,7 +13,7 @@ export function TermsOfService({ onBack }: LegalViewProps) {
         >
           ← Назад
         </button>
-        <p className="mb-4 rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber-950">
+        <p className="mb-4 rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber-950">
           Шаблон. Требует юридической проверки перед публичным запуском (152-ФЗ).
         </p>
         <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">

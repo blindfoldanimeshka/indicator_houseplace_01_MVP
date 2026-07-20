@@ -154,7 +154,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="surface-elevated w-full max-w-md rounded-2xl border border-border-muted bg-surface p-8 shadow-[var(--shadow-raised)]"
+        className="surface-elevated w-full max-w-md rounded-2xl bg-surface p-8 shadow-[var(--shadow-raised)]"
       >
         <h1 className="font-display text-2xl tracking-tight text-foreground">
           {isReset ? 'Сброс пароля' : isSignUp ? 'Регистрация' : 'Вход'}
@@ -164,7 +164,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
         </p>
 
         {isUnconfirmed && (
-          <div className="mt-4 space-y-3 rounded-xl border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber-foreground">
+          <div className="mt-4 space-y-3 rounded-xl bg-amber/10 px-4 py-3 text-sm text-amber-foreground">
             <p>
               Письмо отправлено на {user?.email}. Проверьте папку «Спам».
               Не пришло?
@@ -284,13 +284,13 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           )}
 
           {formError && (
-            <p className="rounded-xl border border-red/30 bg-red/10 px-4 py-3 text-sm text-red-300">
+            <p className="rounded-xl bg-red/10 px-4 py-3 text-sm text-red-300">
               {formError}
             </p>
           )}
 
           {successMessage && (
-            <p className="rounded-xl border border-green/30 bg-green/10 px-4 py-3 text-sm text-green-foreground">
+            <p className="rounded-xl bg-green/10 px-4 py-3 text-sm text-green-foreground">
               {successMessage}
             </p>
           )}
@@ -340,7 +340,7 @@ export function AuthScreen({ onOpenLegal }: AuthScreenProps) {
           </button>
         )}
 
-        <footer className="mt-6 flex justify-center gap-4 border-t border-border-muted pt-4 text-xs text-muted-foreground">
+        <footer className="mt-6 flex justify-center gap-4 pt-4 text-xs text-muted-foreground">
           <button
             type="button"
             onClick={() => onOpenLegal('privacy')}

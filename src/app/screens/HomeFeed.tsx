@@ -31,7 +31,7 @@ export function HomeFeed({
     <>
       <Feed onOpen={onOpen} onCreate={onCreate} />
       {!userEmailConfirmed && (
-        <p className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+        <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-950">
           Подтвердите email, чтобы публиковать объявления.
         </p>
       )}

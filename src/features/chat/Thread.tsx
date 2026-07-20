@@ -93,12 +93,12 @@ export function Thread({ chatId }: ThreadProps) {
       </div>
 
       {loadError && (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
+        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-950">
           {loadError}
         </p>
       )}
 
-      <div className="min-h-40 space-y-3 rounded-2xl border border-border-muted bg-surface p-4 shadow-[var(--shadow-surface)]">
+      <div className="min-h-40 space-y-3 rounded-2xl bg-surface p-4 shadow-[var(--shadow-surface)]">
         {messages.length === 0 && !loadError && (
           <p className="py-8 text-center text-sm text-muted-foreground">
             Сообщений пока нет. Напишите первым.
@@ -116,7 +116,7 @@ export function Thread({ chatId }: ThreadProps) {
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                   own
                     ? 'bg-primary text-white rounded-br-md shadow-[var(--shadow-glow)]'
-                    : 'border border-border-muted bg-muted/40 text-foreground rounded-bl-md'
+                    : 'bg-muted/40 text-foreground rounded-bl-md'
                 }`}
               >
                 {message.text}
@@ -146,7 +146,7 @@ export function Thread({ chatId }: ThreadProps) {
               <button
                 type="button"
                 onClick={handleSend}
-                className="rounded-xl border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-500/10"
+                className="rounded-xl px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-500/10"
               >
                 Повторить
               </button>
