@@ -13,6 +13,8 @@ import { AuthProvider } from '@/features/auth/AuthProvider'
 import { useAuth } from '@/features/auth/useAuth'
 import { AuthScreen } from '@/features/auth/AuthScreen'
 import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
+import { NavigationProvider } from '@/app/navigation/NavigationProvider'
+import { useNav } from '@/app/navigation/NavigationProvider'
 
 // Lazy-loaded heavy screens
 const NewListing = lazy(() => import('@/app/screens/NewListing').then((m) => ({ default: m.NewListing })))
@@ -136,32 +138,32 @@ function MenuNav({
 
 function AppContent() {
   const { session, user, isLoading } = useAuth()
-  const [view, setView] = useState<View>('home')
-  const [selected, setSelected] = useState<ListingRow | null>(null)
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const { current, push, back, reset } = useNav()
   const [showNotifications, setShowNotifications] = useState(false)
   const unread = useUnreadCounts()
 
+  useEffect(() => {
+    if (!session) reset()
+  }, [session, reset])
+
   function navigate(next: View) {
-    setSelected(null)
-    setView(next)
+    if (current.view === next) return
+    push(next)
   }
 
   function openDetail(listing: ListingRow) {
-    setSelected(listing)
-    setView('detail')
+    push('detail', { listingId: listing.id })
   }
 
   function openChat(chatId: string) {
     unread.markChatRead(chatId)
     setShowNotifications(false)
-    setSelectedChatId(chatId)
-    setView('thread')
+    push('thread', { chatId })
   }
 
   function toggleNotifications() {
     setShowNotifications((prev) => !prev)
-    if (view !== 'chats') setView('chats')
+    if (current.view !== 'chats') push('chats')
   }
 
   if (isLoading) {
@@ -186,28 +188,28 @@ function AppContent() {
 
   return (
     <AnimatePresence mode="wait">
-      {view === 'privacy' && (
-        <PageTransition key="privacy">
+      {current.view === 'privacy' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
-            <LegalScreen doc="privacy" onBack={() => navigate('home')} />
+            <LegalScreen doc="privacy" onBack={back} />
           </Suspense>
         </PageTransition>
       )}
 
-      {view === 'terms' && (
-        <PageTransition key="terms">
+      {current.view === 'terms' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
-            <LegalScreen doc="terms" onBack={() => navigate('home')} />
+            <LegalScreen doc="terms" onBack={back} />
           </Suspense>
         </PageTransition>
       )}
 
-      {view === 'new' && (
-        <PageTransition key="new">
+      {current.view === 'new' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
@@ -218,35 +220,35 @@ function AppContent() {
         </PageTransition>
       )}
 
-      {view === 'mine' && (
-        <PageTransition key="mine">
+      {current.view === 'mine' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <MyListingsScreen onBack={() => navigate('home')} />
+              <MyListingsScreen onBack={back} />
             </AppShell>
           </Suspense>
         </PageTransition>
       )}
 
-      {view === 'detail' && selected && (
-        <PageTransition key="detail">
+      {current.view === 'detail' && current.params.listingId && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
               <ListingDetailScreen
-                id={selected.id}
-                onBack={() => navigate('home')}
+                id={current.params.listingId}
+                onBack={back}
                 onStartChat={openChat}
               />
             </AppShell>
@@ -254,18 +256,18 @@ function AppContent() {
         </PageTransition>
       )}
 
-      {view === 'chats' && (
-        <PageTransition key="chats">
+      {current.view === 'chats' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
               <ChatsScreen
-                onBack={() => navigate('home')}
+                onBack={back}
                 unread={unread}
                 onOpenChat={openChat}
                 showNotifications={showNotifications}
@@ -276,43 +278,43 @@ function AppContent() {
         </PageTransition>
       )}
 
-      {view === 'thread' && selectedChatId && (
-        <PageTransition key="thread">
+      {current.view === 'thread' && current.params.chatId && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <ThreadScreen chatId={selectedChatId} onBack={() => navigate('chats')} />
+              <ThreadScreen chatId={current.params.chatId} onBack={back} />
             </AppShell>
           </Suspense>
         </PageTransition>
       )}
 
-      {view === 'profile' && (
-        <PageTransition key="profile">
+      {current.view === 'profile' && (
+        <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
             <AppShell>
               <MenuNav
-                view={view}
+                view={current.view}
                 onNavigate={navigate}
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <ProfileScreenWrapper onBack={() => navigate('home')} />
+              <ProfileScreenWrapper onBack={back} />
             </AppShell>
           </Suspense>
         </PageTransition>
       )}
 
-      {view === 'home' && (
-        <PageTransition key="home">
+      {current.view === 'home' && (
+        <PageTransition key={current.key}>
           <AppShell>
             <MenuNav
-              view={view}
+              view={current.view}
               onNavigate={navigate}
               unreadTotal={unread.total}
               onToggleNotifications={toggleNotifications}
@@ -355,7 +357,9 @@ export function App() {
 
   return (
     <AuthProvider>
-      <AppContent />
+      <NavigationProvider>
+        <AppContent />
+      </NavigationProvider>
     </AuthProvider>
   )
 }
