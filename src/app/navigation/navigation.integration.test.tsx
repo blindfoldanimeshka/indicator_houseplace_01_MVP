@@ -10,7 +10,7 @@ vi.mock('@/features/listings/api', () => ({
 
 function HomeScreen() {
   useScrollRestoration()
-  const [filters, setFilters] = useNavEntryState<{ city: string }>('feedFilters', {})
+  const [filters, setFilters] = useNavEntryState<{ city: string }>('feedFilters', { city: '' })
   const { push } = useNav()
   return (
     <div>

@@ -6,7 +6,7 @@ import { useNavEntryState } from './useNavEntryState'
 function Probe() {
   const [filters, setFilters] = useNavEntryState<{ city: string }>(
     'feedFilters',
-    {},
+    { city: '' },
   )
   const { push, back } = useNav()
   return (
