@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getListing } from './api'
 import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
+import { getMockPhotoUrl } from './mockPhotos'
 import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
@@ -54,6 +55,11 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
   useEffect(() => {
     let cancelled = false
 
+    if (listing?.is_mock) {
+      setPhotos([getMockPhotoUrl(0), getMockPhotoUrl(1), getMockPhotoUrl(2)])
+      return
+    }
+
     listPhotos(id).then((result) => {
       if (cancelled) return
       if (result.data) {
@@ -64,7 +70,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [id, listing?.is_mock])
 
   async function handleStartChat() {
     if (!listing || !onStartChat) return

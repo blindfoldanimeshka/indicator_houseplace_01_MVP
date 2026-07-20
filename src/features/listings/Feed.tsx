@@ -4,6 +4,7 @@ import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
 import { listListings } from './api'
 import { listCoverPaths } from '@/features/photos/photoApi'
+import { getMockPhotoUrl } from './mockPhotos'
 import { ListingCard } from './ListingCard'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -61,12 +62,25 @@ export function Feed({ onOpen }: FeedProps) {
     }
 
     let active = true
-    const ids = listings.map((listing) => listing.id)
+    const covers: Record<string, string> = {}
+    listings.forEach((listing, index) => {
+      if (listing.is_mock) {
+        covers[listing.id] = getMockPhotoUrl(index)
+      }
+    })
+    const ids = listings
+      .filter((listing) => !listing.is_mock)
+      .map((listing) => listing.id)
+    if (ids.length === 0) {
+      setCovers(covers)
+      return
+    }
     listCoverPaths(ids).then((result) => {
       if (!active) return
       if (result.data) {
-        setCovers(result.data)
+        Object.assign(covers, result.data)
       }
+      setCovers(covers)
     })
 
     return () => {

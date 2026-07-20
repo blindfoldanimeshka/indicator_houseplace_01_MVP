@@ -34,7 +34,7 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       {coverPath ? (
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <img
-            src={getPublicUrl(coverPath)}
+            src={coverPath.startsWith('listing/') ? getPublicUrl(coverPath) : coverPath}
             alt={`Фото: ${listing.city}`}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-[300ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
