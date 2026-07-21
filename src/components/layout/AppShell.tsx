@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { useScroll, useSpring, useReducedMotion, useTransform, motion } from 'motion/react'
 import logoSvg from '@/public/СКВОТ.svg'
+import { NotificationBell } from '@/features/notifications/NotificationBell'
 
 interface AppShellProps {
   children: ReactNode
@@ -32,9 +33,12 @@ export function AppShell({ children }: AppShellProps) {
               className="h-9 w-auto"
             />
           </a>
-          <span className="rounded-full border border-secondary/30 bg-secondary/15 px-3 py-1 text-xs font-semibold text-secondary">
-            MVP
-          </span>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <span className="rounded-full border border-secondary/30 bg-secondary/15 px-3 py-1 text-xs font-semibold text-secondary">
+              MVP
+            </span>
+          </div>
         </div>
         <motion.div
           className="absolute bottom-0 left-0 right-0 z-50 h-0.5 origin-left bg-primary"

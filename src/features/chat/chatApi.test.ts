@@ -124,6 +124,8 @@ describe('chatApi', () => {
       chat_id: 'c1',
       sender_id: 'user-7',
       text: 'привет',
+      attachment_path: null,
+      attachment_type: null,
     })
   })
 

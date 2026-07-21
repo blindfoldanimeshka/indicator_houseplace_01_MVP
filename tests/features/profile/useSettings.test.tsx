@@ -101,9 +101,14 @@ describe('useSettings', () => {
     })
 
     await waitFor(() => expect(result.current.saving).toBe(false))
-    expect(upsertMock).toHaveBeenCalledTimes(1)
-    expect(upsertMock.mock.calls[0][0].email_notif).toBe(false)
-    expect(upsertMock.mock.calls[0][0].user_id).toBe('u1')
+    // save() mirrors settings into user_settings AND notification_prefs.
+    expect(upsertMock).toHaveBeenCalledTimes(2)
+    const userSettingsCall = upsertMock.mock.calls[0][0]
+    const prefsCall = upsertMock.mock.calls[1][0]
+    expect(userSettingsCall.email_notif).toBe(false)
+    expect(userSettingsCall.user_id).toBe('u1')
+    expect(prefsCall.email_notif).toBe(false)
+    expect(prefsCall.user_id).toBe('u1')
   })
 
   it('surfaces upsert errors', async () => {

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getSupabaseClient } from '@/lib/supabase'
-import { listMyChats } from './chatApi'
+import { listMyChats, closeChat } from './chatApi'
 import type { UnreadState } from './useUnreadCounts'
 
 interface ChatSummary {
   id: string
   listing_id: string
   created_at: string
+  status: string
   listings: { city: string; type: 'offer' | 'request' } | null
 }
 
@@ -14,6 +15,7 @@ interface ChatListProps {
   onOpen: (chatId: string) => void
   unread?: UnreadState
   onChatsResolved?: (ids: string[]) => void
+  onChatClosed?: (chatId: string) => void
 }
 
 const TYPE_LABELS: Record<'offer' | 'request', string> = {
@@ -28,10 +30,28 @@ function formatDate(value: string): string {
   })
 }
 
-export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
+export function ChatList({
+  onOpen,
+  unread,
+  onChatsResolved,
+  onChatClosed,
+}: ChatListProps) {
   const [chats, setChats] = useState<ChatSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [closingId, setClosingId] = useState<string | null>(null)
+
+  async function handleClose(chatId: string) {
+    setClosingId(chatId)
+    const res = await closeChat(chatId)
+    setClosingId(null)
+    if (!res.error) {
+      setChats((prev) =>
+        prev.map((c) => (c.id === chatId ? { ...c, status: 'closed' } : c)),
+      )
+      onChatClosed?.(chatId)
+    }
+  }
 
   const refresh = useCallback(() => {
     let active = true
@@ -135,6 +155,24 @@ export function ChatList({ onOpen, unread, onChatsResolved }: ChatListProps) {
             {unread && (unread.byChat[chat.id] ?? 0) > 0 && (
               <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white shadow-[0_0_0_2px_rgba(239,68,68,0.25)]">
                 {unread.byChat[chat.id]}
+              </span>
+            )}
+            {chat.status === 'open' && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  void handleClose(chat.id)
+                }}
+                disabled={closingId === chat.id}
+                className="ml-2 rounded-lg border border-border-muted px-2 py-1 text-xs font-medium text-muted-foreground transition hover:border-primary/50 hover:text-foreground disabled:opacity-50"
+              >
+                {closingId === chat.id ? '…' : 'Закрыть'}
+              </button>
+            )}
+            {chat.status === 'closed' && (
+              <span className="ml-2 rounded-lg bg-muted/40 px-2 py-1 text-xs font-medium text-muted-foreground">
+                Сделка закрыта
               </span>
             )}
           </button>

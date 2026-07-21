@@ -88,4 +88,61 @@ describe('SettingsTab', () => {
     expect(screen.getByText(/акцент/i)).toBeInTheDocument()
     expect(screen.getByText(/язык/i)).toBeInTheDocument()
   })
+
+  it('renders three accent swatches inside a radiogroup', () => {
+    renderWithAuth(<SettingsTab />)
+    fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
+
+    const group = screen.getByRole('radiogroup', { name: /выбор акцентного цвета/i })
+    expect(group).toBeInTheDocument()
+
+    const radios = screen.getAllByRole('radio')
+    expect(radios).toHaveLength(3)
+  })
+
+  it('marks the default accent (purple) as checked', () => {
+    renderWithAuth(<SettingsTab />)
+    fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
+
+    const purple = screen.getByRole('radio', { name: /пурпурный/i })
+    expect(purple).toHaveAttribute('aria-checked', 'true')
+
+    const lime = screen.getByRole('radio', { name: /лаймовый/i })
+    expect(lime).toHaveAttribute('aria-checked', 'false')
+
+    const cyan = screen.getByRole('radio', { name: /циан/i })
+    expect(cyan).toHaveAttribute('aria-checked', 'false')
+  })
+
+  it('switches accent when a different swatch is clicked', () => {
+    renderWithAuth(<SettingsTab />)
+    fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
+
+    fireEvent.click(screen.getByRole('radio', { name: /циан/i }))
+
+    expect(screen.getByRole('radio', { name: /циан/i })).toHaveAttribute('aria-checked', 'true')
+    expect(screen.getByRole('radio', { name: /пурпурный/i })).toHaveAttribute('aria-checked', 'false')
+  })
+
+  it('accent swatches use a flat swatch layout (no slider overflow possible)', () => {
+    renderWithAuth(<SettingsTab />)
+    fireEvent.click(screen.getByRole('tab', { name: /предпочтения/i }))
+
+    // The old buggy slider used translate-x up to 48px inside a w-14 (56px) track.
+    // The new design uses discrete swatches inside a radiogroup — no translate-x overflow.
+    const radiogroup = screen.getByRole('radiogroup', { name: /выбор акцентного цвета/i })
+    const radios = screen.getAllByRole('radio')
+    expect(radios).toHaveLength(3)
+
+    // All 3 swatches must be direct children of the radiogroup
+    radios.forEach((radio) => {
+      expect(radiogroup).toContainElement(radio)
+    })
+
+    // Verify no element uses translate-x (the old slider pattern)
+    radios.forEach((radio) => {
+      const style = radio.getAttribute('style') || ''
+      expect(style).not.toMatch(/translate-x/)
+    })
+  })
 })

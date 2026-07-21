@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '@/features/auth/useAuth'
 import type { Database } from '@/types/database'
 import {
@@ -9,6 +9,8 @@ import { createListing, updateListing } from './api'
 import { PhotoUploader } from '@/features/photos/PhotoUploader'
 import { MapView } from './MapView'
 import { geocodeAddress } from './geocode'
+import { listMyOrganizations } from '@/features/organizations/orgApi'
+import type { OrgRow } from '@/features/organizations/orgApi'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -48,9 +50,23 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
   const [formError, setFormError] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle')
   const [createdId, setCreatedId] = useState<string | null>(null)
+  const [orgs, setOrgs] = useState<OrgRow[]>([])
+  const [orgId, setOrgId] = useState<string | null>(null)
 
   const isEditing = Boolean(initial)
   const uploaderListingId = initial?.id ?? createdId
+
+  useEffect(() => {
+    if (isEditing) return
+    let active = true
+    listMyOrganizations().then((res) => {
+      if (!active) return
+      if (res.data) setOrgs(res.data)
+    })
+    return () => {
+      active = false
+    }
+  }, [isEditing])
 
   async function handleGeocode() {
     if (!address.trim()) {
@@ -115,7 +131,7 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
 
     const result = isEditing
       ? await updateListing(initial!.id, user.id, values)
-      : await createListing(values, user.id)
+      : await createListing(values, user.id, orgId)
 
     if (result.error) {
       setStatus('error')
@@ -165,6 +181,27 @@ export function ListingForm({ initial, onSaved, onCancel }: ListingFormProps) {
             <option value="request">Ищу</option>
           </select>
         </label>
+
+        {orgs.length > 0 && !isEditing && (
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-foreground">
+              Организация{' '}
+              <span className="text-stone-400">(необязательно)</span>
+            </span>
+            <select
+              value={orgId ?? ''}
+              onChange={(event) => setOrgId(event.target.value || null)}
+              className={fieldClass}
+            >
+              <option value="">Лично</option>
+              {orgs.map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label className="block space-y-1.5">
           <span className="text-sm font-medium text-foreground">Город</span>

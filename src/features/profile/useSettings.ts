@@ -65,13 +65,22 @@ export function useSettings() {
     }
 
     let active = true
-    const supabase = getSupabaseClient()
+    setLoading(true)
+    setError(null)
 
-    supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
+    // getSupabaseClient() throws (env validation) when config is missing
+    // or the request fails in a non-interactive context (e.g. tests).
+    // We must NOT let that crash the whole ProfilePage render — fall back
+    // to DEFAULT_SETTINGS and surface a recoverable error instead.
+    Promise.resolve()
+      .then(() => getSupabaseClient())
+      .then((supabase) =>
+        supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+      )
       .then(({ data, error: queryError }) => {
         if (!active) return
         if (queryError) {
@@ -79,6 +88,11 @@ export function useSettings() {
         } else if (data) {
           setSettings(rowToSettings(data as SettingsRow))
         }
+        setLoading(false)
+      })
+      .catch((err: unknown) => {
+        if (!active) return
+        setError(err instanceof Error ? err.message : 'Ошибка загрузки настроек')
         setLoading(false)
       })
 
@@ -94,15 +108,36 @@ export function useSettings() {
       setSaving(true)
       setError(null)
 
-      const supabase = getSupabaseClient()
-      const { error: upsertError } = await supabase
-        .from('user_settings')
-        .upsert(settingsToRow(next, user.id))
+      try {
+        const supabase = getSupabaseClient()
+        const { error: upsertError } = await supabase
+          .from('user_settings')
+          .upsert(settingsToRow(next, user.id))
 
-      if (upsertError) {
-        setError(upsertError.message)
+        if (upsertError) {
+          setError(upsertError.message)
+        } else {
+          // Mirror notification channels into notification_prefs so the
+          // notify Edge Function reads the user's actual preferences.
+          const { error: prefsError } = await supabase
+            .from('notification_prefs')
+            .upsert({
+              user_id: user.id,
+              email_notif: next.notifications.email,
+              push_notif: next.notifications.push,
+              inapp_notif: next.notifications.inApp,
+              show_profile: next.privacy.showProfile,
+              show_email: next.privacy.showEmail,
+            })
+          if (prefsError) {
+            setError(prefsError.message)
+          }
+        }
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Ошибка сохранения настроек')
+      } finally {
+        setSaving(false)
       }
-      setSaving(false)
     },
     [user],
   )

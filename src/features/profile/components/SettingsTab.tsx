@@ -78,32 +78,63 @@ function AccentToggler() {
   useEffect(() => {
     applyAccent(accent)
   }, [accent])
-  const next = () => {
-    const i = ACCENT_ORDER.indexOf(accent)
-    const n = ACCENT_ORDER[(i + 1) % ACCENT_ORDER.length]
-    setAccent(n)
-  }
-  const current = ACCENTS[accent]
+
   return (
     <div className="flex items-center justify-between gap-4 py-3">
       <div>
         <p className="text-sm font-medium text-foreground">Акцент</p>
-        <p className="text-xs text-muted-foreground">{current.label}</p>
+        <p className="text-xs text-muted-foreground">{ACCENTS[accent].label}</p>
       </div>
-      <motion.button
-        type="button"
-        onClick={next}
-        aria-label="Сменить акцент"
-        className="relative inline-flex h-8 w-14 items-center rounded-full border border-border-muted bg-muted/40 px-0.5"
-        whileTap={{ scale: 0.94 }}
+      <div
+        role="radiogroup"
+        aria-label="Выбор акцентного цвета"
+        className="flex shrink-0 items-center gap-2"
       >
-        <motion.span
-          className="inline-block h-7 w-7 rounded-full shadow"
-          style={{ backgroundColor: current.color }}
-          animate={{ x: accent === 'purple' ? 0 : accent === 'lime' ? 24 : 48 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        />
-      </motion.button>
+        {ACCENT_ORDER.map((key) => {
+          const isSelected = accent === key
+          return (
+            <motion.button
+              key={key}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              aria-label={ACCENTS[key].label}
+              onClick={() => setAccent(key)}
+              whileTap={{ scale: 0.9 }}
+              className={`relative h-8 w-8 shrink-0 rounded-full transition-shadow ${
+                isSelected
+                  ? 'ring-2 ring-offset-2 ring-offset-surface'
+                  : 'ring-0 opacity-60 hover:opacity-100'
+              }`}
+              style={{
+                backgroundColor: ACCENTS[key].color,
+                ...(isSelected ? { boxShadow: `0 0 0 2px var(--color-primary)` } : {}),
+              }}
+            >
+              {isSelected && (
+                <motion.span
+                  className="absolute inset-0 flex items-center justify-center"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    className="h-4 w-4"
+                    stroke={key === 'lime' ? '#1a1a1a' : '#ffffff'}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3.5 8.5L6.5 11.5L12.5 4.5" />
+                  </svg>
+                </motion.span>
+              )}
+            </motion.button>
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -169,7 +200,7 @@ export function SettingsTab() {
         </p>
       )}
 
-      <div className="divide-y divide-border-muted rounded-xl bg-surface px-4 shadow-[var(--shadow-surface)]">
+      <div className="divide-y divide-border-muted overflow-hidden rounded-xl bg-surface px-4 shadow-[var(--shadow-surface)]">
         {active === 'notifications' && (
           <div>
             <Toggle

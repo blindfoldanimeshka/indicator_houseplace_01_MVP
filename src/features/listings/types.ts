@@ -7,7 +7,7 @@ export const listingFiltersSchema = z.object({
   city: z.string().trim().max(100).optional(),
   rooms: z.string().trim().max(20).optional(),
   maxPrice: z.number().int().positive().optional(),
-  sort: z.enum(['newest']).optional(),
+  sort: z.enum(['newest', 'popular']).optional(),
 })
 
 export type ListingFilters = z.infer<typeof listingFiltersSchema>

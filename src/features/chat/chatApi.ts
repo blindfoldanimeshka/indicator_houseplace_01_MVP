@@ -1,5 +1,8 @@
 import { getSupabaseClient } from '@/lib/supabase'
 import type { Database } from '@/types/database'
+import { trackEvent } from '@/features/analytics/trackEvent'
+import { recordListingResponse } from '@/features/listings/api'
+import { dispatchNotifications } from '@/features/notifications/notificationApi'
 
 type ChatRow = Database['public']['Tables']['chats']['Row']
 type MessageRow = Database['public']['Tables']['messages']['Row']
@@ -22,6 +25,10 @@ export async function openOrCreateChat(
     return { data: null, error: error.message }
   }
 
+  await trackEvent('open_chat', { listing_id: listingId, chat_id: data as string })
+  void recordListingResponse(listingId)
+  void dispatchNotifications().catch(() => {})
+
   return { data: data as string, error: null }
 }
 
@@ -31,6 +38,7 @@ export async function listMyChats(): Promise<
       id: string
       listing_id: string
       created_at: string
+      status: string
       listings: { city: string; type: 'offer' | 'request' } | null
     }[]
   >
@@ -39,7 +47,7 @@ export async function listMyChats(): Promise<
 
   const { data, error } = await supabase
     .from('chats')
-    .select('id, listing_id, created_at, listings(city, type)')
+    .select('id, listing_id, created_at, status, listings(city, type)')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -71,12 +79,25 @@ export async function sendMessage(
   chatId: string,
   senderId: string,
   text: string,
+  attachmentPath: string | null = null,
 ): Promise<ChatApiResult<MessageRow>> {
   const supabase = getSupabaseClient()
 
+  const attachmentType = attachmentPath
+    ? attachmentPath.match(/\.(png|jpe?g|gif|webp)$/i)
+      ? 'image'
+      : 'document'
+    : null
+
   const { data, error } = await supabase
     .from('messages')
-    .insert({ chat_id: chatId, sender_id: senderId, text })
+    .insert({
+      chat_id: chatId,
+      sender_id: senderId,
+      text,
+      attachment_path: attachmentPath,
+      attachment_type: attachmentType,
+    })
     .select()
     .single()
 
@@ -84,7 +105,12 @@ export async function sendMessage(
     return { data: null, error: error.message }
   }
 
-  return { data: data as MessageRow, error: null }
+  const row = data as MessageRow
+  await trackEvent('send_message', { chat_id: chatId })
+  // Deliver pending notifications (Telegram / email) for the recipient.
+  void dispatchNotifications().catch(() => {})
+
+  return { data: row, error: null }
 }
 
 type MessageInsert = Database['public']['Tables']['messages']['Row']
@@ -146,6 +172,26 @@ export function subscribeMessages(
     if (pollTimer) clearInterval(pollTimer)
     if (channel) supabase.removeChannel(channel)
   }
+}
+
+export async function closeChat(
+  chatId: string,
+): Promise<ChatApiResult<boolean>> {
+  const supabase = getSupabaseClient()
+
+  const { error } = await supabase
+    .from('chats')
+    .update({ status: 'closed', closed_at: new Date().toISOString() })
+    .eq('id', chatId)
+
+  if (error) {
+    return { data: null, error: error.message }
+  }
+
+  // Closing a deal triggers the deal_closed notification trigger; dispatch it.
+  void dispatchNotifications().catch(() => {})
+
+  return { data: true, error: null }
 }
 
 export type { ChatRow, MessageRow }

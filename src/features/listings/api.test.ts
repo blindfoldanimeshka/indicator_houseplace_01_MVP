@@ -75,6 +75,41 @@ describe('listings api', () => {
     expect(res.data).toBeNull()
   })
 
+  it('createListing passes org_id and fires create_listing tracking on success', async () => {
+    const result = { data: { id: 'l1' }, error: null }
+    const chain = makeChain(result)
+    mockSupabase(chain)
+
+    const trackEvent = vi.fn().mockResolvedValue(undefined)
+    vi.doMock('@/features/analytics/trackEvent', () => ({ trackEvent }))
+
+    const { createListing } = await import('./api')
+    const res = await createListing(validValues, 'u1', 'org-9')
+
+    expect(chain.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ author_id: 'u1', org_id: 'org-9' }),
+    )
+    expect(trackEvent).toHaveBeenCalledWith('create_listing', { listing_id: 'l1' })
+    expect(res.error).toBeNull()
+  })
+
+  it('listListings popular sort orders by listing_stats.views desc', async () => {
+    const result = { data: [], error: null, count: 0 }
+    const chain = makeChain(result)
+    mockSupabase(chain)
+
+    const { listListings } = await import('./api')
+    await listListings({ sort: 'popular' }, 0)
+
+    expect(chain.order).toHaveBeenCalledWith('views', {
+      ascending: false,
+      foreignTable: 'listing_stats',
+    })
+    expect(chain.select).toHaveBeenCalledWith('*, listing_stats(views, responses)', {
+      count: 'exact',
+    })
+  })
+
   it('updateListing chains update(id).eq(author_id)', async () => {
     const result = { data: { id: 'l1' }, error: null }
     const chain = makeChain(result)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getListing } from './api'
+import { getListing, boostListing } from './api'
 import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
 import { getMockPhotoUrl } from './mockPhotos'
 import { useAuth } from '@/features/auth/useAuth'
@@ -37,6 +37,8 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
   const [error, setError] = useState<string | null>(null)
   const [chatLoading, setChatLoading] = useState(false)
   const [chatError, setChatError] = useState<string | null>(null)
+  const [boosting, setBoosting] = useState(false)
+  const [boostError, setBoostError] = useState<string | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -84,6 +86,20 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       return
     }
     onStartChat(result.data)
+  }
+
+  async function handleBoost() {
+    if (!listing) return
+    setBoosting(true)
+    setBoostError(null)
+    const result = await boostListing(listing.id)
+    setBoosting(false)
+    if (result.error) {
+      setBoostError(result.error)
+      return
+    }
+    const refreshed = await getListing(listing.id)
+    if (refreshed.data) setListing(refreshed.data as ListingRow)
   }
 
   return (
@@ -139,6 +155,12 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
           {listing.is_mock && (
             <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
               MOCK
+            </span>
+          )}
+
+          {listing.promoted_until && new Date(listing.promoted_until) > new Date() && (
+            <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-700">
+              Продвигается
             </span>
           )}
 
@@ -213,6 +235,28 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
               {chatError && (
                 <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-950">
                   {chatError}
+                </p>
+              )}
+            </div>
+          )}
+
+          {user && listing.author_id === user.id && (
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={handleBoost}
+                disabled={boosting}
+                className="rounded-xl border border-primary/40 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 active:scale-[0.98] disabled:opacity-50"
+              >
+                {boosting
+                  ? 'Поднимаем…'
+                  : listing.promoted_until && new Date(listing.promoted_until) > new Date()
+                    ? 'Продлить продвижение'
+                    : 'Поднять объявление'}
+              </button>
+              {boostError && (
+                <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-950">
+                  {boostError}
                 </p>
               )}
             </div>
