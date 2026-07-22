@@ -7,7 +7,8 @@ import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
 import { MapView } from './MapView'
-import { MorphHeading } from '@/components/MorphHeading'
+import { PhotoCarousel } from './PhotoCarousel'
+import { ImageIcon, ArrowUpRight } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -106,7 +107,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
   }
 
   return (
-    <section className="max-w-2xl space-y-6">
+    <section className="max-w-5xl space-y-6">
       <button
         type="button"
         onClick={onBack}
@@ -130,166 +131,171 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       )}
 
       {!loading && !error && listing && (
-        <div className="space-y-6 rounded-2xl bg-surface shadow-[var(--shadow-raised)] p-6 sm:p-8">
-          {photos.length > 0 && (
-            <div className="space-y-3">
-              {/* Hero image */}
-              <button
-                type="button"
-                onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}
-                className="block w-full cursor-pointer overflow-hidden rounded-xl"
-              >
-                <img
-                  src={photos[0]}
+        <>
+          {/* Hero Frame */}
+          <div className="relative overflow-hidden rounded-3xl bg-card shadow-[var(--shadow-raised)]">
+            {photos.length > 0 ? (
+              <>
+                <PhotoCarousel
+                  urls={photos}
                   alt={`Фото: ${listing.city}`}
-                  className="aspect-[4/3] w-full object-cover transition hover:scale-[1.02]"
+                  onImageClick={(i) => { setLightboxIndex(i); setLightboxOpen(true) }}
+                  className="min-h-[50vh] sm:min-h-[55vh]"
                 />
-              </button>
 
-              {/* Thumbnails — only if >1 photo */}
-              {photos.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {photos.slice(1, 5).map((url, i) => (
-                    <button
-                      key={url}
-                      type="button"
-                      onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true) }}
-                      className="block cursor-pointer overflow-hidden rounded-lg"
-                    >
-                      <img
-                        src={url}
-                        alt={`Фото ${i + 2}: ${listing.city}`}
-                        loading="lazy"
-                        className="aspect-square w-full object-cover transition hover:scale-[1.03]"
-                      />
-                    </button>
-                  ))}
+                {/* Dark overlay panel — overlapping bottom */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6">
+                  <div className="pointer-events-auto rounded-2xl bg-black/70 p-4 backdrop-blur-md sm:p-5">
+                    {/* Badges row */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                          listing.type === 'offer'
+                            ? 'border border-primary/30 bg-primary/20 text-primary'
+                            : 'border border-secondary/30 bg-secondary/20 text-secondary'
+                        }`}
+                      >
+                        {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
+                      </span>
+                      {listing.is_mock && (
+                        <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+                          MOCK
+                        </span>
+                      )}
+                      {listing.promoted_until && new Date(listing.promoted_until) > new Date() && (
+                        <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-700">
+                          Продвигается
+                        </span>
+                      )}
+                    </div>
+
+                    {/* City + rooms/area */}
+                    <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                      {listing.city}
+                    </h1>
+                    <p className="mt-1 text-sm text-white/80">
+                      {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
+                      {listing.area ? `, ${listing.area} м²` : ''}
+                    </p>
+
+                    {/* Price */}
+                    <p className="mt-2 font-display text-xl font-bold text-white sm:text-2xl">
+                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal text-white/60">/мес.</span>
+                    </p>
+
+                    {/* Description — truncated in overlay */}
+                    {listing.description && (
+                      <p className="mt-2 line-clamp-2 text-sm text-white/70">
+                        {listing.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-
-          <span
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-              listing.type === 'offer'
-                ? 'border border-primary/30 bg-primary/20 text-primary'
-                : 'border border-secondary/30 bg-secondary/20 text-secondary'
-            }`}
-          >
-            {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
-          </span>
-
-          {listing.is_mock && (
-            <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-              MOCK
-            </span>
-          )}
-
-          {listing.promoted_until && new Date(listing.promoted_until) > new Date() && (
-            <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-700">
-              Продвигается
-            </span>
-          )}
-
-      <MorphHeading
-        text={listing.city}
-        className="font-display text-3xl tracking-tight text-foreground"
-      />
-
-          <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-            <div className="surface-elevated rounded-lg px-3 py-2">
-              <dt className="text-muted-foreground">Комнаты</dt>
-              <dd className="font-medium text-foreground">
-                {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
-              </dd>
-            </div>
-            {listing.area && (
-              <div className="surface-elevated rounded-lg px-3 py-2">
-                <dt className="text-muted-foreground">Площадь</dt>
-                <dd className="font-medium text-foreground">
-                  {listing.area} м²
-                </dd>
+              </>
+            ) : (
+              /* Placeholder when no photos */
+              <div className="flex min-h-[40vh] items-center justify-center bg-muted/40">
+                <ImageIcon className="h-16 w-16 text-muted-foreground/30" />
               </div>
             )}
-            <div className="surface-elevated rounded-lg px-3 py-2">
-              <dt className="text-muted-foreground">Цена</dt>
-              <dd className="font-medium text-foreground">
-                {formatPrice(listing.price)} ₽ / мес.
-              </dd>
-            </div>
-          </dl>
+          </div>
 
-          {listing.description && (
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground">Описание</h2>
-              <p className="mt-1 whitespace-pre-wrap text-foreground">
-                {listing.description}
+          {/* Bento Grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Stats: Rooms */}
+            <div className="surface-elevated rounded-2xl bg-muted/50 p-5">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Комнаты</p>
+              <p className="mt-1 font-display text-xl font-semibold text-foreground">
+                {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
               </p>
             </div>
-          )}
 
-          {listing.address && (
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground">Адрес</h2>
-              <p className="mt-1 text-foreground">{listing.address}</p>
-            </div>
-          )}
-
-          {listing.lat !== null && listing.lng !== null && (
-            <div>
-              <h2 className="text-sm font-medium text-muted-foreground">На карте</h2>
-              <div className="mt-2">
-                <MapView
-                  lat={listing.lat}
-                  lng={listing.lng}
-                  address={listing.address}
-                  height={300}
-                />
+            {/* Stats: Area */}
+            {listing.area && (
+              <div className="surface-elevated rounded-2xl bg-muted/50 p-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Площадь</p>
+                <p className="mt-1 font-display text-xl font-semibold text-foreground">{listing.area} м²</p>
               </div>
-            </div>
-          )}
+            )}
 
-          {user && listing.author_id !== user.id && onStartChat && (
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleStartChat}
-                disabled={chatLoading}
-                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-glow)] transition duration-[var(--duration-base)] ease-[var(--ease-smooth)] hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
-              >
-                {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
-              </button>
-              {chatError && (
-                <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-950">
-                  {chatError}
+            {/* Price Accent Tile */}
+            <div className="rounded-2xl bg-secondary p-5 text-secondary-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide opacity-80">Цена</p>
+              <p className="mt-1 font-display text-2xl font-bold">
+                {formatPrice(listing.price)} ₽<span className="text-sm font-normal opacity-80">/мес.</span>
+              </p>
+            </div>
+
+            {/* Description — wide tile */}
+            {listing.description && (
+              <div className="surface-elevated rounded-2xl bg-surface p-5 sm:col-span-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Описание</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                  {listing.description}
                 </p>
-              )}
-            </div>
-          )}
+              </div>
+            )}
 
-          {user && listing.author_id === user.id && (
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={handleBoost}
-                disabled={boosting}
-                className="rounded-xl border border-primary/40 bg-primary/10 px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 active:scale-[0.98] disabled:opacity-50"
-              >
-                {boosting
-                  ? 'Поднимаем…'
-                  : listing.promoted_until && new Date(listing.promoted_until) > new Date()
-                    ? 'Продлить продвижение'
-                    : 'Поднять объявление'}
-              </button>
-              {boostError && (
-                <p className="mt-2 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-950">
-                  {boostError}
-                </p>
-              )}
-            </div>
-          )}
+            {/* Address */}
+            {listing.address && (
+              <div className="surface-elevated rounded-2xl bg-surface p-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Адрес</p>
+                <p className="mt-2 text-sm text-foreground">{listing.address}</p>
+              </div>
+            )}
 
-          <ReportButton targetType="listing" targetId={listing.id} />
+            {/* Map */}
+            {listing.lat !== null && listing.lng !== null && (
+              <div className="overflow-hidden rounded-2xl sm:col-span-2 lg:col-span-2">
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">На карте</p>
+                <MapView lat={listing.lat} lng={listing.lng} address={listing.address} height={280} />
+              </div>
+            )}
+
+            {/* CTA — primary accent */}
+            {user && listing.author_id !== user.id && onStartChat && (
+              <div className="flex flex-col justify-center rounded-2xl bg-primary p-5 text-white">
+                <p className="text-xs font-medium uppercase tracking-wide opacity-80">Действие</p>
+                <button
+                  type="button"
+                  onClick={handleStartChat}
+                  disabled={chatLoading}
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2.5 text-sm font-semibold backdrop-blur-sm transition hover:bg-white/30 disabled:opacity-50"
+                >
+                  {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
+                  <ArrowUpRight className="h-4 w-4" />
+                </button>
+                {chatError && <p className="mt-2 text-sm text-red-300">{chatError}</p>}
+              </div>
+            )}
+
+            {/* Owner: Boost */}
+            {user && listing.author_id === user.id && (
+              <div className="flex flex-col justify-center rounded-2xl border border-primary/30 bg-primary/10 p-5">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Действие</p>
+                <button
+                  type="button"
+                  onClick={handleBoost}
+                  disabled={boosting}
+                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                >
+                  {boosting
+                    ? 'Поднимаем…'
+                    : listing.promoted_until && new Date(listing.promoted_until) > new Date()
+                      ? 'Продлить продвижение'
+                      : 'Поднять объявление'}
+                  <ArrowUpRight className="h-4 w-4" />
+                </button>
+                {boostError && <p className="mt-2 text-sm text-red-600">{boostError}</p>}
+              </div>
+            )}
+
+            {/* Report — muted */}
+            <div className="flex items-center justify-between rounded-2xl bg-muted/30 p-5">
+              <span className="text-sm text-muted-foreground">Что-то не так?</span>
+              <ReportButton targetType="listing" targetId={listing.id} />
+            </div>
+          </div>
 
           <PhotoLightbox
             urls={photos}
@@ -299,7 +305,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
             onIndexChange={setLightboxIndex}
             alt={`Фото: ${listing.city}`}
           />
-        </div>
+        </>
       )}
     </section>
   )
