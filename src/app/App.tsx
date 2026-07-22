@@ -1,4 +1,4 @@
-import { useEffect, useState, Suspense, lazy } from 'react'
+import { useEffect, useRef, useState, Suspense, lazy } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { SearchIcon } from '@/components/icons/search'
 import { PlusIcon } from '@/components/icons/plus'
@@ -15,6 +15,8 @@ import { AuthScreen } from '@/features/auth/AuthScreen'
 import { useUnreadCounts } from '@/features/chat/useUnreadCounts'
 import { NavigationProvider } from '@/app/navigation/NavigationProvider'
 import { useNav } from '@/app/navigation/NavigationProvider'
+import { CustomCursor } from '@/components/CustomCursor'
+import type { NavParams } from '@/app/navigation/types'
 
 // Lazy-loaded heavy screens
 const NewListing = lazy(() => import('@/app/screens/NewListing').then((m) => ({ default: m.NewListing })))
@@ -28,17 +30,16 @@ const LegalScreen = lazy(() => import('@/app/screens/LegalScreen').then((m) => (
 // Eager-loaded landing screen
 import { HomeFeed } from '@/app/screens/HomeFeed'
 
+// Fade in/out page transition — clean, no directional slide
 const pageVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
+  initial: { opacity: 0, scale: 0.98 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 1.02 },
 }
 
 const pageTransition = {
-  type: 'spring' as const,
-  stiffness: 400,
-  damping: 35,
-  mass: 0.8,
+  duration: 0.25,
+  ease: [0.22, 1, 0.36, 1] as const, // --ease-smooth
 }
 
 function PageTransition({ children }: { children: React.ReactNode }) {
@@ -138,9 +139,25 @@ function MenuNav({
 
 function AppContent() {
   const { session, user, isLoading } = useAuth()
-  const { current, push, back, reset } = useNav()
+  const { current, push: navPush, back, reset } = useNav()
   const [showNotifications, setShowNotifications] = useState(false)
   const unread = useUnreadCounts()
+
+  // Direction tracking: monotonic depth counter
+  const depthRef = useRef(0)
+  const prevDepthRef = useRef(0)
+
+  const push = (view: View, params?: NavParams) => {
+    prevDepthRef.current = depthRef.current
+    depthRef.current++
+    navPush(view, params)
+  }
+
+  const goBack = () => {
+    prevDepthRef.current = depthRef.current
+    depthRef.current--
+    back()
+  }
 
   useEffect(() => {
     if (!session) reset()
@@ -191,7 +208,7 @@ function AppContent() {
       {current.view === 'privacy' && (
         <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
-            <LegalScreen doc="privacy" onBack={back} />
+            <LegalScreen doc="privacy" onBack={goBack} />
           </Suspense>
         </PageTransition>
       )}
@@ -199,7 +216,7 @@ function AppContent() {
       {current.view === 'terms' && (
         <PageTransition key={current.key}>
           <Suspense fallback={SuspenseFallback}>
-            <LegalScreen doc="terms" onBack={back} />
+            <LegalScreen doc="terms" onBack={goBack} />
           </Suspense>
         </PageTransition>
       )}
@@ -230,7 +247,7 @@ function AppContent() {
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <MyListingsScreen onBack={back} />
+              <MyListingsScreen onBack={goBack} />
             </AppShell>
           </Suspense>
         </PageTransition>
@@ -248,7 +265,7 @@ function AppContent() {
               />
               <ListingDetailScreen
                 id={current.params.listingId}
-                onBack={back}
+                onBack={goBack}
                 onStartChat={openChat}
               />
             </AppShell>
@@ -267,7 +284,7 @@ function AppContent() {
                 onToggleNotifications={toggleNotifications}
               />
               <ChatsScreen
-                onBack={back}
+                onBack={goBack}
                 unread={unread}
                 onOpenChat={openChat}
                 showNotifications={showNotifications}
@@ -288,7 +305,7 @@ function AppContent() {
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <ThreadScreen chatId={current.params.chatId} onBack={back} />
+              <ThreadScreen chatId={current.params.chatId} onBack={goBack} />
             </AppShell>
           </Suspense>
         </PageTransition>
@@ -304,7 +321,7 @@ function AppContent() {
                 unreadTotal={unread.total}
                 onToggleNotifications={toggleNotifications}
               />
-              <ProfileScreenWrapper onBack={back} />
+              <ProfileScreenWrapper onBack={goBack} />
             </AppShell>
           </Suspense>
         </PageTransition>
@@ -358,6 +375,7 @@ export function App() {
   return (
     <AuthProvider>
       <NavigationProvider>
+        <CustomCursor />
         <AppContent />
       </NavigationProvider>
     </AuthProvider>

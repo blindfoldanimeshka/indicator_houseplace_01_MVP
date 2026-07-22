@@ -168,6 +168,7 @@ export function MenuBar({
             <button
               key={item.key}
               type="button"
+              data-cursor-sticky
               aria-label={item.label}
               aria-current={item.active ? 'page' : undefined}
               onClick={() => onSelect(item.key)}

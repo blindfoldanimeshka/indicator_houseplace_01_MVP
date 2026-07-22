@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface PhotoCarouselProps {
@@ -11,6 +11,7 @@ interface PhotoCarouselProps {
 export function PhotoCarousel({ urls, alt, onImageClick, className = '' }: PhotoCarouselProps) {
   const [index, setIndex] = useState(0)
   const touchStart = useRef<number | null>(null)
+  const isHovered = useRef(false)
   const count = urls.length
 
   const prev = useCallback(() => {
@@ -20,6 +21,17 @@ export function PhotoCarousel({ urls, alt, onImageClick, className = '' }: Photo
   const next = useCallback(() => {
     setIndex((i) => (i === count - 1 ? 0 : i + 1))
   }, [count])
+
+  // Auto-slide every 6 seconds
+  useEffect(() => {
+    if (count <= 1) return
+    const timer = setInterval(() => {
+      if (!isHovered.current) {
+        next()
+      }
+    }, 6000)
+    return () => clearInterval(timer)
+  }, [count, next])
 
   function handleTouchStart(e: React.TouchEvent) {
     touchStart.current = e.touches[0].clientX
@@ -48,6 +60,8 @@ export function PhotoCarousel({ urls, alt, onImageClick, className = '' }: Photo
       role="group"
       aria-roledescription="carousel"
       aria-label="Фото объявления"
+      onMouseEnter={() => { isHovered.current = true }}
+      onMouseLeave={() => { isHovered.current = false }}
     >
       {/* Track */}
       <div

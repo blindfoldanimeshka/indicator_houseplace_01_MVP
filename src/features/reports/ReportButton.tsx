@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import { useAuth } from '@/features/auth/useAuth'
 import {
   reportFormSchema,
@@ -9,6 +10,18 @@ import {
 import { createReport } from './reportApi'
 
 const CATEGORIES = ['Спам', 'Мошенничество', 'Нецензурная речь', 'Другое']
+
+const panelVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -4, scale: 0.98 },
+}
+
+const panelTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+}
 
 interface ReportButtonProps {
   targetType: ReportTargetType
@@ -70,11 +83,17 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
         </button>
       )}
 
-      {open && (
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-3 rounded-xl bg-surface p-3 shadow-[var(--shadow-surface)]"
-        >
+      <AnimatePresence mode="wait">
+        {open && status !== 'success' && (
+          <motion.form
+            onSubmit={handleSubmit}
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={panelTransition}
+            className="space-y-3 rounded-xl bg-surface p-3 shadow-[var(--shadow-surface)]"
+          >
           <label className="block space-y-1">
             <span className="text-xs font-medium text-muted-foreground">Причина</span>
             <select
@@ -131,8 +150,9 @@ export function ReportButton({ targetType, targetId }: ReportButtonProps) {
                   : 'Отправить'}
             </button>
           </div>
-        </form>
-      )}
+          </motion.form>
+        )}
+      </AnimatePresence>
 
       {message && (
         <p

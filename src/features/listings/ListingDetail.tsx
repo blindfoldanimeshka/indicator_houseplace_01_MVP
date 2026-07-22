@@ -170,26 +170,10 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                       )}
                     </div>
 
-                    {/* City + rooms/area */}
+                    {/* City */}
                     <h1 className="mt-2 font-display text-2xl font-bold tracking-tight sm:mt-3 sm:text-3xl" style={{ color: '#fff' }}>
                       {listing.city}
                     </h1>
-                    <p className="mt-1 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>
-                      {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
-                      {listing.area ? `, ${listing.area} м²` : ''}
-                    </p>
-
-                    {/* Price */}
-                    <p className="mt-2 font-display text-xl font-bold sm:text-2xl" style={{ color: '#fff' }}>
-                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal" style={{ color: 'rgba(255,255,255,0.7)' }}>/мес.</span>
-                    </p>
-
-                    {/* Description — truncated in overlay */}
-                    {listing.description && (
-                      <p className="mt-2 line-clamp-2 text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
-                        {listing.description}
-                      </p>
-                    )}
                   </div>
                 </div>
               </>

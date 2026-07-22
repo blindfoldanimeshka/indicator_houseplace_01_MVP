@@ -3,6 +3,27 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useNotifications } from '@/features/notifications/useNotifications'
 import { useAuth } from '@/features/auth/useAuth'
 
+const panelVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.96 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -4, scale: 0.98 },
+}
+
+const panelTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: { delay: i * 0.03, type: 'spring' as const, stiffness: 500, damping: 30 },
+  }),
+}
+
 function notificationLabel(type: string): string {
   switch (type) {
     case 'new_message':
@@ -72,13 +93,14 @@ export function NotificationBell() {
         )}
       </button>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.15 }}
+            variants={panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={panelTransition}
             className="absolute right-0 z-50 mt-2 w-80 max-w-[90vw] overflow-hidden rounded-2xl bg-surface shadow-[var(--shadow-surface)] ring-1 ring-border-muted"
           >
             <div className="flex items-center justify-between border-b border-border-muted px-4 py-3">
@@ -96,14 +118,24 @@ export function NotificationBell() {
 
             <div className="max-h-96 overflow-y-auto">
               {items.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-muted-foreground">
+                <motion.p
+                  variants={itemVariants}
+                  custom={0}
+                  initial="hidden"
+                  animate="visible"
+                  className="px-4 py-6 text-center text-sm text-muted-foreground"
+                >
                   Пока пусто
-                </p>
+                </motion.p>
               ) : (
-                items.map((n) => (
-                  <button
+                items.map((n, i) => (
+                  <motion.button
                     key={n.id}
                     type="button"
+                    variants={itemVariants}
+                    custom={i}
+                    initial="hidden"
+                    animate="visible"
                     onClick={() => void markOneRead(n.id)}
                     className={`flex w-full flex-col gap-0.5 border-b border-border-muted px-4 py-3 text-left transition last:border-0 hover:bg-muted/40 ${
                       n.read ? '' : 'bg-primary/5'
@@ -120,7 +152,7 @@ export function NotificationBell() {
                         {preview(n)}
                       </span>
                     )}
-                  </button>
+                  </motion.button>
                 ))
               )}
             </div>

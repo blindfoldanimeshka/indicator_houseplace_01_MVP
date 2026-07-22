@@ -29,6 +29,7 @@ export function ListingCard({ listing, onOpen, photoUrls }: ListingCardProps) {
   return (
     <button
       type="button"
+      data-cursor="view"
       onClick={() => onOpen(listing)}
       className="group flex flex-col overflow-hidden rounded-[8px] bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
     >
