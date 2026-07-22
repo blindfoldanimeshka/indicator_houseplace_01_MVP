@@ -4,9 +4,11 @@ interface ConnectedServiceProps {
   service: ConnectionStatus
   onConnect: (id: ConnectionStatus['id']) => void
   onUnlink: (id: ConnectionStatus['id']) => void
+  /** Кнопки привязки/отвязки неактивны (OAuth не настроен) */
+  disabled?: boolean
 }
 
-export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServiceProps) {
+export function ConnectedService({ service, onConnect, onUnlink, disabled }: ConnectedServiceProps) {
   const isConnected = service.connected
 
   return (
@@ -21,7 +23,11 @@ export function ConnectedService({ service, onConnect, onUnlink }: ConnectedServ
           {isConnected ? 'Подключено' : 'Не подключено'}
         </span>
 
-        {isConnected ? (
+        {disabled ? (
+          <span className="rounded-md px-3 py-1.5 text-sm text-muted-foreground opacity-50 cursor-not-allowed select-none">
+            Скоро
+          </span>
+        ) : isConnected ? (
           <button
             type="button"
             onClick={() => onUnlink(service.id)}

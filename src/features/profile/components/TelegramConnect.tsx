@@ -25,9 +25,11 @@ declare global {
 export function TelegramConnect({
   onConnected,
   onError,
+  disabled,
 }: {
   onConnected?: () => void
   onError?: (message: string) => void
+  disabled?: boolean
 }) {
   const botUsername = getTelegramBotUsername()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -85,6 +87,17 @@ export function TelegramConnect({
       if (script.parentNode) script.parentNode.removeChild(script)
     }
   }, [botUsername, onConnected, onError])
+
+  if (disabled) {
+    return (
+      <div className="flex items-center justify-between py-3">
+        <span className="text-foreground">Telegram</span>
+        <span className="rounded-md px-3 py-1.5 text-sm text-muted-foreground opacity-50 cursor-not-allowed select-none">
+          Скоро
+        </span>
+      </div>
+    )
+  }
 
   if (!botUsername) {
     return (

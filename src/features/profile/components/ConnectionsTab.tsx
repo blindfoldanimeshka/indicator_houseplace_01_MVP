@@ -59,6 +59,7 @@ export function ConnectionsTab() {
                 service={service}
                 onConnect={handleConnect}
                 onUnlink={setUnlinkTarget}
+                disabled
               />
             ))}
         </div>
@@ -79,11 +80,13 @@ export function ConnectionsTab() {
             service={connections.find((service) => service.id === 'telegram')!}
             onConnect={handleConnect}
             onUnlink={setUnlinkTarget}
+            disabled
           />
         ) : (
           <TelegramConnect
             onConnected={() => void refresh()}
             onError={setTelegramError}
+            disabled
           />
         )}
       </div>
