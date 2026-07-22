@@ -1,7 +1,7 @@
 import type { Database } from '@/types/database'
-import { getPublicUrl } from '@/features/photos/photoApi'
 import { ImageIcon } from 'lucide-react'
 import { Highlighter } from '@/components/Highlighter'
+import { ListingCardCarousel } from './ListingCardCarousel'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
 
@@ -20,10 +20,10 @@ function formatPrice(price: number): string {
 interface ListingCardProps {
   listing: ListingRow
   onOpen: (listing: ListingRow) => void
-  coverPath?: string
+  photoUrls?: string[]
 }
 
-export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
+export function ListingCard({ listing, onOpen, photoUrls }: ListingCardProps) {
   const isOffer = listing.type === 'offer'
 
   return (
@@ -32,16 +32,11 @@ export function ListingCard({ listing, onOpen, coverPath }: ListingCardProps) {
       onClick={() => onOpen(listing)}
       className="group flex flex-col overflow-hidden rounded-[8px] bg-surface text-left shadow-[var(--shadow-surface)] transition-all duration-[200ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-primary/50 hover:shadow-[var(--shadow-raised)]"
     >
-      {coverPath ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
-          <img
-            src={coverPath.startsWith('listing/') ? getPublicUrl(coverPath) : coverPath}
-            alt={`Фото: ${listing.city}`}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-[300ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
-          />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
-        </div>
+      {photoUrls && photoUrls.length > 0 ? (
+        <ListingCardCarousel
+          urls={photoUrls}
+          alt={`Фото: ${listing.city}`}
+        />
       ) : (
         <div className="flex aspect-[4/3] w-full items-center justify-center bg-muted/40">
           <ImageIcon className="h-10 w-10 text-muted-foreground/40" />

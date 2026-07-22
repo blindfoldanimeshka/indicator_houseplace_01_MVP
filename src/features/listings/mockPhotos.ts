@@ -17,5 +17,15 @@ export function getMockPhotoUrl(index: number): string {
   return MOCK_PHOTOS[safeIndex % MOCK_PHOTOS.length]
 }
 
+/**
+ * Returns an array of mock photo URLs for carousel display.
+ * Deterministic: always returns the same 3 URLs for a given listing index.
+ */
+export function getMockPhotoUrls(listingIndex: number): string[] {
+  if (MOCK_PHOTOS.length === 0) return []
+  const start = Math.abs(listingIndex) % MOCK_PHOTOS.length
+  return [0, 1, 2].map((i) => MOCK_PHOTOS[(start + i) % MOCK_PHOTOS.length])
+}
+
 /** Total bundled mock photos available for rotation. */
 export const MOCK_PHOTO_COUNT = MOCK_PHOTOS.length

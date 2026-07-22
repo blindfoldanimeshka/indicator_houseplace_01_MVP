@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { getListing, boostListing } from './api'
 import { listPhotos, getPublicUrl } from '@/features/photos/photoApi'
-import { getMockPhotoUrl } from './mockPhotos'
+import { getMockPhotoUrls } from './mockPhotos'
+import { PhotoLightbox } from '@/features/photos/PhotoLightbox'
 import { useAuth } from '@/features/auth/useAuth'
 import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
@@ -39,6 +40,8 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
   const [chatError, setChatError] = useState<string | null>(null)
   const [boosting, setBoosting] = useState(false)
   const [boostError, setBoostError] = useState<string | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
 
   useEffect(() => {
     setLoading(true)
@@ -59,7 +62,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
     let cancelled = false
 
     if (listing?.is_mock) {
-      setPhotos([getMockPhotoUrl(0), getMockPhotoUrl(1), getMockPhotoUrl(2)])
+      setPhotos(getMockPhotoUrls(0))
       return
     }
 
@@ -129,16 +132,40 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       {!loading && !error && listing && (
         <div className="space-y-6 rounded-2xl bg-surface shadow-[var(--shadow-raised)] p-6 sm:p-8">
           {photos.length > 0 && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {photos.map((url) => (
+            <div className="space-y-3">
+              {/* Hero image */}
+              <button
+                type="button"
+                onClick={() => { setLightboxIndex(0); setLightboxOpen(true) }}
+                className="block w-full cursor-pointer overflow-hidden rounded-xl"
+              >
                 <img
-                  key={url}
-                  src={url}
+                  src={photos[0]}
                   alt={`Фото: ${listing.city}`}
-                  loading="lazy"
-                  className="aspect-square w-full rounded-xl object-cover hover:scale-[1.03] transition duration-[var(--duration-base)]"
+                  className="aspect-[4/3] w-full object-cover transition hover:scale-[1.02]"
                 />
-              ))}
+              </button>
+
+              {/* Thumbnails — only if >1 photo */}
+              {photos.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {photos.slice(1, 5).map((url, i) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => { setLightboxIndex(i + 1); setLightboxOpen(true) }}
+                      className="block cursor-pointer overflow-hidden rounded-lg"
+                    >
+                      <img
+                        src={url}
+                        alt={`Фото ${i + 2}: ${listing.city}`}
+                        loading="lazy"
+                        className="aspect-square w-full object-cover transition hover:scale-[1.03]"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -263,6 +290,15 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
           )}
 
           <ReportButton targetType="listing" targetId={listing.id} />
+
+          <PhotoLightbox
+            urls={photos}
+            index={lightboxIndex}
+            open={lightboxOpen}
+            onClose={() => setLightboxOpen(false)}
+            onIndexChange={setLightboxIndex}
+            alt={`Фото: ${listing.city}`}
+          />
         </div>
       )}
     </section>

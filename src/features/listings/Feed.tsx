@@ -3,8 +3,8 @@ import { motion } from 'motion/react'
 import type { Database } from '@/types/database'
 import type { ListingFilters } from './types'
 import { listListings, recordListingView } from './api'
-import { listCoverPaths } from '@/features/photos/photoApi'
-import { getMockPhotoUrl } from './mockPhotos'
+import { listPhotosMap } from '@/features/photos/photoApi'
+import { getMockPhotoUrls } from './mockPhotos'
 import { ListingCard } from './ListingCard'
 import { Pagination } from '@/components/Pagination'
 import { trackEvent } from '@/features/analytics/trackEvent'
@@ -49,7 +49,7 @@ export function Feed({
     ;(propsOnFiltersChange ?? setInternalFilters)(next)
   }
   const [listings, setListings] = useState<ListingRow[]>([])
-  const [covers, setCovers] = useState<Record<string, string>>({})
+  const [photoMap, setPhotoMap] = useState<Record<string, string[]>>({})
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -78,30 +78,33 @@ export function Feed({
 
   useEffect(() => {
     if (listings.length === 0) {
-      setCovers({})
+      setPhotoMap({})
       return
     }
 
     let active = true
-    const covers: Record<string, string> = {}
+    const map: Record<string, string[]> = {}
+    const realIds: string[] = []
+
     listings.forEach((listing, index) => {
       if (listing.is_mock) {
-        covers[listing.id] = getMockPhotoUrl(index)
+        map[listing.id] = getMockPhotoUrls(index)
+      } else {
+        realIds.push(listing.id)
       }
     })
-    const ids = listings
-      .filter((listing) => !listing.is_mock)
-      .map((listing) => listing.id)
-    if (ids.length === 0) {
-      setCovers(covers)
+
+    if (realIds.length === 0) {
+      setPhotoMap(map)
       return
     }
-    listCoverPaths(ids).then((result) => {
+
+    listPhotosMap(realIds).then((result) => {
       if (!active) return
       if (result.data) {
-        Object.assign(covers, result.data)
+        Object.assign(map, result.data)
       }
-      setCovers(covers)
+      setPhotoMap(map)
     })
 
     return () => {
@@ -255,7 +258,7 @@ export function Feed({
               >
                 <ListingCard
                   listing={listing}
-                  coverPath={covers[listing.id]}
+                  photoUrls={photoMap[listing.id]}
                   onOpen={handleOpen}
                 />
               </motion.div>

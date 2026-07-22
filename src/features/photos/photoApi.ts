@@ -123,6 +123,42 @@ export async function listCoverPaths(
   return { data: covers, error: null }
 }
 
+/**
+ * Batch-fetch ALL photo paths for multiple listings.
+ * Returns a map of listing_id → array of public URLs (ordered by sort_order).
+ * Unlike listCoverPaths which only returns the first photo per listing.
+ */
+export async function listPhotosMap(
+  listingIds: string[],
+): Promise<PhotoApiResult<Record<string, string[]>>> {
+  if (listingIds.length === 0) {
+    return { data: {}, error: null }
+  }
+
+  const supabase = getSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('listing_images')
+    .select('listing_id, path')
+    .in('listing_id', listingIds)
+    .order('sort_order', { ascending: true })
+
+  if (error) {
+    return { data: null, error: error.message }
+  }
+
+  const rows = data as Array<{ listing_id: string; path: string }>
+  const map: Record<string, string[]> = {}
+  for (const row of rows) {
+    if (!map[row.listing_id]) {
+      map[row.listing_id] = []
+    }
+    map[row.listing_id].push(getPublicUrl(row.path))
+  }
+
+  return { data: map, error: null }
+}
+
 export async function removePhoto(
   imageId: string,
   path: string,
