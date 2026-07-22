@@ -8,7 +8,7 @@ import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
 import { MapView } from './MapView'
 import { PhotoCarousel } from './PhotoCarousel'
-import { ImageIcon, ArrowUpRight, MapPin, AlertTriangle } from 'lucide-react'
+import { ImageIcon, ArrowUpRight, ArrowLeft, MapPin, AlertTriangle } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -111,9 +111,10 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
       <button
         type="button"
         onClick={onBack}
-        className="text-sm font-medium text-primary hover:underline"
+        className="group inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-all duration-300 hover:bg-primary/20 hover:pl-3"
       >
-        ← Назад
+        <ArrowLeft className="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" />
+        Назад
       </button>
 
       {loading && <p className="text-sm text-muted-foreground">Загрузка…</p>}
@@ -145,47 +146,47 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
                 {/* Dark overlay panel — overlapping bottom */}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3 sm:p-5">
-                  <div className="pointer-events-auto rounded-2xl border border-white/10 bg-black/85 p-4 shadow-2xl sm:p-5">
+                  <div className="pointer-events-auto rounded-2xl bg-black/90 p-4 shadow-2xl sm:p-5" style={{ color: '#fff' }}>
                     {/* Badges row */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
                           listing.type === 'offer'
-                            ? 'border border-lime-400/30 bg-lime-400/20 text-lime-300'
-                            : 'border border-purple-400/30 bg-purple-400/20 text-purple-300'
+                            ? 'bg-lime-400/20 text-lime-300'
+                            : 'bg-purple-400/20 text-purple-300'
                         }`}
                       >
                         {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
                       </span>
                       {listing.is_mock && (
-                        <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                        <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold" style={{ color: '#fff' }}>
                           MOCK
                         </span>
                       )}
                       {listing.promoted_until && new Date(listing.promoted_until) > new Date() && (
-                        <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/20 px-3 py-1 text-xs font-semibold text-amber-300">
+                        <span className="inline-flex items-center rounded-full bg-amber-400/20 px-3 py-1 text-xs font-semibold text-amber-300">
                           Продвигается
                         </span>
                       )}
                     </div>
 
                     {/* City + rooms/area */}
-                    <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)] sm:mt-3 sm:text-3xl">
+                    <h1 className="mt-2 font-display text-2xl font-bold tracking-tight sm:mt-3 sm:text-3xl" style={{ color: '#fff' }}>
                       {listing.city}
                     </h1>
-                    <p className="mt-1 text-sm font-medium text-white/90 [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">
+                    <p className="mt-1 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.9)' }}>
                       {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
                       {listing.area ? `, ${listing.area} м²` : ''}
                     </p>
 
                     {/* Price */}
-                    <p className="mt-2 font-display text-xl font-bold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)] sm:text-2xl">
-                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal text-white/70">/мес.</span>
+                    <p className="mt-2 font-display text-xl font-bold sm:text-2xl" style={{ color: '#fff' }}>
+                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal" style={{ color: 'rgba(255,255,255,0.7)' }}>/мес.</span>
                     </p>
 
                     {/* Description — truncated in overlay */}
                     {listing.description && (
-                      <p className="mt-2 line-clamp-2 text-sm text-white/80 [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">
+                      <p className="mt-2 line-clamp-2 text-sm" style={{ color: 'rgba(255,255,255,0.8)' }}>
                         {listing.description}
                       </p>
                     )}
@@ -231,7 +232,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
             {/* Description — wide tile */}
             {listing.description && (
-              <div className="surface-elevated rounded-2xl border border-border-muted bg-surface p-6 sm:col-span-2">
+              <div className="surface-elevated rounded-2xl bg-surface p-6 sm:col-span-2">
                 <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Описание</p>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                   {listing.description}
@@ -241,7 +242,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
             {/* Address */}
             {listing.address && (
-              <div className="surface-elevated flex items-start gap-3 rounded-2xl border border-border-muted bg-surface p-5">
+              <div className="surface-elevated flex items-start gap-3 rounded-2xl bg-surface p-5">
                 <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
                   <MapPin className="h-4 w-4 text-primary" />
                 </div>
@@ -254,7 +255,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
             {/* Map */}
             {listing.lat !== null && listing.lng !== null && (
-              <div className="overflow-hidden rounded-2xl border border-border-muted shadow-md sm:col-span-2 lg:col-span-2">
+              <div className="overflow-hidden rounded-2xl shadow-md sm:col-span-2 lg:col-span-2">
                 <div className="bg-surface px-4 py-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">На карте</p>
                 </div>
@@ -282,14 +283,14 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
             {/* Owner: Boost */}
             {user && listing.author_id === user.id && (
-              <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-6 transition-all duration-300 hover:shadow-lg">
                 <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-primary/5 transition-all duration-500 group-hover:scale-125" />
                 <p className="relative text-xs font-medium uppercase tracking-wide text-muted-foreground">Управление</p>
                 <button
                   type="button"
                   onClick={handleBoost}
                   disabled={boosting}
-                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-bold text-primary transition-all duration-300 hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary/10 px-6 py-3 text-sm font-bold text-primary transition-all duration-300 hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                 >
                   {boosting
                     ? 'Поднимаем…'
@@ -303,7 +304,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
             )}
 
             {/* Report — muted */}
-            <div className="flex items-center justify-between rounded-2xl border border-border-muted bg-muted/20 p-5 transition-all duration-300 hover:border-border-muted/80 hover:bg-muted/30">
+            <div className="flex items-center justify-between rounded-2xl bg-muted/20 p-5 transition-all duration-300 hover:bg-muted/30">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50">
                   <AlertTriangle className="h-4 w-4 text-red-500" />
