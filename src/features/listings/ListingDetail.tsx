@@ -8,7 +8,7 @@ import { openOrCreateChat } from '@/features/chat/chatApi'
 import { ReportButton } from '@/features/reports/ReportButton'
 import { MapView } from './MapView'
 import { PhotoCarousel } from './PhotoCarousel'
-import { ImageIcon, ArrowUpRight } from 'lucide-react'
+import { ImageIcon, ArrowUpRight, MapPin, AlertTriangle } from 'lucide-react'
 import type { Database } from '@/types/database'
 
 type ListingRow = Database['public']['Tables']['listings']['Row']
@@ -140,7 +140,7 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                   urls={photos}
                   alt={`Фото: ${listing.city}`}
                   onImageClick={(i) => { setLightboxIndex(i); setLightboxOpen(true) }}
-                  className="min-h-[50vh] sm:min-h-[55vh]"
+                  className="aspect-[9/16] sm:aspect-[16/9]"
                 />
 
                 {/* Dark overlay panel — overlapping bottom */}
@@ -203,34 +203,37 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
           {/* Bento Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Stats: Rooms */}
-            <div className="surface-elevated rounded-2xl bg-muted/50 p-5">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Комнаты</p>
-              <p className="mt-1 font-display text-xl font-semibold text-foreground">
+            <div className="surface-elevated group relative overflow-hidden rounded-2xl bg-gradient-to-br from-muted/80 to-muted/40 p-5 transition-all duration-300 hover:shadow-lg">
+              <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-primary/5 transition-all duration-500 group-hover:scale-150" />
+              <p className="relative text-xs font-medium uppercase tracking-wide text-muted-foreground">Комнаты</p>
+              <p className="relative mt-2 font-display text-2xl font-bold text-foreground">
                 {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
               </p>
             </div>
 
             {/* Stats: Area */}
             {listing.area && (
-              <div className="surface-elevated rounded-2xl bg-muted/50 p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Площадь</p>
-                <p className="mt-1 font-display text-xl font-semibold text-foreground">{listing.area} м²</p>
+              <div className="surface-elevated group relative overflow-hidden rounded-2xl bg-gradient-to-br from-muted/80 to-muted/40 p-5 transition-all duration-300 hover:shadow-lg">
+                <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-secondary/5 transition-all duration-500 group-hover:scale-150" />
+                <p className="relative text-xs font-medium uppercase tracking-wide text-muted-foreground">Площадь</p>
+                <p className="relative mt-2 font-display text-2xl font-bold text-foreground">{listing.area} <span className="text-lg font-medium text-muted-foreground">м²</span></p>
               </div>
             )}
 
             {/* Price Accent Tile */}
-            <div className="rounded-2xl bg-secondary p-5 text-secondary-foreground">
-              <p className="text-xs font-medium uppercase tracking-wide opacity-80">Цена</p>
-              <p className="mt-1 font-display text-2xl font-bold">
-                {formatPrice(listing.price)} ₽<span className="text-sm font-normal opacity-80">/мес.</span>
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary to-secondary/80 p-5 text-secondary-foreground shadow-md transition-all duration-300 hover:shadow-xl">
+              <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-white/10 transition-all duration-500 group-hover:scale-125" />
+              <p className="relative text-xs font-medium uppercase tracking-wide opacity-70">Цена</p>
+              <p className="relative mt-2 font-display text-3xl font-bold">
+                {formatPrice(listing.price)} <span className="text-lg font-medium opacity-70">₽/мес.</span>
               </p>
             </div>
 
             {/* Description — wide tile */}
             {listing.description && (
-              <div className="surface-elevated rounded-2xl bg-surface p-5 sm:col-span-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Описание</p>
-                <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+              <div className="surface-elevated rounded-2xl border border-border-muted bg-surface p-6 sm:col-span-2">
+                <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">Описание</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                   {listing.description}
                 </p>
               </div>
@@ -238,61 +241,78 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
 
             {/* Address */}
             {listing.address && (
-              <div className="surface-elevated rounded-2xl bg-surface p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Адрес</p>
-                <p className="mt-2 text-sm text-foreground">{listing.address}</p>
+              <div className="surface-elevated flex items-start gap-3 rounded-2xl border border-border-muted bg-surface p-5">
+                <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Адрес</p>
+                  <p className="mt-1 text-sm font-medium text-foreground">{listing.address}</p>
+                </div>
               </div>
             )}
 
             {/* Map */}
             {listing.lat !== null && listing.lng !== null && (
-              <div className="overflow-hidden rounded-2xl sm:col-span-2 lg:col-span-2">
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">На карте</p>
-                <MapView lat={listing.lat} lng={listing.lng} address={listing.address} height={280} />
+              <div className="overflow-hidden rounded-2xl border border-border-muted shadow-md sm:col-span-2 lg:col-span-2">
+                <div className="bg-surface px-4 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">На карте</p>
+                </div>
+                <MapView lat={listing.lat} lng={listing.lng} address={listing.address} height={300} />
               </div>
             )}
 
             {/* CTA — primary accent */}
             {user && listing.author_id !== user.id && onStartChat && (
-              <div className="flex flex-col justify-center rounded-2xl bg-primary p-5 text-white">
-                <p className="text-xs font-medium uppercase tracking-wide opacity-80">Действие</p>
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/90 p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl">
+                <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-white/5 transition-all duration-500 group-hover:scale-110" />
+                <p className="relative text-xs font-medium uppercase tracking-wide opacity-70">Связаться</p>
                 <button
                   type="button"
                   onClick={handleStartChat}
                   disabled={chatLoading}
-                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/20 px-5 py-2.5 text-sm font-semibold backdrop-blur-sm transition hover:bg-white/30 disabled:opacity-50"
+                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/20 px-6 py-3 text-sm font-bold backdrop-blur-sm transition-all duration-300 hover:bg-white/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                 >
                   {chatLoading ? 'Открываем диалог…' : 'Написать автору'}
-                  <ArrowUpRight className="h-4 w-4" />
+                  <ArrowUpRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </button>
-                {chatError && <p className="mt-2 text-sm text-red-300">{chatError}</p>}
+                {chatError && <p className="relative mt-3 text-sm text-red-200">{chatError}</p>}
               </div>
             )}
 
             {/* Owner: Boost */}
             {user && listing.author_id === user.id && (
-              <div className="flex flex-col justify-center rounded-2xl border border-primary/30 bg-primary/10 p-5">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Действие</p>
+              <div className="group relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-6 transition-all duration-300 hover:border-primary/40 hover:shadow-lg">
+                <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-primary/5 transition-all duration-500 group-hover:scale-125" />
+                <p className="relative text-xs font-medium uppercase tracking-wide text-muted-foreground">Управление</p>
                 <button
                   type="button"
                   onClick={handleBoost}
                   disabled={boosting}
-                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-primary/40 px-5 py-2.5 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:opacity-50"
+                  className="relative mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-6 py-3 text-sm font-bold text-primary transition-all duration-300 hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
                 >
                   {boosting
                     ? 'Поднимаем…'
                     : listing.promoted_until && new Date(listing.promoted_until) > new Date()
                       ? 'Продлить продвижение'
                       : 'Поднять объявление'}
-                  <ArrowUpRight className="h-4 w-4" />
+                  <ArrowUpRight className="h-5 w-5" />
                 </button>
-                {boostError && <p className="mt-2 text-sm text-red-600">{boostError}</p>}
+                {boostError && <p className="relative mt-3 text-sm text-red-600">{boostError}</p>}
               </div>
             )}
 
             {/* Report — muted */}
-            <div className="flex items-center justify-between rounded-2xl bg-muted/30 p-5">
-              <span className="text-sm text-muted-foreground">Что-то не так?</span>
+            <div className="flex items-center justify-between rounded-2xl border border-border-muted bg-muted/20 p-5 transition-all duration-300 hover:border-border-muted/80 hover:bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Заметили проблему?</p>
+                  <p className="text-xs text-muted-foreground">Помогите нам улучшить сервис</p>
+                </div>
+              </div>
               <ReportButton targetType="listing" targetId={listing.id} />
             </div>
           </div>
