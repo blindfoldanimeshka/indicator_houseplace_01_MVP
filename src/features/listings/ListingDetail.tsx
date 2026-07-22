@@ -144,48 +144,48 @@ export function ListingDetail({ id, onBack, onStartChat }: ListingDetailProps) {
                 />
 
                 {/* Dark overlay panel — overlapping bottom */}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-4 sm:p-6">
-                  <div className="pointer-events-auto rounded-2xl bg-black/70 p-4 backdrop-blur-md sm:p-5">
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3 sm:p-5">
+                  <div className="pointer-events-auto rounded-2xl border border-white/10 bg-black/85 p-4 shadow-2xl sm:p-5">
                     {/* Badges row */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
                           listing.type === 'offer'
-                            ? 'border border-primary/30 bg-primary/20 text-primary'
-                            : 'border border-secondary/30 bg-secondary/20 text-secondary'
+                            ? 'border border-lime-400/30 bg-lime-400/20 text-lime-300'
+                            : 'border border-purple-400/30 bg-purple-400/20 text-purple-300'
                         }`}
                       >
                         {listing.type === 'offer' ? 'Сдаётся' : 'Ищу'}
                       </span>
                       {listing.is_mock && (
-                        <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+                        <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
                           MOCK
                         </span>
                       )}
                       {listing.promoted_until && new Date(listing.promoted_until) > new Date() && (
-                        <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-xs font-semibold text-amber-700">
+                        <span className="inline-flex items-center rounded-full border border-amber-400/40 bg-amber-400/20 px-3 py-1 text-xs font-semibold text-amber-300">
                           Продвигается
                         </span>
                       )}
                     </div>
 
                     {/* City + rooms/area */}
-                    <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                    <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)] sm:mt-3 sm:text-3xl">
                       {listing.city}
                     </h1>
-                    <p className="mt-1 text-sm text-white/80">
+                    <p className="mt-1 text-sm font-medium text-white/90 [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">
                       {ROOMS_LABELS[listing.rooms] ?? listing.rooms}
                       {listing.area ? `, ${listing.area} м²` : ''}
                     </p>
 
                     {/* Price */}
-                    <p className="mt-2 font-display text-xl font-bold text-white sm:text-2xl">
-                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal text-white/60">/мес.</span>
+                    <p className="mt-2 font-display text-xl font-bold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)] sm:text-2xl">
+                      {formatPrice(listing.price)} ₽<span className="text-sm font-normal text-white/70">/мес.</span>
                     </p>
 
                     {/* Description — truncated in overlay */}
                     {listing.description && (
-                      <p className="mt-2 line-clamp-2 text-sm text-white/70">
+                      <p className="mt-2 line-clamp-2 text-sm text-white/80 [text-shadow:0_1px_3px_rgba(0,0,0,0.7)]">
                         {listing.description}
                       </p>
                     )}

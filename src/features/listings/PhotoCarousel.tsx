@@ -73,8 +73,8 @@ export function PhotoCarousel({ urls, alt, onImageClick, className = '' }: Photo
         ))}
       </div>
 
-      {/* Gradient overlay — bottom 2/5 (taller for detail view) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/40 to-transparent" />
+      {/* Gradient overlay — bottom half, stronger for text readability */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
 
       {/* Arrows — visible on hover (desktop) / always on touch */}
       {count > 1 && (
